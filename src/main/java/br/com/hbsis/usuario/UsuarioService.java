@@ -18,7 +18,6 @@ public class UsuarioService {
 
 	private final IUsuarioRepository iUsuarioRepository;
 
-
 	public UsuarioService(IUsuarioRepository iUsuarioRepository) {
 		this.iUsuarioRepository = iUsuarioRepository;
 	}

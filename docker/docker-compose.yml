@@ -1,0 +1,8 @@
+sqlserver:
+  image: microsoft/mssql-server-linux
+  hostname: sqlserver
+  environment:
+    - ACCEPT_EULA=Y
+    - SA_PASSWORD=Teste!@#
+  ports:
+    - 1433:1433

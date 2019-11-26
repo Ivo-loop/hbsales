@@ -26,11 +26,10 @@ public class FornecedorService {
         LOGGER.debug("br.com.hbsis.fornecedor: {}", FonecedoresDTO);
 
         Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(FonecedoresDTO.getId());
         fornecedor.setRazao(FonecedoresDTO.getRazao());
         fornecedor.setCnpj(FonecedoresDTO.getCnpj());
         fornecedor.setNomefan(FonecedoresDTO.getNomeFan());
-        fornecedor.setEndereco(FonecedoresDTO.getEndereço());
+        fornecedor.setEndereco(FonecedoresDTO.getEndereco());
         fornecedor.setTelefone(FonecedoresDTO.getTelefone());
         fornecedor.setEmail(FonecedoresDTO.getEmail());
 
@@ -47,25 +46,25 @@ public class FornecedorService {
         }
 
         if (StringUtils.isEmpty(fonecedoresDTO.getCnpj())) {
-            throw new IllegalArgumentException("Senha não deve ser nula/vazia");
+            throw new IllegalArgumentException("Cnpj não deve ser nula/vazia");
         }
 
         if (StringUtils.isEmpty(fonecedoresDTO.getRazao())) {
-            throw new IllegalArgumentException("Login não deve ser nulo/vazio");
+            throw new IllegalArgumentException("Razao não deve ser nulo/vazio");
         }
         if (StringUtils.isEmpty(fonecedoresDTO.getEmail())) {
-            throw new IllegalArgumentException("Senha não deve ser nula/vazia");
+            throw new IllegalArgumentException("email não deve ser nula/vazia");
         }
 
-        if (StringUtils.isEmpty(fonecedoresDTO.getEndereço())) {
-            throw new IllegalArgumentException("Login não deve ser nulo/vazio");
+        if (StringUtils.isEmpty(fonecedoresDTO.getEndereco())) {
+            throw new IllegalArgumentException("endereço não deve ser nulo/vazio");
         }
         if (StringUtils.isEmpty(fonecedoresDTO.getNomeFan())) {
-            throw new IllegalArgumentException("Senha não deve ser nula/vazia");
+            throw new IllegalArgumentException("nome fantasia não deve ser nula/vazia");
         }
 
         if (StringUtils.isEmpty(fonecedoresDTO.getTelefone())) {
-            throw new IllegalArgumentException("Login não deve ser nulo/vazio");
+            throw new IllegalArgumentException("telefone não deve ser nulo/vazio");
         }
 
     }
@@ -94,7 +93,7 @@ public class FornecedorService {
             fornecedorExistente.setTelefone(fonecedoresDTO.getTelefone());
             fornecedorExistente.setRazao(fonecedoresDTO.getRazao());
             fornecedorExistente.setNomefan(fonecedoresDTO.getNomeFan());
-            fornecedorExistente.setEndereco(fonecedoresDTO.getEndereço());
+            fornecedorExistente.setEndereco(fonecedoresDTO.getEndereco());
 
             fornecedorExistente = this.iFonecedoresRepository.save(fornecedorExistente);
 

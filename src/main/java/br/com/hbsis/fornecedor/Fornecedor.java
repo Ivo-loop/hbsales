@@ -3,17 +3,17 @@ package br.com.hbsis.fornecedor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "fornecedores")
+@Table(name = "seg_fornecedores")
 public class Fornecedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(name = "razaosocial", unique = true, nullable = false, length = 100)
+    @Column(name = "razao_social", unique = true, nullable = false, length = 100)
     private String razaosocial;
     @Column(name = "cnpj", unique = true, nullable = false, length = 14)
     private String cnpj;
-    @Column(name ="nomefan", unique = true, nullable = false, length = 100)
+    @Column(name ="nome_fan", unique = true, nullable = false, length = 100)
     private String nomefan;
     @Column(name ="endereco", unique = true, nullable = false, length = 500)
     private String endereco;
@@ -52,14 +52,14 @@ public class Fornecedor {
 
     @Override
     public String toString() {
-        return "Fonecedores{" +
-                "id=" + id +
-                ", razaosocial='" + razaosocial + '\'' +
-                ", cnpj='" + cnpj + '\'' +
-                ", nomefan='" + nomefan + '\'' +
-                ", endereco='" + endereco + '\'' +
-                ", cnpj='" + telefone + '\'' +
-                ", email='" + email + '\'' +
+        return "seg_fornecedor{" +
+                "id_fornecedores =" + id +
+                ", razao_social ='" + razaosocial + '\'' +
+                ", cnpj ='" + cnpj + '\'' +
+                ", nome_fan ='" + nomefan + '\'' +
+                ", endereco ='" + endereco + '\'' +
+                ", cnpj ='" + telefone + '\'' +
+                ", email ='" + email + '\'' +
                 '}';
 
     }

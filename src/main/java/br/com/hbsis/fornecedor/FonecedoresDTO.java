@@ -9,18 +9,18 @@ public class FonecedoresDTO {
     private String razao;
     private String cnpj;
     private String nomeFan;
-    private String endereço;
+    private String endereco;
     private String telefone;
     private String email;
 
     public FonecedoresDTO(){ }
 
-    public FonecedoresDTO(Long id, String razao, String cnpj, String nomeFantasia, String endereço, String telefone, String email) {
+    public FonecedoresDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, String telefone, String email) {
         this.id = id;
         this.razao = razao;
         this.cnpj = cnpj;
         this.nomeFan = nomeFan;
-        this.endereço = endereço;
+        this.endereco = endereco;
         this.telefone = telefone;
         this.email = email;
     }
@@ -69,12 +69,12 @@ public class FonecedoresDTO {
         this.nomeFan = nomeFan;
     }
 
-    public String getEndereço() {
-        return endereço;
+    public String getEndereco() {
+        return endereco;
     }
 
-    public void setEndereço(String endereço) {
-        this.endereço = endereço;
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 
     public String getTelefone() {
@@ -96,11 +96,11 @@ public class FonecedoresDTO {
     @Override
     public String toString() {
 
-        return "Fonecedores{" +
+        return "seg_fornecedores{" +
                 "id=" + id +
                 ", nome='" + nome + '\'' +
                 ", nomefan='" + nomeFan + '\'' +
-                ", cnpj='" + endereço + '\'' +
+                ", cnpj='" + endereco + '\'' +
                 ", cnpj='" + telefone + '\'' +
                 ", email='" + email + '\'' +
                 '}';

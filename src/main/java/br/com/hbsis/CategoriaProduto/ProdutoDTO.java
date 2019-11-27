@@ -6,20 +6,26 @@ public class ProdutoDTO {
     private long id;
     private String nomeProduto;
     private String codProduto;
-    private Fornecedor id_produto_fornecedor;
+    private Long id_produto_fornecedor;
 
 
     public ProdutoDTO(){
     }
 
-    public ProdutoDTO(long id, String nome, String codProduto, Fornecedor id_produto_fornecedor){
+    public ProdutoDTO(long id, String nome, String codProduto, Long id_produto_fornecedor){
         this.id = id;
         this.nomeProduto = nome;
         this.codProduto = codProduto;
         this.id_produto_fornecedor = id_produto_fornecedor;
     }
 
+    public ProdutoDTO(long id, String nomeProduto, String codProduto, Fornecedor id_produto_fornecedor) {
+    }
 
+    public Long getId_produto_fornecedor() { return id_produto_fornecedor; }
+
+    public void setId_produto_fornecedor(Long id_produto_fornecedor) {
+        this.id_produto_fornecedor = id_produto_fornecedor; }
 
     public long getId() {
         return id;

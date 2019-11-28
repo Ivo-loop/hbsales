@@ -8,7 +8,7 @@ public class Fornecedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name = "razao_social", unique = true, nullable = false, length = 100)
     private String razaosocial;
     @Column(name = "cnpj", unique = true, nullable = false, length = 14)
@@ -29,8 +29,8 @@ public class Fornecedor {
     }
 
 
-    public long getId() { return id; }
-    public void setId(long id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getRazao() { return razaosocial; }
     public void setRazao(String nome) { this.razaosocial = nome; }
@@ -58,7 +58,7 @@ public class Fornecedor {
                 ", cnpj ='" + cnpj + '\'' +
                 ", nome_fan ='" + nomefan + '\'' +
                 ", endereco ='" + endereco + '\'' +
-                ", cnpj ='" + telefone + '\'' +
+                ", telefone ='" + telefone + '\'' +
                 ", email ='" + email + '\'' +
                 '}';
 

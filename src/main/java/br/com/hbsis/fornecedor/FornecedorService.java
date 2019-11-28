@@ -35,6 +35,7 @@ public class FornecedorService {
 
         fornecedor = this.iFonecedoresRepository.save(fornecedor);
 
+        //Retorna para o postman
         return FonecedoresDTO.of(fornecedor);
     }
 

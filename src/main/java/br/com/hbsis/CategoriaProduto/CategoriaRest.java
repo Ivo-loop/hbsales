@@ -11,30 +11,27 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 
 
 @RestController
-@RequestMapping("/Produto")
-public class ProdutoRest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoRest.class);
+@RequestMapping("/Categoria")
+public class CategoriaRest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaRest.class);
 
-    private final ProdutoService produtoService;
+    private final CategoriaService categoriaService;
 
     @Autowired
-    public ProdutoRest(ProdutoService produtoService) {
-        this.produtoService = produtoService;
+    public CategoriaRest(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
     }
 
     @PostMapping("/save")
-    public ProdutoDTO save(@RequestBody ProdutoDTO produtoDTO) {
+    public CategoriaDTO save(@RequestBody CategoriaDTO categoriaDTO) {
         LOGGER.info("Recebendo solicitação de persistência de Fornecedor...");
-        LOGGER.debug("Payaload: {}", produtoDTO);
+        LOGGER.debug("Payaload: {}", categoriaDTO);
 
-        return this.produtoService.save(produtoDTO);
+        return this.categoriaService.save(categoriaDTO);
     }
 
     @GetMapping("/export-csv-categorias")
@@ -47,48 +44,40 @@ public class ProdutoRest {
 
         PrintWriter writer = response.getWriter();
 
-        ICSVWriter csvWriter = new CSVWriterBuilder(writer)
-                .withSeparator(';')
+        ICSVWriter csvWriter = new CSVWriterBuilder(writer).withSeparator(';')
                 .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(CSVWriter.DEFAULT_LINE_END)
-                .build();
-        String headerCSV[] = {"id_categoria","nome_categoria", "id_fornecedor"};
-        csvWriter.writeNext(headerCSV);
+                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
 
-        for (Produto linha : produtoService.findAll()) {
-            csvWriter.writeNext(new String[] {String.valueOf(linha.getId()), linha.getNomeProduto(), String.valueOf(linha.getId_produto_fornecedor().getId())});
+        for (Categoria linha : categoriaService.findAll()) {
+            csvWriter.writeNext(new String[] {String.valueOf(linha.getId()), linha.getNomeCategoria(), String.valueOf(linha.getFornecedor().getId())});
         }
 
     }
     @PostMapping("/import-csv-categorias")
     public void importCSV(@RequestParam("file") MultipartFile file) throws Exception {
-
-        Reader reader = Files.newBufferedReader(Paths.get("C:\\hbsales\\categorias.csv"));
-        produtoService.saveAll(produtoService.readAll(reader));
+        categoriaService.readAll(file);
     }
 
     @GetMapping("/{id}")
-    public ProdutoDTO find(@PathVariable("id") Long id) {
+    public CategoriaDTO find(@PathVariable("id") Long id) {
 
         LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
-        return this.produtoService.findById(id);
+        return this.categoriaService.findById(id);
     }
 
     @PutMapping("/{id}")
-    public ProdutoDTO udpate(@PathVariable("id") Long id, @RequestBody ProdutoDTO fonecedoresDTO) {
+    public CategoriaDTO udpate(@PathVariable("id") Long id, @RequestBody CategoriaDTO fonecedoresDTO) {
         LOGGER.info("Recebendo Update para Fornecedor de ID: {}", id);
         LOGGER.debug("Payload: {}", fonecedoresDTO);
 
-        return this.produtoService.update(fonecedoresDTO, id);
+        return this.categoriaService.update(fonecedoresDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         LOGGER.info("Recebendo Delete para Fornecedor de ID: {}", id);
 
-        this.produtoService.delete(id);
+        this.categoriaService.delete(id);
     }
-
-
 }

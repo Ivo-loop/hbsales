@@ -4,7 +4,7 @@ CREATE TABLE seg_Linhas
     nome_Linhas         VARCHAR(10) NOT NULL,
     cod_Linhas          VARCHAR(100)    NULL,
     id_Linhas_Categoria  BIGINT
-    FOREIGN KEY REFERENCES seg_fornecedores (id),
+    FOREIGN KEY REFERENCES seg_categoria (id),
 
 
 );

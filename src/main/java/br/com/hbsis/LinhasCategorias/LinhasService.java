@@ -40,6 +40,15 @@ public class LinhasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Linhas findBylinhasId(Long id) {
+        Optional<Linhas> CategoriaOptional = this.iLinhasRepository.findById(id);
+
+        if (CategoriaOptional.isPresent()) {
+            return CategoriaOptional.get();
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     public List<Linhas> findAll() {
         return iLinhasRepository.findAll();
     }

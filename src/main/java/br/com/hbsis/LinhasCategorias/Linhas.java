@@ -3,12 +3,10 @@ package br.com.hbsis.LinhasCategorias;
 import br.com.hbsis.CategoriaProduto.Categoria;
 
 import javax.persistence.*;
-import br.com.hbsis.CategoriaProduto.Categoria;
 
 @Entity
 @Table(name = "seg_Linhas")
 public class Linhas {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,7 +54,7 @@ public class Linhas {
 
     @Override
     public String toString() {
-        return "seg_categoria{" +
+        return "seg_Linhas{" +
                 "id = " + id +
                 "nome_Linhas = '" + nomeLinhas + '\'' +
                 "cod_Linhas = " + codLinhas +

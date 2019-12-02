@@ -4,7 +4,6 @@ package br.com.hbsis.CategoriaProduto;
 import br.com.hbsis.fornecedor.FonecedoresDTO;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.fornecedor.IFornecedoresRepository;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import org.apache.commons.lang.StringUtils;
@@ -23,13 +22,11 @@ import java.util.Optional;
 public class CategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
     private final ICategoriaRepository iCategoriaRepository;
-    private final IFornecedoresRepository iFornecedorRepository;
     private final FornecedorService fornecedorService;
 
     @Autowired
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, IFornecedoresRepository iFornecedorRepository, FornecedorService fornecedorService) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService) {
         this.iCategoriaRepository = iCategoriaRepository;
-        this.iFornecedorRepository = iFornecedorRepository;
         this.fornecedorService = fornecedorService;
     }
 
@@ -37,17 +34,35 @@ public class CategoriaService {
         return iCategoriaRepository.findAll();
     }
 
+    public CategoriaDTO findById(Long id) {
+        Optional<Categoria> CategoriaOpcional = this.iCategoriaRepository.findById(id);
+
+        if (CategoriaOpcional.isPresent()) {
+            return CategoriaDTO.OF(CategoriaOpcional.get());
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public Categoria findByCategoriaId(Long id) {
+        Optional<Categoria> CategoriaOptional = this.iCategoriaRepository.findById(id);
+
+        if (CategoriaOptional.isPresent()) {
+            return CategoriaOptional.get();
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     public List<Categoria> readAll(MultipartFile file) throws Exception {
-        CategoriaDTO categoriaDTO = new CategoriaDTO();
         InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
+        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(0).build();
 
         List<String[]> linhas = csvReader.readAll();
         List<Categoria> resultadoLeitura = new ArrayList<>();
 
-        for(String[] l : linhas) {
+        for (String[] l : linhas) {
             try {
-                String[] bean = l[0].replaceAll("\"","").split(";");
+                String[] bean = l[0].replaceAll("\"", "").split(";");
 
                 Categoria categoria = new Categoria();
                 Fornecedor fornecedor = new Fornecedor();
@@ -67,7 +82,7 @@ public class CategoriaService {
                 categoria.setFornecedor(fornecedor);
 
                 resultadoLeitura.add(categoria);
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -76,7 +91,6 @@ public class CategoriaService {
 
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
         this.validate(categoriaDTO);
-        Fornecedor findByFornecedorId = fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor());
 
         LOGGER.info("\"Salvando br.com.hbsis.Categoria");
         LOGGER.debug("br.com.hbsis.Categoria: {}", categoriaDTO);
@@ -89,7 +103,7 @@ public class CategoriaService {
 
         //Retorna para o postman
         Categoria save = this.iCategoriaRepository.save(categoria);
-        return CategoriaDTO.of(save);
+        return CategoriaDTO.OF(save);
     }
 
     private void validate(CategoriaDTO CategoriaDTO) {
@@ -108,32 +122,22 @@ public class CategoriaService {
 
     }
 
-    public CategoriaDTO findById(Long id) {
-        Optional<Categoria> CategoriaOpcional = this.iCategoriaRepository.findById(id);
-
-        if (CategoriaOpcional.isPresent()) {
-            return CategoriaDTO.of(CategoriaOpcional.get());
-        }
-
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
-    public CategoriaDTO update(CategoriaDTO fonecedoresDTO, Long id) {
+    public CategoriaDTO update(CategoriaDTO CategoriaDTO, Long id) {
         Optional<Categoria> CategoriaExistencialOpcional = this.iCategoriaRepository.findById(id);
 
         if (CategoriaExistencialOpcional.isPresent()) {
             Categoria categoriaExistente = CategoriaExistencialOpcional.get();
 
-            LOGGER.info("Atualizando Fornecedor... id: [{}]", categoriaExistente.getId());
-            LOGGER.debug("Payload: {}", fonecedoresDTO);
-            LOGGER.debug("Fornecedor Existente: {}", categoriaExistente);
+            LOGGER.info("Atualizando Categoria... id: [{}]", categoriaExistente.getId());
+            LOGGER.debug("Payload: {}", CategoriaDTO);
+            LOGGER.debug("Categoria Existente: {}", categoriaExistente);
 
-            categoriaExistente.setNomeCategoria(fonecedoresDTO.getNomeCategoria());
+            categoriaExistente.setNomeCategoria(CategoriaDTO.getNomeCategoria());
 
 
             categoriaExistente = this.iCategoriaRepository.save(categoriaExistente);
 
-            return CategoriaDTO.of(categoriaExistente);
+            return CategoriaDTO.OF(categoriaExistente);
         }
 
 
@@ -141,7 +145,7 @@ public class CategoriaService {
     }
 
     public void delete(Long id) {
-        LOGGER.info("Executando delete para Fornecedor de ID: [{}]", id);
+        LOGGER.info("Executando delete para Categoria de ID: [{}]", id);
 
         this.iCategoriaRepository.deleteById(id);
     }
@@ -150,12 +154,6 @@ public class CategoriaService {
         List<Categoria> categorias = new ArrayList<>();
         categorias = this.iCategoriaRepository.findAll();
         return categorias;
-    }
-
-    public List<Fornecedor> listarForne() {
-        List<Fornecedor> fornecedores = new ArrayList<>();
-        fornecedores = this.iFornecedorRepository.findAll();
-        return fornecedores;
     }
 
 }

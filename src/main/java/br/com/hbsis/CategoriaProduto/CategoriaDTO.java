@@ -6,16 +6,23 @@ public class CategoriaDTO {
     private String codCategoria;
     private Long idCategoriaFornecedor;
 
-    public CategoriaDTO(){
+    public CategoriaDTO() {
     }
 
     public CategoriaDTO(Long id, String nomeCategoria, String codCategoria, Long idCategoriaFornecedor) {
+        this.id = id;
+        this.nomeCategoria = nomeCategoria;
+        this.codCategoria = codCategoria;
+        this.idCategoriaFornecedor = idCategoriaFornecedor;
     }
 
-    public long getIdCategoriaFornecedor() { return idCategoriaFornecedor; }
+    public long getIdCategoriaFornecedor() {
+        return idCategoriaFornecedor;
+    }
 
-    public void setIdCategoriaFornecedor(long idCategoriaFornecedor) {
-        this.idCategoriaFornecedor = idCategoriaFornecedor; }
+    public void setIdCategoriaFornecedor(Long idCategoriaFornecedor) {
+        this.idCategoriaFornecedor = idCategoriaFornecedor;
+    }
 
     public long getId() {
         return id;
@@ -33,11 +40,15 @@ public class CategoriaDTO {
         this.nomeCategoria = nome;
     }
 
-    public String getCodCategoria() { return codCategoria; }
+    public String getCodCategoria() {
+        return codCategoria;
+    }
 
-    public void setCodCategoria(String cod) { this.codCategoria = cod; }
+    public void setCodCategoria(String cod) {
+        this.codCategoria = cod;
+    }
 
-    public static CategoriaDTO of(Categoria categoria){
+    public static CategoriaDTO OF(Categoria categoria) {
         return new CategoriaDTO(
                 categoria.getId(),
                 categoria.getNomeCategoria(),
@@ -47,11 +58,11 @@ public class CategoriaDTO {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "seg_categoria{" +
-                "id = "+id+
-                "nome_categoria = '"+ nomeCategoria +'\''+
-                "cod_categoria = "+ codCategoria +
-                "id_categoria_fornecedor = "+ idCategoriaFornecedor +'}';
+                "id = " + id +
+                "nome_categoria = '" + nomeCategoria + '\'' +
+                "cod_categoria = " + codCategoria +
+                "id_categoria_fornecedor = " + idCategoriaFornecedor + '}';
     }
 }

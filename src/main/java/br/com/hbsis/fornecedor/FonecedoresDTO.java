@@ -1,8 +1,6 @@
 package br.com.hbsis.fornecedor;
 
 
-import br.com.hbsis.fornecedor.Fornecedor;
-
 public class FonecedoresDTO {
     private Long id;
     private String nome;
@@ -13,7 +11,8 @@ public class FonecedoresDTO {
     private String telefone;
     private String email;
 
-    public FonecedoresDTO(){ }
+    public FonecedoresDTO() {
+    }
 
     public FonecedoresDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, String telefone, String email) {
         this.id = id;
@@ -25,7 +24,7 @@ public class FonecedoresDTO {
         this.email = email;
     }
 
-    public static FonecedoresDTO of(Fornecedor fornecedor){
+    public static FonecedoresDTO OF(Fornecedor fornecedor) {
         return new FonecedoresDTO(
                 fornecedor.getId(),
                 fornecedor.getRazao(),

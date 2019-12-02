@@ -1,10 +1,13 @@
 package br.com.hbsis.fornecedor;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -16,6 +19,26 @@ public class FornecedorService {
     @Autowired
     public FornecedorService(IFornecedoresRepository iFonecedoresRepository) {
         this.iFonecedoresRepository = iFonecedoresRepository;
+    }
+
+    public FonecedoresDTO findById(Long id) {
+        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
+
+        if (fornecedorOptional.isPresent()) {
+            return FonecedoresDTO.OF(fornecedorOptional.get());
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public Fornecedor findByFornecedorId(Long id) {
+        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
+
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
     public FonecedoresDTO save(FonecedoresDTO FonecedoresDTO) {
@@ -36,7 +59,7 @@ public class FornecedorService {
         fornecedor = this.iFonecedoresRepository.save(fornecedor);
 
         //Retorna para o postman
-        return FonecedoresDTO.of(fornecedor);
+        return FonecedoresDTO.OF(fornecedor);
     }
 
     private void validate(FonecedoresDTO fonecedoresDTO) {
@@ -69,25 +92,6 @@ public class FornecedorService {
         }
 
     }
-    public FonecedoresDTO findById(Long id) {
-        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
-
-        if (fornecedorOptional.isPresent()) {
-            return FonecedoresDTO.of(fornecedorOptional.get());
-        }
-
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
-    public Fornecedor findByFornecedorId(Long id) {
-        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
-
-        if (fornecedorOptional.isPresent()) {
-            return fornecedorOptional.get();
-        }
-
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
 
     public FonecedoresDTO update(FonecedoresDTO fonecedoresDTO, Long id) {
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFonecedoresRepository.findById(id);
@@ -108,7 +112,7 @@ public class FornecedorService {
 
             fornecedorExistente = this.iFonecedoresRepository.save(fornecedorExistente);
 
-            return FonecedoresDTO.of(fornecedorExistente);
+            return FonecedoresDTO.OF(fornecedorExistente);
         }
 
 
@@ -120,4 +124,11 @@ public class FornecedorService {
 
         this.iFonecedoresRepository.deleteById(id);
     }
+
+    public List<Fornecedor> listarForne() {
+        List<Fornecedor> fornecedores = new ArrayList<>();
+        fornecedores = this.iFonecedoresRepository.findAll();
+        return fornecedores;
+    }
+
 }

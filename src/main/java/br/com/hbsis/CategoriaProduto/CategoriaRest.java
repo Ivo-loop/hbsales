@@ -28,7 +28,7 @@ public class CategoriaRest {
 
     @PostMapping("/save")
     public CategoriaDTO save(@RequestBody CategoriaDTO categoriaDTO) {
-        LOGGER.info("Recebendo solicitação de persistência de Fornecedor...");
+        LOGGER.info("Recebendo solicitação de persistência de categoria...");
         LOGGER.debug("Payaload: {}", categoriaDTO);
 
         return this.categoriaService.save(categoriaDTO);
@@ -67,16 +67,16 @@ public class CategoriaRest {
     }
 
     @PutMapping("/{id}")
-    public CategoriaDTO udpate(@PathVariable("id") Long id, @RequestBody CategoriaDTO fonecedoresDTO) {
-        LOGGER.info("Recebendo Update para Fornecedor de ID: {}", id);
-        LOGGER.debug("Payload: {}", fonecedoresDTO);
+    public CategoriaDTO udpate(@PathVariable("id") Long id, @RequestBody CategoriaDTO categoriaDTO) {
+        LOGGER.info("Recebendo Update para Categoria de ID: {}", id);
+        LOGGER.debug("Payload: {}", categoriaDTO);
 
-        return this.categoriaService.update(fonecedoresDTO, id);
+        return this.categoriaService.update(categoriaDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
-        LOGGER.info("Recebendo Delete para Fornecedor de ID: {}", id);
+        LOGGER.info("Recebendo Delete para Categoria de ID: {}", id);
 
         this.categoriaService.delete(id);
     }

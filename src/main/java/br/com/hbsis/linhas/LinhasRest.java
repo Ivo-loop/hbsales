@@ -1,20 +1,15 @@
-package br.com.hbsis.LinhasCategorias;
+package br.com.hbsis.linhas;
 
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 
 @RestController
-@RequestMapping("/Linhas")
+@RequestMapping("/linhas")
 public class LinhasRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhasRest.class);
 
@@ -25,44 +20,36 @@ public class LinhasRest {
         this.linhasService = linhasService;
     }
 
-    @PostMapping("/save")
+    @PostMapping
     public LinhasDTO save(@RequestBody LinhasDTO linhasDTO) {
         LOGGER.info("Recebendo solicitação de persistência de Linhas...");
         LOGGER.debug("Payaload: {}", linhasDTO);
 
+        //manda salva
         return this.linhasService.save(linhasDTO);
     }
 
-    @GetMapping("/export-csv-linhas")
+    @GetMapping("/export-csv")
     public void exportCSV(HttpServletResponse response) throws Exception {
-        String nomearquivo = "linhas.csv";
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + nomearquivo + "\"");
+        LOGGER.info("Recebendo solicitação de exportacao de Linhas...");
 
-
-        PrintWriter writer = response.getWriter();
-
-        ICSVWriter csvWriter = new CSVWriterBuilder(writer).withSeparator(';')
-                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-        for (Linhas linhas : linhasService.findAll()) {
-            csvWriter.writeNext(new String[]{String.valueOf(linhas.getId()), linhas.getNomeLinhas(), String.valueOf(linhas.getCategoria().getId())});
-        }
-
+        //manda exporta
+        linhasService.exportCSV(response);
     }
 
-    @PostMapping("/import-csv-linhas")
+    @PostMapping("/import-csv")
     public void importCSV(@RequestParam("file") MultipartFile file) throws Exception {
+        LOGGER.info("Recebendo solicitação de importacao de Linhas...");
+
+        //manda importa
         linhasService.readAll(file);
     }
 
     @GetMapping("/{id}")
     public LinhasDTO find(@PathVariable("id") Long id) {
-
         LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
+        //manda buscar
         return this.linhasService.findById(id);
     }
 
@@ -71,6 +58,7 @@ public class LinhasRest {
         LOGGER.info("Recebendo Update para linhas de ID: {}", id);
         LOGGER.debug("Payload: {}", linhasDTO);
 
+        //manda alterar
         return this.linhasService.update(linhasDTO, id);
     }
 
@@ -78,6 +66,7 @@ public class LinhasRest {
     public void delete(@PathVariable("id") Long id) {
         LOGGER.info("Recebendo Delete para linhas de ID: {}", id);
 
+        //manda sumi com o individuo mal intencionado
         this.linhasService.delete(id);
     }
 }

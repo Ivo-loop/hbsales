@@ -1,0 +1,1 @@
+ALTER TABLE "dbo"."seg_Linhas" alter column  nome_Linhas         VARCHAR(150) NOT NULL;

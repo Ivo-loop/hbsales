@@ -1,0 +1,1 @@
+ALTER TABLE seg_produtos alter column  preco_produto   Decimal(10,2) NOT NULL;

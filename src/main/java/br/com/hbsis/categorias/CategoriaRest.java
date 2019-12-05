@@ -1,21 +1,16 @@
-package br.com.hbsis.CategoriaProduto;
+package br.com.hbsis.categorias;
 
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
 
 
 @RestController
-@RequestMapping("/Categoria")
+@RequestMapping("/categoria")
 public class CategoriaRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaRest.class);
 
@@ -26,43 +21,36 @@ public class CategoriaRest {
         this.categoriaService = categoriaService;
     }
 
-    @PostMapping("/save")
+    @PostMapping
     public CategoriaDTO save(@RequestBody CategoriaDTO categoriaDTO) {
         LOGGER.info("Recebendo solicitação de persistência de categoria...");
         LOGGER.debug("Payaload: {}", categoriaDTO);
 
+        //manda salva
         return this.categoriaService.save(categoriaDTO);
     }
 
-    @GetMapping("/export-csv-categorias")
+    @GetMapping("/export-csv")
     public void exportCSV(HttpServletResponse response) throws Exception {
-        String nomearquivo = "categorias.csv";
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + nomearquivo + "\"");
+        LOGGER.info("Recebendo solicitação de exportacao de categoria...");
 
-
-        PrintWriter writer = response.getWriter();
-
-        ICSVWriter csvWriter = new CSVWriterBuilder(writer).withSeparator(';')
-                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-        for (Categoria linha : categoriaService.findAll()) {
-            csvWriter.writeNext(new String[] {String.valueOf(linha.getId()), linha.getNomeCategoria(), String.valueOf(linha.getFornecedor().getId())});
-        }
-
+        //manda exporta
+        categoriaService.exportCSV(response);
     }
-    @PostMapping("/import-csv-categorias")
+
+    @PostMapping("/import-csv")
     public void importCSV(@RequestParam("file") MultipartFile file) throws Exception {
+        LOGGER.info("Recebendo solicitação de importacao de categoria...");
+
+        //manda ler
         categoriaService.readAll(file);
     }
 
     @GetMapping("/{id}")
     public CategoriaDTO find(@PathVariable("id") Long id) {
-
         LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
+        //manda busca
         return this.categoriaService.findById(id);
     }
 
@@ -71,6 +59,7 @@ public class CategoriaRest {
         LOGGER.info("Recebendo Update para Categoria de ID: {}", id);
         LOGGER.debug("Payload: {}", categoriaDTO);
 
+        //manda alterar
         return this.categoriaService.update(categoriaDTO, id);
     }
 
@@ -78,6 +67,7 @@ public class CategoriaRest {
     public void delete(@PathVariable("id") Long id) {
         LOGGER.info("Recebendo Delete para Categoria de ID: {}", id);
 
+        //manda apaga
         this.categoriaService.delete(id);
     }
 }

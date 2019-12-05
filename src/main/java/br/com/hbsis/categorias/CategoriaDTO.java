@@ -1,4 +1,4 @@
-package br.com.hbsis.CategoriaProduto;
+package br.com.hbsis.categorias;
 
 public class CategoriaDTO {
     private Long id;
@@ -14,6 +14,15 @@ public class CategoriaDTO {
         this.nomeCategoria = nomeCategoria;
         this.codCategoria = codCategoria;
         this.idCategoriaFornecedor = idCategoriaFornecedor;
+    }
+
+    public static CategoriaDTO of(Categoria categoria) {
+        return new CategoriaDTO(
+                categoria.getId(),
+                categoria.getNomeCategoria(),
+                categoria.getCodCategoria(),
+                categoria.getFornecedor().getId()
+        );
     }
 
     public long getIdCategoriaFornecedor() {
@@ -48,21 +57,13 @@ public class CategoriaDTO {
         this.codCategoria = cod;
     }
 
-    public static CategoriaDTO OF(Categoria categoria) {
-        return new CategoriaDTO(
-                categoria.getId(),
-                categoria.getNomeCategoria(),
-                categoria.getCodCategoria(),
-                categoria.getFornecedor().getId()
-        );
-    }
-
     @Override
     public String toString() {
-        return "seg_categoria{" +
-                "id = " + id +
-                "nome_categoria = '" + nomeCategoria + '\'' +
-                "cod_categoria = " + codCategoria +
-                "id_categoria_fornecedor = " + idCategoriaFornecedor + '}';
+        return "CategoriaDTO{" +
+                "id=" + id +
+                ", nomeCategoria='" + nomeCategoria + '\'' +
+                ", codCategoria='" + codCategoria + '\'' +
+                ", idCategoriaFornecedor=" + idCategoriaFornecedor +
+                '}';
     }
 }

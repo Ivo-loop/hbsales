@@ -1,4 +1,4 @@
-package br.com.hbsis.LinhasCategorias;
+package br.com.hbsis.linhas;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

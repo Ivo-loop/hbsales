@@ -1,6 +1,6 @@
-package br.com.hbsis.LinhasCategorias;
+package br.com.hbsis.linhas;
 
-import br.com.hbsis.CategoriaProduto.Categoria;
+import br.com.hbsis.categorias.Categoria;
 
 import javax.persistence.*;
 
@@ -51,7 +51,6 @@ public class Linhas {
         this.codLinhas = codLinhas;
     }
 
-
     @Override
     public String toString() {
         return "seg_Linhas{" +
@@ -60,6 +59,4 @@ public class Linhas {
                 "cod_Linhas = " + codLinhas +
                 "id_Linhas_Categoria = " + categoria + '}';
     }
-
-
 }

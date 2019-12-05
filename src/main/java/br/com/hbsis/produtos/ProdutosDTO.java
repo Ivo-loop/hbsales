@@ -1,4 +1,4 @@
-package br.com.hbsis.Produtos;
+package br.com.hbsis.produtos;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +22,22 @@ public class ProdutosDTO {
         this.uniPerCax = uniPerCax;
         this.pesoPerUni = pesoPerUni;
         this.validade = validade;
+    }
+
+    public ProdutosDTO() {
+    }
+
+    public static ProdutosDTO of(Produtos produtos) {
+        return new ProdutosDTO(
+                produtos.getId(),
+                produtos.getNomeProduto(),
+                produtos.getCodProdutos(),
+                produtos.getPreco(),
+                produtos.getLinhas().getId(),
+                produtos.getUniPerCax(),
+                produtos.getPesoPerUni(),
+                produtos.getValidade()
+        );
     }
 
     public Long getId() {
@@ -88,29 +104,17 @@ public class ProdutosDTO {
         this.validade = validade;
     }
 
-    public static ProdutosDTO OF(Produtos produtos) {
-        return new ProdutosDTO(
-                produtos.getId(),
-                produtos.getNomeProduto(),
-                produtos.getCodProdutos(),
-                produtos.getPreco(),
-                produtos.getLinhas().getId(),
-                produtos.getUniPerCax(),
-                produtos.getPesoPerUni(),
-                produtos.getValidade()
-        );
-    }
-
     @Override
     public String toString() {
-        return "seg_categoria{" +
-                "id = " + id +
-                "nome_Produto = '" + nomeProduto + '\'' +
-                "cod_Produto = " + codProdutos +
-                "preco_Produto = " + preco +
-                "id_Produto_Linhas = " + idProdutosLinhas +
-                "uniPerCax_Produto = " + uniPerCax +
-                "pesoPerUni_Produto = " + pesoPerUni +
-                "validade_Produto = " + validade + '}';
+        return "ProdutosDTO{" +
+                "id=" + id +
+                ", nomeProduto='" + nomeProduto + '\'' +
+                ", codProdutos='" + codProdutos + '\'' +
+                ", preco=" + preco +
+                ", idProdutosLinhas=" + idProdutosLinhas +
+                ", uniPerCax=" + uniPerCax +
+                ", pesoPerUni=" + pesoPerUni +
+                ", validade=" + validade +
+                '}';
     }
 }

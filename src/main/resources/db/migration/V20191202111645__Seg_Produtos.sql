@@ -4,7 +4,7 @@ CREATE TABLE seg_produtos
     nome_produto         VARCHAR(100) NOT NULL,
     cod_produto          VARCHAR(100)     NULL,
     preco_produto        FLOAT            NULL,
-    id_produtos_linhas  BIGINT
+    id_produtos_linhas  BIGINT        NOT NULL
     FOREIGN KEY REFERENCES seg_Linhas (id),
     unipercax_produto    FLOAT            NULL,
     pesoperuni_produto   FLOAT            NULL,

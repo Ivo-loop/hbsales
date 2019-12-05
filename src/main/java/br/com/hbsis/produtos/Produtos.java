@@ -1,10 +1,9 @@
-package br.com.hbsis.Produtos;
+package br.com.hbsis.produtos;
 
-import br.com.hbsis.LinhasCategorias.Linhas;
+import br.com.hbsis.linhas.Linhas;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "seg_produtos")
@@ -99,12 +98,12 @@ public class Produtos {
     public String toString() {
         return "seg_categoria{" +
                 "id = " + id +
-                "nome_Produto = '" + nomeProduto + '\'' +
-                "cod_Produto = " + codProdutos +
-                "preco_Produto = " + preco +
-                "id_Produto_Linhas = " + linhas +
-                "uniPerCax_Produto = " + uniPerCax +
-                "pesoPerUni_Produto = " + pesoPerUni +
-                "validade_Produto = " + validade + '}';
+                "nome_Produto = '"       + nomeProduto + '\'' +
+                "cod_Produto = "         + codProdutos +
+                "preco_Produto = "       + preco +
+                "id_Produto_Linhas = "   + linhas +
+                "uniPerCax_Produto = "   + uniPerCax +
+                "pesoPerUni_Produto = "  + pesoPerUni +
+                "validade_Produto = "    + validade + '}';
     }
 }

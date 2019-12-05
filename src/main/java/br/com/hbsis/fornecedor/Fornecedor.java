@@ -8,7 +8,7 @@ public class Fornecedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long   id;
     @Column(name = "razao_social", unique = true, nullable = false, length = 100)
     private String razaosocial;
     @Column(name = "cnpj", unique = true, nullable = false, length = 14)
@@ -22,12 +22,18 @@ public class Fornecedor {
     @Column(name = "email", unique = true, nullable = false, length = 200)
     private String email;
 
-    public Fornecedor(Long id, String razao, String cnpj, String nomeFantasia, String endereço, String telefone, String email) {
+    public Fornecedor(Long id, String razaosocial, String cnpj, String nomefan, String endereco, String telefone, String email) {
+        this.id = id;
+        this.razaosocial = razaosocial;
+        this.cnpj = cnpj;
+        this.nomefan = nomefan;
+        this.endereco = endereco;
+        this.telefone = telefone;
+        this.email = email;
     }
 
     public Fornecedor() {
     }
-
 
     public Long getId() {
         return id;
@@ -87,14 +93,14 @@ public class Fornecedor {
 
     @Override
     public String toString() {
-        return "seg_fornecedor{" +
-                "id_fornecedores =" + id +
-                ", razao_social ='" + razaosocial + '\'' +
-                ", cnpj ='" + cnpj + '\'' +
-                ", nome_fan ='" + nomefan + '\'' +
-                ", endereco ='" + endereco + '\'' +
-                ", telefone ='" + telefone + '\'' +
-                ", email ='" + email + '\'' +
+        return "seg_fornecedores{" +
+                "id=" + id +
+                ", razao ='"    +razaosocial+ '\'' +
+                ", cnpj='"      +cnpj       + '\'' +
+                ", nomefan='"   +nomefan    + '\'' +
+                ", endereco='"  +endereco   + '\'' +
+                ", telefone='"  +telefone   + '\'' +
+                ", email='"     +email      + '\'' +
                 '}';
 
     }

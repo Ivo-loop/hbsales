@@ -3,6 +3,7 @@ package br.com.hbsis.linhas;
 import br.com.hbsis.categorias.Categoria;
 import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
+import br.com.hbsis.categorias.ICategoriaRepository;
 import com.opencsv.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -25,14 +26,16 @@ public class LinhasService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhasService.class);
     private final ILinhasRepository iLinhasRepository;
     private final CategoriaService categoriaService;
+    private final ICategoriaRepository iCategoriaRepository;
 
     @Autowired
-    public LinhasService(ILinhasRepository iLinhasRepository, br.com.hbsis.categorias.CategoriaService categoriaService) {
+    public LinhasService(ILinhasRepository iLinhasRepository, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
         this.iLinhasRepository = iLinhasRepository;
         this.categoriaService = categoriaService;
+        this.iCategoriaRepository = iCategoriaRepository;
     }
 
-    //puxa a linha pelo Id dele, seta ele como DTO
+    //puxa a linha pelo Id dele, retorna como DTO
     public LinhasDTO findById(Long id) {
         Optional<Linhas> linhaOptional = this.iLinhasRepository.findById(id);
 
@@ -42,7 +45,7 @@ public class LinhasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    //puxa o fornecedor linha Id dele
+    //puxa o linhas pelo Id dela
     public Linhas findBylinhasId(Long id) {
         Optional<Linhas> linhaOptional = this.iLinhasRepository.findById(id);
 
@@ -50,6 +53,16 @@ public class LinhasService {
             return linhaOptional.get();
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    //puxa as linhas pelo cod dela
+    public Linhas findBylinhasId(String cod) {
+        Optional<Linhas> linhaOptional = this.iLinhasRepository.findByCodLinhas(cod);
+
+        if (linhaOptional.isPresent()) {
+            return linhaOptional.get();
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", cod));
     }
 
     //salva tudo
@@ -70,44 +83,61 @@ public class LinhasService {
                 .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
                 .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
 
+        String nomeColunas[] = {"codigo", "nome",
+                "codigo_categoria", "nome_categoria"};
+        csvWriter.writeNext(nomeColunas);
+
         for (Linhas linhas : this.findAll()) {
-            csvWriter.writeNext(new String[]{String.valueOf(linhas.getId()),
+            csvWriter.writeNext(new String[]{linhas.getCodLinhas(),
                     linhas.getNomeLinhas(),
-                    String.valueOf(linhas.getCategoria().getId())});
+                    linhas.getCategoria().getCodCategoria(),
+                    linhas.getCategoria().getNomeCategoria()
+            });
         }
     }
 
     //le csv
     public List<Linhas> readAll(MultipartFile file) throws Exception {
         InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(0).build();
+        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
 
         List<String[]> linhas = csvReader.readAll();
         List<Linhas> resultadoLeitura = new ArrayList<>();
 
         for (String[] l : linhas) {
             try {
-                String[] feijao = l[0].replaceAll("\"", "").split(";");
+                String[] bean = l[0].replaceAll("\"", "").split(";");
 
                 Linhas linhasCategoria = new Linhas();
                 Categoria categoria = new Categoria();
                 CategoriaDTO categoriaDTO;
 
-                linhasCategoria.setId(Long.parseLong(feijao[0]));
-                linhasCategoria.setNomeLinhas(feijao[1]);
-                categoriaDTO = categoriaService.findById(Long.parseLong(feijao[2]));
+                Optional<Linhas> optionalLinhas = this.iLinhasRepository.findByCodLinhas(bean[0]);
 
-                categoria.setId(categoriaDTO.getId());
-                categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-                categoria.setCodCategoria(categoriaDTO.getCodCategoria());
-                linhasCategoria.setCategoria(categoria);
+                if(!optionalLinhas.isPresent()) {
 
-                resultadoLeitura.add(linhasCategoria);
+                    linhasCategoria.setCodLinhas(bean[0]);
+                    linhasCategoria.setNomeLinhas(bean[1]);
+                    Optional<Categoria> optionalCategoria = iCategoriaRepository.findByCodCategoria(bean[3]);
+
+                    if (optionalCategoria.isPresent()) {
+                        categoriaDTO = categoriaService.findByCodCategoria(bean[3]);
+                        categoria.setId(categoriaDTO.getId());
+                        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
+                        linhasCategoria.setCategoria(categoria);
+
+                        resultadoLeitura.add(linhasCategoria);
+                        //manda salvar
+                        return iLinhasRepository.saveAll(resultadoLeitura);
+                    }else{
+                        throw new IllegalArgumentException("deu ruim pegar categoria");
+                    }
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        return iLinhasRepository.saveAll(resultadoLeitura);
+        return resultadoLeitura;
     }
 
     // salva
@@ -118,9 +148,15 @@ public class LinhasService {
         LOGGER.info("Salvando br.com.hbsis.Linhas");
         LOGGER.debug("br.com.hbsis.Linhas: {}", linhasDTO);
 
+        String cont = String.valueOf(linhasDTO.getCodLinhas());
+
+        for (; cont.length() < 10; ) {
+            cont = "0" + cont;
+        }
+
         Linhas linhas = new Linhas();
         linhas.setNomeLinhas(linhasDTO.getNomeLinhas());
-        linhas.setCodLinhas(linhasDTO.getCodLinhas());
+        linhas.setCodLinhas(cont.toUpperCase());
         Long id = linhasDTO.getidLinhasCategoria();
         Categoria byCategoriaId = categoriaService.findByCategoriaId(id);
         linhas.setCategoria(byCategoriaId);
@@ -138,15 +174,18 @@ public class LinhasService {
         if (linhasDTO == null) {
             throw new IllegalArgumentException("LinhasDTO não deve ser nulo");
         }
-
         if (StringUtils.isEmpty(linhasDTO.getNomeLinhas())) {
             throw new IllegalArgumentException("Nome da Linhas não deve ser nula/vazia");
         }
-
         if (StringUtils.isEmpty(linhasDTO.getCodLinhas())) {
             throw new IllegalArgumentException("Cod não deve ser nulo/vazio");
         }
-
+        if (linhasDTO.getidLinhasCategoria() == null) {
+            throw new IllegalArgumentException("Id Categoria nao deve ser nula/vazia");
+        }
+        if (linhasDTO.getCodLinhas().length() > 10) {
+            throw new IllegalArgumentException("Cod maior que 10");
+        }
     }
 
     // altera

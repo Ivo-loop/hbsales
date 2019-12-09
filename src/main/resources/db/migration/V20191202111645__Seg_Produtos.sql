@@ -1,6 +1,6 @@
 CREATE TABLE seg_produtos
 (    
-    id BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    id BIGINT IDENTITY(1,1)        PRIMARY KEY,
     nome_produto         VARCHAR(100) NOT NULL,
     cod_produto          VARCHAR(100)     NULL,
     preco_produto        FLOAT            NULL,

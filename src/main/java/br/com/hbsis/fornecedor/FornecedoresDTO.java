@@ -7,14 +7,14 @@ public class FornecedoresDTO {
     private String cnpj;
     private String nomeFan;
     private String endereco;
-    private String telefone;
+    private Long telefone;
     private String email;
 
     //- deixa viver para mandar json
     public FornecedoresDTO() {
     }
 
-    public FornecedoresDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, String telefone, String email) {
+    public FornecedoresDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, Long telefone, String email) {
         this.id = id;
         this.razao = razao;
         this.cnpj = cnpj;
@@ -76,11 +76,11 @@ public class FornecedoresDTO {
         this.endereco = endereco;
     }
 
-    public String getTelefone() {
+    public Long getTelefone() {
         return telefone;
     }
 
-    public void setTelefone(String telefone) {
+    public void setTelefone(Long telefone) {
         this.telefone = telefone;
     }
 

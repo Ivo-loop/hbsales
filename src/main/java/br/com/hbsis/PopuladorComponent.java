@@ -47,9 +47,10 @@ public class PopuladorComponent {
         if (buscaFornecedor.isEmpty()) {
             //fornecedor
             String[][] fornecedor = {{"rosberto", "tioberto", "voberto"},
-                    {"11111111111111", "11111111111112", "11111111111123"},
+                    {"12345678901011", "12345678901112", "12345678901213"},
                     {"rosberto", "tioberto", "voberto"},
-                    {"1", "12", "123"}, {"1", "12", "123"},
+                    {"1", "12", "123"},
+                    {"5547123456789", "5547123456789", "5547123456789"},
                     {"rosberto", "tioberto", "voberto"}
             };
             for (int a = 0; a <= 2; ) {
@@ -58,63 +59,65 @@ public class PopuladorComponent {
                 fonecedoresDTO.setCnpj(fornecedor[1][a]);
                 fonecedoresDTO.setNomeFantasia(fornecedor[2][a]);
                 fonecedoresDTO.setEndereco(fornecedor[3][a]);
-                fonecedoresDTO.setTelefone(fornecedor[4][a]);
+                fonecedoresDTO.setTelefone(Long.parseLong(fornecedor[4][a]));
                 fonecedoresDTO.setEmail(fornecedor[5][a]);
 
                 fornecedorService.save(fonecedoresDTO);
                 a++;
             }
-        }
-        if (!buscaFornecedor.isEmpty() && conferiCategoria.isEmpty()) {
-            String[][] categorias = {{"cerveja", "refri", "suco"},
-                    {"1", "2", "3"}, {"1", "2", "3"}};
-            for (int a = 0; a <= 2; ) {
-                CategoriaDTO categoriaDTO = new CategoriaDTO();
-                categoriaDTO.setNomeCategoria(categorias[0][a]);
-                categoriaDTO.setCodCategoria(categorias[1][a]);
-                categoriaDTO.setIdCategoriaFornecedor(Long.parseLong(categorias[2][a]));
 
-                categoriaService.save(categoriaDTO);
-                a++;
-            }
-        }
-        List<Categoria> buscaCategoria = categoriaService.findAll();
-        if (!buscaCategoria.isEmpty() && conferilinhas.isEmpty()) {
-            String[][] linhas = {{"antarctica", "brahma", "skol", "soda", "citrus", "do bem"},
-                    {"1", "2", "3", "4", "5", "6"},
-                    {"1", "1", "1", "2", "2", "3"}};
-            for (int a = 0; a <= 5; ) {
-                LinhasDTO linhasDTO = new LinhasDTO();
-                linhasDTO.setNomeLinhas(linhas[0][a]);
-                linhasDTO.setCodLinhas(linhas[1][a]);
-                linhasDTO.setidLinhasCategoria(Long.parseLong(linhas[2][a]));
+            List<Fornecedor> termino = fornecedorService.findAll();
+            if (!termino.isEmpty() && conferiCategoria.isEmpty()) {
+                String[][] categorias = {{"cerveja", "refri", "suco"},
+                        {"1", "2", "3"}, {"123", "12", "1"}};
+                for (int a = 0; a <= 2; ) {
+                    CategoriaDTO categoriaDTO = new CategoriaDTO();
+                    categoriaDTO.setNomeCategoria(categorias[0][a]);
+                    categoriaDTO.setIdCategoriaFornecedor(Long.parseLong(categorias[1][a]));
+                    categoriaDTO.setNumber(Long.parseLong(categorias[2][a]));
 
-                linhasService.save(linhasDTO);
-                a++;
+                    categoriaService.save(categoriaDTO);
+                    a++;
+                }
             }
-        }
-        List<Linhas> buscaLinhas = linhasService.findAll();
-        if (!buscaLinhas.isEmpty() && conferiProdutos.isEmpty()) {
-            String[][] produtos = {
-                    {"antarctica", "1", "2.95", "1", "12", "7", "2019-02-03T00:00:00"},
-                    {"brahma", "2", "2.45", "1", "12", "6", "2019-02-03T00:00:00"},
-                    {"skol", "3", "2.65", "1", "12", "5", "2019-02-03T00:00:00"},
-                    {"soda", "4", "4.00", "2", "9", "4", "2019-02-03T00:00:00"},
-                    {"citrus", "5", "5.50", "2", "6", "3", "2019-02-03T00:00:00"},
-                    {"do bem", "6", "7.89", "3", "8", "2", "2019-02-03T00:00:00"},
-            };
-            for (String[] produto : produtos) {
-                ProdutosDTO produtosDTO = new ProdutosDTO(
-                        null,
-                        produto[0],
-                        produto[1],
-                        Float.parseFloat(produto[2]),
-                        Long.parseLong(produto[3]),
-                        Float.parseFloat(produto[4]),
-                        Float.parseFloat(produto[5]),
-                        LocalDateTime.parse(produto[6])
-                );
-                produtoService.save(produtosDTO);
+            List<Categoria> buscaCategoria = categoriaService.findAll();
+            if (!buscaCategoria.isEmpty() && conferilinhas.isEmpty()) {
+                String[][] linhas = {{"antarctica", "brahma", "skol", "soda", "citrus", "do bem"},
+                        {"antar1507", "brahm1508", "skol1508", "soda1509", "citru1510", "dobem1511"},
+                        {"1", "1", "1", "2", "2", "3"}};
+                for (int a = 0; a <= 5; ) {
+                    LinhasDTO linhasDTO = new LinhasDTO();
+                    linhasDTO.setNomeLinhas(linhas[0][a]);
+                    linhasDTO.setCodLinhas(linhas[1][a]);
+                    linhasDTO.setidLinhasCategoria(Long.parseLong(linhas[2][a]));
+
+                    linhasService.save(linhasDTO);
+                    a++;
+                }
+            }
+            List<Linhas> buscaLinhas = linhasService.findAll();
+            if (!buscaLinhas.isEmpty() && !conferiProdutos.isEmpty()) {
+                String[][] produtos = {
+                        {"antarctica", "1", "2.95", "1", "12", "7", "2019-02-03T00:00:00"},
+                        {"brahma", "2", "2.45", "1", "12", "6", "2019-02-03T00:00:00"},
+                        {"skol", "3", "2.65", "1", "12", "5", "2019-02-03T00:00:00"},
+                        {"soda", "4", "4.00", "2", "9", "4", "2019-02-03T00:00:00"},
+                        {"citrus", "5", "5.50", "2", "6", "3", "2019-02-03T00:00:00"},
+                        {"do bem", "6", "7.89", "3", "8", "2", "2019-02-03T00:00:00"},
+                };
+                for (String[] produto : produtos) {
+                    ProdutosDTO produtosDTO = new ProdutosDTO(
+                            null,
+                            produto[0],
+                            produto[1],
+                            Float.parseFloat(produto[2]),
+                            Long.parseLong(produto[3]),
+                            Float.parseFloat(produto[4]),
+                            Float.parseFloat(produto[5]),
+                            LocalDateTime.parse(produto[6])
+                    );
+                    produtoService.save(produtosDTO);
+                }
                 System.out.println("deu bom kk");
             }
         }

@@ -47,6 +47,16 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    //puxa o fornecedor pelo Cnpj dele
+    public FornecedoresDTO findByCnpj(String cnpj) {
+        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
+
+        if (fornecedorOptional.isPresent()) {
+            return FornecedoresDTO.of(fornecedorOptional.get());
+        }
+        throw new IllegalArgumentException(String.format("Cnpj %s não existe", cnpj));
+    }
+
     //busca tudo
     public List<Fornecedor> findAll() {
         return iFonecedoresRepository.findAll();
@@ -68,10 +78,10 @@ public class FornecedorService {
         for (Fornecedor fornecedor : this.findAll()) {
             csvInfo.writeNext(new String[]{String.valueOf(fornecedor.getId()),
                     fornecedor.getRazao(),
-                    fornecedor.getCnpj(),
+                    String.valueOf(fornecedor.getCnpj()),
                     fornecedor.getNomefan(),
                     fornecedor.getEndereco(),
-                    fornecedor.getTelefone(),
+                    String.valueOf(fornecedor.getTelefone()),
                     fornecedor.getEmail()});
         }
     }
@@ -95,7 +105,7 @@ public class FornecedorService {
                 fornecedor.setCnpj(bean[2]);
                 fornecedor.setNomefan(bean[3]);
                 fornecedor.setEndereco(bean[5]);
-                fornecedor.setTelefone(bean[6]);
+                fornecedor.setTelefone(Long.parseLong(bean[6]));
                 fornecedor.setEmail(bean[7]);
 
                 resultadoLeitura.add(fornecedor);
@@ -107,20 +117,20 @@ public class FornecedorService {
     }
 
     //salva o fornecedor no Database
-    public FornecedoresDTO save(FornecedoresDTO fonecedoresDTO) {
+    public FornecedoresDTO save(FornecedoresDTO fornecedoresDTO) {
 
-        this.validate(fonecedoresDTO);
+        this.validate(fornecedoresDTO);
 
         LOGGER.info("Salvando br.com.hbsis.fornecedor");
-        LOGGER.debug("br.com.hbsis.fornecedor: {}", fonecedoresDTO);
+        LOGGER.debug("br.com.hbsis.fornecedor: {}", fornecedoresDTO);
 
         Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setRazao(fonecedoresDTO.getRazao());
-        fornecedor.setCnpj(fonecedoresDTO.getCnpj());
-        fornecedor.setNomefan(fonecedoresDTO.getNomeFan());
-        fornecedor.setEndereco(fonecedoresDTO.getEndereco());
-        fornecedor.setTelefone(fonecedoresDTO.getTelefone());
-        fornecedor.setEmail(fonecedoresDTO.getEmail());
+        fornecedor.setRazao(fornecedoresDTO.getRazao());
+        fornecedor.setCnpj(fornecedoresDTO.getCnpj());
+        fornecedor.setNomefan(fornecedoresDTO.getNomeFan());
+        fornecedor.setEndereco(fornecedoresDTO.getEndereco());
+        fornecedor.setTelefone(fornecedoresDTO.getTelefone());
+        fornecedor.setEmail(fornecedoresDTO.getEmail());
 
         fornecedor = this.iFonecedoresRepository.save(fornecedor);
 
@@ -128,38 +138,45 @@ public class FornecedorService {
         return FornecedoresDTO.of(fornecedor);
     }
 
+
     //valida as informacoes
-    private void validate(FornecedoresDTO fonecedoresDTO) {
+    private void validate(FornecedoresDTO fornecedoresDTO) {
         LOGGER.info("Validando Fornecedor");
 
-        if (fonecedoresDTO == null) {
+        if (fornecedoresDTO == null) {
             throw new IllegalArgumentException("fonecedoresDTO não deve ser nulo");
         }
 
-        if (StringUtils.isEmpty(fonecedoresDTO.getCnpj())) {
+        if (fornecedoresDTO.getCnpj() == null) {
             throw new IllegalArgumentException("Cnpj não deve ser nula/vazia");
         }
-        if (fonecedoresDTO.getCnpj().length() != 14) {
-            throw new IllegalArgumentException("Cnpj possui mais ou menos caracteres nula/vazia");
-        }
-        if (StringUtils.isEmpty(fonecedoresDTO.getRazao())) {
+        if (StringUtils.isEmpty(fornecedoresDTO.getRazao())) {
             throw new IllegalArgumentException("Razao não deve ser nulo/vazio");
         }
-        if (StringUtils.isEmpty(fonecedoresDTO.getEmail())) {
+        if (StringUtils.isEmpty(fornecedoresDTO.getEmail())) {
             throw new IllegalArgumentException("email não deve ser nula/vazia");
         }
-
-        if (StringUtils.isEmpty(fonecedoresDTO.getEndereco())) {
+        if (StringUtils.isEmpty(fornecedoresDTO.getEndereco())) {
             throw new IllegalArgumentException("endereço não deve ser nulo/vazio");
         }
-        if (StringUtils.isEmpty(fonecedoresDTO.getNomeFan())) {
+        if (StringUtils.isEmpty(fornecedoresDTO.getNomeFan())) {
             throw new IllegalArgumentException("nome fantasia não deve ser nula/vazia");
         }
-
-        if (StringUtils.isEmpty(fonecedoresDTO.getTelefone())) {
+        if (fornecedoresDTO.getTelefone() == null) {
             throw new IllegalArgumentException("telefone não deve ser nulo/vazio");
         }
-
+        String cont1 = String.valueOf(fornecedoresDTO.getCnpj());
+        if (cont1.length() != 14) {
+            throw new IllegalArgumentException("Cnpj diferente que 14," +
+                    "Confira se colocou algum caracter especial");
+        }
+        String cont2 = String.valueOf(fornecedoresDTO.getTelefone());
+        if (cont2.length() != 13) {
+            throw new IllegalArgumentException("telefone diferente que 13 digitos, confira se possui DDD e DDI");
+        }
+        if (fornecedoresDTO.getEmail().length() > 50) {
+            throw new IllegalArgumentException("email muito grande sinto muito");
+        }
     }
 
     // Altera as informacoes do banco

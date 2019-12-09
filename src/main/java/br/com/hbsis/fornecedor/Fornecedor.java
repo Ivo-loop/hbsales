@@ -1,6 +1,7 @@
 package br.com.hbsis.fornecedor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "seg_fornecedores")
@@ -18,11 +19,11 @@ public class Fornecedor {
     @Column(name = "endereco", unique = true, nullable = false, length = 500)
     private String endereco;
     @Column(name = "telefone", unique = true, nullable = false, length = 11)
-    private String telefone;
+    private Long telefone;
     @Column(name = "email", unique = true, nullable = false, length = 200)
     private String email;
 
-    public Fornecedor(Long id, String razaosocial, String cnpj, String nomefan, String endereco, String telefone, String email) {
+    public Fornecedor(Long id, String razaosocial, String cnpj, String nomefan, String endereco, Long telefone, String email) {
         this.id = id;
         this.razaosocial = razaosocial;
         this.cnpj = cnpj;
@@ -75,11 +76,11 @@ public class Fornecedor {
         this.endereco = endereco;
     }
 
-    public String getTelefone() {
+    public Long getTelefone() {
         return telefone;
     }
 
-    public void setTelefone(String telefone) {
+    public void setTelefone(Long telefone) {
         this.telefone = telefone;
     }
 
@@ -102,7 +103,5 @@ public class Fornecedor {
                 ", telefone='"  +telefone   + '\'' +
                 ", email='"     +email      + '\'' +
                 '}';
-
     }
-
 }

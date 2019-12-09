@@ -11,9 +11,9 @@ public class Linhas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "nome_Linhas", unique = true, nullable = false, length = 100)
+    @Column(name = "nome_Linhas", unique = true, nullable = false, length = 50)
     private String nomeLinhas;
-    @Column(name = "cod_Linhas", unique = true, nullable = false, length = 100)
+    @Column(name = "cod_Linhas", unique = true, nullable = false, length = 10)
     private String codLinhas;
     @ManyToOne
     @JoinColumn(name = "id_Linhas_Categoria", referencedColumnName = "id")

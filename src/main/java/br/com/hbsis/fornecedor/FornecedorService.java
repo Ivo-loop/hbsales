@@ -48,6 +48,7 @@ public class FornecedorService {
 
     //puxa o fornecedor pelo Cnpj dele
     public FornecedoresDTO findByCnpj(String cnpj) {
+
         Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
 
         if (fornecedorOptional.isPresent()) {

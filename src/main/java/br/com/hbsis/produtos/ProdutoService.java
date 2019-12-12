@@ -91,7 +91,7 @@ public class ProdutoService {
                 String[] bean = linha[0].replaceAll("\" ", "").replaceAll("/", "-").split(";");
 
                 //criar na hora que eu for setar
-
+                // TODO: 12/12/2019 só realizar a consulta quando a for utilizar o valor
                 Optional<Fornecedor> optionalFornecedor = iFornecedoresRepository.findByCnpj(cod);
                 Optional<Categoria> optionalCategoria = iCategoriaRepository.findByCodCategoria(bean[9]);
                 Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);

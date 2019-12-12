@@ -6,15 +6,15 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "seg_categoria")
+@Table(name = "seg_vendas")
 public class Vendas {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "cod_vendas", nullable = false)
-    private Long codVendas;
+    @Column(name = "descricao_vendas", length = 50)
+    private String descricaoVendas;
     @Column(name = "dia_inicial_vendas", nullable = false)
     private LocalDateTime diaInicial;
     @Column(name = "dia_final_vendas", nullable = false)
@@ -29,7 +29,7 @@ public class Vendas {
     public String toString() {
         return "Vendas{" +
                 "id=" + id +
-                ", codVendas=" + codVendas +
+                ", descricaoVendas='" + descricaoVendas + '\'' +
                 ", diaInicial=" + diaInicial +
                 ", diaFinal=" + diaFinal +
                 ", diaRetirada=" + diaRetirada +
@@ -45,12 +45,12 @@ public class Vendas {
         this.id = id;
     }
 
-    public Long getCodVendas() {
-        return codVendas;
+    public String getDescricaoVendas() {
+        return descricaoVendas;
     }
 
-    public void setCodVendas(Long codVendas) {
-        this.codVendas = codVendas;
+    public void setDescricaoVendas(String descricaoVendas) {
+        this.descricaoVendas = descricaoVendas;
     }
 
     public LocalDateTime getDiaInicial() {

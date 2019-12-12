@@ -5,37 +5,37 @@ import java.time.LocalDateTime;
 public class VendasDTO {
 
     private Long id;
-    private Long codVendas;
+    private String descricaoVendas;
     private LocalDateTime diaInicial;
     private LocalDateTime diaFinal;
     private LocalDateTime diaRetirada;
-    private Long IdFornecedor;
+    private Long idFornecedor;
 
     @Override
     public String toString() {
         return "VendasDTO{" +
                 "id=" + id +
-                ", codVendas=" + codVendas +
+                ", descricaoVendas=" + descricaoVendas +
                 ", diaInicial=" + diaInicial +
                 ", diaFinal=" + diaFinal +
                 ", diaRetirada=" + diaRetirada +
-                ", IdFornecedor=" + IdFornecedor +
+                ", idFornecedor=" + idFornecedor +
                 '}';
     }
 
-    public VendasDTO(Long id, Long codVendas, LocalDateTime diaInicial, LocalDateTime diaFinal, LocalDateTime diaRetirada, Long idFornecedor) {
+    public VendasDTO(Long id, String descricaoVendas, LocalDateTime diaInicial, LocalDateTime diaFinal, LocalDateTime diaRetirada, Long cnpjFornecedor) {
         this.id = id;
-        this.codVendas = codVendas;
+        this.descricaoVendas = descricaoVendas;
         this.diaInicial = diaInicial;
         this.diaFinal = diaFinal;
         this.diaRetirada = diaRetirada;
-        IdFornecedor = idFornecedor;
+        this.idFornecedor = cnpjFornecedor;
     }
 
     public static VendasDTO of(Vendas vendas) {
         return new VendasDTO(
                 vendas.getId(),
-                vendas.getCodVendas(),
+                vendas.getDescricaoVendas(),
                 vendas.getDiaInicial(),
                 vendas.getDiaFinal(),
                 vendas.getDiaRetirada(),
@@ -51,12 +51,12 @@ public class VendasDTO {
         this.id = id;
     }
 
-    public Long getCodVendas() {
-        return codVendas;
+    public String getDescricaoVendas() {
+        return descricaoVendas;
     }
 
-    public void setCodVendas(Long codVendas) {
-        this.codVendas = codVendas;
+    public void setDescricaoVendas(String descricaoVendas) {
+        this.descricaoVendas = descricaoVendas;
     }
 
     public LocalDateTime getDiaInicial() {
@@ -84,10 +84,10 @@ public class VendasDTO {
     }
 
     public Long getIdFornecedor() {
-        return IdFornecedor;
+        return idFornecedor;
     }
 
     public void setIdFornecedor(Long idFornecedor) {
-        IdFornecedor = idFornecedor;
+        this.idFornecedor = idFornecedor;
     }
 }

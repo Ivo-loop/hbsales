@@ -1,6 +1,13 @@
 package br.com.hbsis.produtos;
 
+import br.com.hbsis.categorias.Categoria;
+import br.com.hbsis.categorias.CategoriaDTO;
+import br.com.hbsis.categorias.CategoriaService;
+import br.com.hbsis.categorias.ICategoriaRepository;
+import br.com.hbsis.fornecedor.Fornecedor;
+import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.fornecedor.IFornecedoresRepository;
+import br.com.hbsis.linhas.ILinhasRepository;
 import br.com.hbsis.linhas.Linhas;
 import br.com.hbsis.linhas.LinhasDTO;
 import br.com.hbsis.linhas.LinhasService;
@@ -24,15 +31,23 @@ import java.util.Optional;
 @Service
 public class ProdutoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoService.class);
-    private final IProdutosRepository iProdutosRepository;
-    private final LinhasService linhasService;
     private final IFornecedoresRepository iFornecedoresRepository;
+    private final FornecedorService fornecedorService;
+    private final ICategoriaRepository iCategoriaRepository;
+    private final CategoriaService categoriaService;
+    private final ILinhasRepository iLinhasRepository;
+    private final LinhasService linhasService;
+    private final IProdutosRepository iProdutosRepository;
 
     @Autowired
-    public ProdutoService(IProdutosRepository iProdutosRepository, LinhasService linhasService, IFornecedoresRepository iFornecedoresRepository) {
+    public ProdutoService(IProdutosRepository iProdutosRepository, LinhasService linhasService, IFornecedoresRepository iFornecedoresRepository, FornecedorService fornecedorService, FornecedorService fornecedorService1, ICategoriaRepository iCategoriaRepository, CategoriaService categoriaService, CategoriaService categoriaService1, ILinhasRepository iLinhasRepository) {
+        this.iFornecedoresRepository = iFornecedoresRepository;
+        this.fornecedorService = fornecedorService;
+        this.iCategoriaRepository = iCategoriaRepository;
+        this.categoriaService = categoriaService;
         this.iProdutosRepository = iProdutosRepository;
         this.linhasService = linhasService;
-        this.iFornecedoresRepository = iFornecedoresRepository;
+        this.iLinhasRepository = iLinhasRepository;
     }
 
     //busca tudo
@@ -51,43 +66,126 @@ public class ProdutoService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public ProdutosDTO findByCodProdutos(String cod) {
+        Optional<Produtos> categoriaOpcional = this.iProdutosRepository.findByCodProdutos(cod);
+
+        if (categoriaOpcional.isPresent()) {
+            return ProdutosDTO.of(categoriaOpcional.get());
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", cod));
+    }
+
     //importa produto do para o fornecedor
-    public void importProdutoFornecedor(Long id, MultipartFile file) throws Exception {
+    public void importProdutoFornecedor(String cod, MultipartFile file) throws Exception {
         InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
 
         CSVReader csvReader = new CSVReaderBuilder(inputStreamReader)
-                .withSkipLines(0)
+                .withSkipLines(1)
                 .build();
 
         List<String[]> linhaString = csvReader.readAll();
+        List<Produtos> resultadoLeitura = new ArrayList<>();
 
         for (String[] linha : linhaString) {
             try {
-                String[] feijao = linha[0].replaceAll("\"", "").split(";");
+                String[] bean = linha[0].replaceAll("\" ", "").replaceAll("/", "-").split(";");
 
-                Produtos produtos = new Produtos();
-                if (iFornecedoresRepository.existsById(id)) {
-                    produtos.setId(Long.parseLong(feijao[0]));
-                    produtos.setNomeProduto(feijao[1]);
-                    produtos.setCodProdutos(feijao[2]);
-                    produtos.setPreco(Float.parseFloat(feijao[3]));
-                    produtos.setLinhas(linhasService.findBylinhasId(Long.parseLong(feijao[4])));
+                //criar na hora que eu for setar
 
-                    produtos.setUniPerCax(Float.parseFloat(feijao[5]));
-                    produtos.setPesoPerUni(Float.parseFloat(feijao[6]));
-                    produtos.setValidade(LocalDateTime.parse(feijao[7]));
+                Optional<Fornecedor> optionalFornecedor = iFornecedoresRepository.findByCnpj(cod);
+                Optional<Categoria> optionalCategoria = iCategoriaRepository.findByCodCategoria(bean[9]);
+                Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);
+                Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(bean[0]);
 
-                    if (iProdutosRepository.existsById(produtos.getId()) &&
-                            id.equals(produtos.getLinhas().getCategoria().getFornecedor().getId())) {
+                //fornecedor existe
+                if (optionalFornecedor.isPresent()) {
 
-                        produtos.setId(iProdutosRepository.findById(produtos.getId()).get().getId());
-                        update(ProdutosDTO.of(produtos), produtos.getId());
-
-                    } else if (id.equals(produtos.getLinhas().getCategoria().getFornecedor().getId())) {
-                        iProdutosRepository.save(produtos);
-                    } else {
-                        LOGGER.info("deu rolo nao conseguimos roubar o produto: ", produtos.getId());
+                    //Categoria nao existe cria categoria
+                    if (!optionalCategoria.isPresent()) {
+                        CategoriaDTO categoriaDTO;
+                        categoriaDTO = new CategoriaDTO(null, bean[10], fornecedorService.findByCnpj(cod).getId(), bean[9].substring(7,10));
+                        categoriaService.save(categoriaDTO);
                     }
+
+                    //Categoria existe procura e pega ela
+                    Optional<Categoria> optionalCategoria2 = iCategoriaRepository.findByCodCategoria(bean[9]);
+                    if (!optionalCategoria.isPresent() && optionalCategoria2.isPresent()) {
+                        Categoria categoriaclass = new Categoria();
+                        CategoriaDTO categoriaDTO;
+
+                        categoriaDTO = categoriaService.findByCodCategoria(bean[9]);
+
+                        categoriaclass.setId(categoriaDTO.getId());
+                        categoriaclass.setCodCategoria(bean[9]);
+                        categoriaclass.setNomeCategoria(bean[10]);
+                        categoriaclass.setFornecedor(fornecedorService.findByFornecedorId(fornecedorService.findByCnpj(cod).getId()));
+                    }
+
+                    //Linhas nao existe cria linhas
+                    if (!optionalLinhas.isPresent()) {
+                        LinhasDTO linhasDTO;
+                        linhasDTO = new LinhasDTO(null, bean[8], bean[7], categoriaService.findByCodCategoria(bean[9]).getId());
+                        linhasService.save(linhasDTO);
+                    }
+
+                    //Linhas existe procura e pega ela
+                    Optional<Linhas> optionalLinhas1 = iLinhasRepository.findByCodLinhas(bean[7]);
+                    if (!optionalLinhas.isPresent() && optionalLinhas1.isPresent()) {
+                        Categoria categoriaclass = new Categoria();
+
+                        Linhas linhasClass = new Linhas();
+                        LinhasDTO linhasDTO;
+
+                        linhasDTO = linhasService.findByCodLinhas(bean[7]);
+
+                        linhasClass.setId(linhasDTO.getId());
+                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
+                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
+                        linhasClass.setCategoria(categoriaclass);
+                    }
+
+                    //Produto nao existe cria produtos
+                    if (!optionalProdutos.isPresent()) {
+
+                        ProdutosDTO produtosDTO;
+                        produtosDTO = new ProdutosDTO(null, bean[1], bean[0],
+                                Float.parseFloat(bean[2].replaceAll("[R$]", "")),
+                                linhasService.findByCodLinhas(bean[7]).getId(), Float.parseFloat(bean[3]),
+                                Float.parseFloat(bean[4]), bean[5], (LocalDateTime.parse(bean[6].substring(6, 10)
+                                + bean[6].substring(2, 6)
+                                + bean[6].substring(0, 2) + "T00:00:00"))
+                        );
+                        this.save(produtosDTO);
+                    } else {
+
+                        Optional<Produtos> optionalProdutos1 = this.iProdutosRepository.findByCodProdutos(bean[0]);
+                        if (!optionalProdutos.isPresent() && optionalProdutos1.isPresent()) {
+                            Linhas linhasClass = new Linhas();
+
+                            Produtos produtos = new Produtos();
+
+                            produtos.setCodProdutos(bean[0].toUpperCase());
+                            produtos.setNomeProduto(bean[1]);
+                            produtos.setPreco(Float.parseFloat(bean[2].replaceAll("[R$]", "")));
+                            produtos.setUniPerCax(Float.parseFloat(bean[3]));
+                            produtos.setPesoPerUni(Float.parseFloat(bean[4]));
+                            produtos.setUnidade(bean[5]);
+                            System.out.println(bean[6]);
+                            produtos.setValidade(LocalDateTime.parse(bean[6].substring(6, 10)
+                                    + bean[6].substring(2, 6)
+                                    + bean[6].substring(0, 2) + "T00:00:00"));
+                            produtos.setLinhas(linhasClass);
+
+                            produtos.setLinhas(linhasClass);
+
+
+                            this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(bean[0]).getId());
+                        }
+                    }
+                }
+                //fornecedor nao existe
+                else {
+                    throw new IllegalArgumentException("fornecedor nao existe:" + cod);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -104,62 +202,96 @@ public class ProdutoService {
 
         PrintWriter info = retorno.getWriter();
 
-        ICSVWriter csvInfo = new CSVWriterBuilder(info).withSeparator(';')
+        ICSVWriter csvWriter = new CSVWriterBuilder(info).withSeparator(';')
                 .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
                 .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
 
+        String nomeColunas[] = {"codigo", "nome",
+                "preço", "quantidade_por_caixa",
+                "peso_por_unidade",
+                "data_validade", "codigo_linha_categoria",
+                "linha_categoria", "codigo_categoria",
+                "categoria", "razao_social_fornecedor",
+                "cnpj_fornecedor"
+        };
+        csvWriter.writeNext(nomeColunas);
+
         for (Produtos produtos : this.findAll()) {
-            csvInfo.writeNext(new String[]{String.valueOf(produtos.getId()),
+            String splitar = String.valueOf(produtos.getValidade());
+            String[] splitado = splitar.split("-");
+            String formatar = produtos.getLinhas().getCategoria().getFornecedor().getCnpj();
+
+            String fornecedor = formatar.substring(0, 2) + "." + formatar.substring(2, 5) + "." + formatar.substring(5, 8) + "/" +
+                    formatar.substring(8, 12) + "-" + formatar.substring(12, 14);
+
+            csvWriter.writeNext(new String[]{
+                    produtos.getCodProdutos().toUpperCase(),
                     produtos.getNomeProduto(),
-                    produtos.getCodProdutos(),
                     String.valueOf(produtos.getPreco()),
-                    String.valueOf(produtos.getLinhas().getId()),
                     String.valueOf(produtos.getUniPerCax()),
-                    String.valueOf(produtos.getPesoPerUni()),
-                    String.valueOf(produtos.getValidade())});
+                    (produtos.getPesoPerUni()) + produtos.getUnidade(),
+                    (splitado[2].substring(0, 2) + "/" + splitado[1] + "/" + splitado[0]),
+                    produtos.getLinhas().getCodLinhas(),
+                    produtos.getLinhas().getNomeLinhas(),
+                    produtos.getLinhas().getCategoria().getCodCategoria(),
+                    produtos.getLinhas().getCategoria().getNomeCategoria(),
+                    produtos.getLinhas().getCategoria().getFornecedor().getRazao(),
+                    fornecedor
+            });
         }
     }
 
     // faz a importacao
     public List<Produtos> readAll(MultipartFile file) throws Exception {
         InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(0).build();
+        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
 
         List<String[]> linhas = csvReader.readAll();
         List<Produtos> resultadoLeitura = new ArrayList<>();
 
         for (String[] l : linhas) {
             try {
-                String[] feijao = l[0].replaceAll("\"", "").split(";");
+                String[] bean = l[0].replaceAll("\"", "").split(";");
 
                 Produtos produtos = new Produtos();
                 Linhas linhasClass = new Linhas();
                 LinhasDTO linhasDTO;
 
-                produtos.setId(Long.parseLong(feijao[0]));
-                produtos.setNomeProduto(feijao[1]);
-                produtos.setCodProdutos(feijao[2]);
-                produtos.setPreco(Float.parseFloat(feijao[3]));
+                Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(bean[0]);
 
-                linhasDTO = linhasService.findById(Long.parseLong(feijao[4]));
+                if (!optionalProdutos.isPresent()) {
 
-                produtos.setUniPerCax(Float.parseFloat(feijao[5]));
-                produtos.setPesoPerUni(Float.parseFloat(feijao[6]));
-                produtos.setValidade(LocalDateTime.parse(feijao[7]));
+                    produtos.setCodProdutos(bean[0].toUpperCase());
+                    produtos.setNomeProduto(bean[1]);
+                    produtos.setPreco(Float.parseFloat(bean[2].replaceAll("[R$]", "")));
+                    produtos.setUniPerCax(Float.parseFloat(bean[3]));
+                    produtos.setPesoPerUni(Float.parseFloat(bean[4]));
+                    produtos.setUnidade(bean[5]);
+                    produtos.setValidade(LocalDateTime.parse(bean[6].substring(7, 11)
+                            + bean[6].substring(3, 7)
+                            + bean[6].substring(1, 3) + "T00:00:00"));
 
-                linhasClass.setId(linhasDTO.getId());
-                linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
-                linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
-                produtos.setLinhas(linhasClass);
+                    Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);
 
-                produtos.setLinhas(linhasClass);
+                    if (optionalLinhas.isPresent()) {
 
-                resultadoLeitura.add(produtos);
+                        linhasDTO = linhasService.findByCodLinhas(bean[7]);
+
+                        linhasClass.setId(linhasDTO.getId());
+                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
+                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
+                        produtos.setLinhas(linhasClass);
+
+                        produtos.setLinhas(linhasClass);
+                        resultadoLeitura.add(produtos);
+                        return iProdutosRepository.saveAll(resultadoLeitura);
+                    }
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        return iProdutosRepository.saveAll(resultadoLeitura);
+        return resultadoLeitura;
     }
 
     //salva
@@ -171,12 +303,19 @@ public class ProdutoService {
 
         Produtos produtos = new Produtos();
 
+        String cont = String.valueOf(produtosDTO.getCodProdutos());
+
+        for (; cont.length() < 10; ) {
+            cont = "0" + cont;
+        }
+
         produtos.setNomeProduto(produtosDTO.getNomeProduto());
-        produtos.setCodProdutos(produtosDTO.getCodProdutos());
+        produtos.setCodProdutos(cont.toUpperCase());
         produtos.setPreco(produtosDTO.getPreco());
         produtos.setPesoPerUni(produtosDTO.getPesoPerUni());
         produtos.setUniPerCax(produtosDTO.getUniPerCax());
         produtos.setValidade(produtosDTO.getValidade());
+        produtos.setUnidade(produtosDTO.getUnidade());
         Long id = produtosDTO.getIdProdutosLinhas();
 
         produtos.setLinhas(linhasService.findBylinhasId(id));
@@ -193,12 +332,14 @@ public class ProdutoService {
         if (produtosDTO == null) {
             throw new IllegalArgumentException("ProdutoDTO não deve ser nulo");
         }
-
         if (StringUtils.isEmpty(produtosDTO.getNomeProduto())) {
             throw new IllegalArgumentException("Nome da Produto não deve ser nula/vazia");
         }
         if (StringUtils.isEmpty(produtosDTO.getCodProdutos())) {
             throw new IllegalArgumentException("Cod linhas não deve ser nula/vazia");
+        }
+        if (produtosDTO.getCodProdutos().length() > 10) {
+            throw new IllegalArgumentException("Cod linhas nao deve possui mais de 10 digitos");
         }
         if (produtosDTO.getPesoPerUni() == null) {
             throw new IllegalArgumentException("Cod peso por unidade não deve ser nula/vazia");
@@ -206,12 +347,15 @@ public class ProdutoService {
         if (produtosDTO.getUniPerCax() == null) {
             throw new IllegalArgumentException("Cod peso por unidade não deve ser nula/vazia");
         }
+        if (StringUtils.isEmpty(produtosDTO.getUnidade())) {
+            throw new IllegalArgumentException("Unidade de medida nao pode ser nula/vazia");
+        }
     }
 
     //altera
     public ProdutosDTO update(ProdutosDTO produtosDTO, Long id) {
         Optional<Produtos> ProdutoExistencialOpcional = this.iProdutosRepository.findById(id);
-
+        this.validate(produtosDTO);
         if (ProdutoExistencialOpcional.isPresent()) {
             Produtos produtosExistente = ProdutoExistencialOpcional.get();
 

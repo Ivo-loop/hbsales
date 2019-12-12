@@ -113,7 +113,7 @@ public class CategoriaService {
         for (String[] l : linhas) {
             try {
                 //substitui barra por espaço vazio
-                String[] bean = l[0].replaceAll("[-\"./]", "")
+                String[] bean = l[0].replaceAll("[-\"/]", "")
                         .split(";");
 
                 Categoria categoria = new Categoria();
@@ -155,7 +155,7 @@ public class CategoriaService {
 
         Categoria categoria = new Categoria();
 
-        String cont = String.valueOf(categoriaDTO.getNumber());
+        String cont = String.valueOf(categoriaDTO.getCodigo());
 
         for (; cont.length() < 3; ) {
             cont = "0" + cont;
@@ -184,11 +184,10 @@ public class CategoriaService {
         if (categoriaDTO.getIdCategoriaFornecedor() == null) {
             throw new IllegalArgumentException("id do fornecedor nao pode ser nulo");
         }
-        if (categoriaDTO.getNumber() == null) {
+        if (categoriaDTO.getCodigo() == null) {
             throw new IllegalArgumentException("Numero nao pode ser nulo");
         }
-        String cont = String.valueOf(categoriaDTO.getNumber());
-        if (cont.length() > 3) {
+        if (StringUtils.isBlank(categoriaDTO.getCodigo())) {
             throw new IllegalArgumentException("Numero nao pode ser maior que 3");
         }
     }
@@ -196,7 +195,7 @@ public class CategoriaService {
     // altera as informaçoes da categoria
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
         Optional<Categoria> CategoriaExistencialOpcional = this.iCategoriaRepository.findById(id);
-
+        this.validate(categoriaDTO);
         if (CategoriaExistencialOpcional.isPresent()) {
             Categoria categoriaExistente = CategoriaExistencialOpcional.get();
 

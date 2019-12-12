@@ -12,11 +12,11 @@ public class Produtos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "nome_produto", unique = true, nullable = false, length = 100)
+    @Column(name = "nome_produto", unique = true, nullable = false, length = 200)
     private String nomeProduto;
-    @Column(name = "cod_produto", unique = true, nullable = false, length = 100)
+    @Column(name = "cod_produto", unique = true, nullable = false, length = 10)
     private String codProdutos;
-    @Column(name = "preco_produto", nullable = false)
+    @Column(name = "preco_produto", nullable = false, length = 20)
     private Float preco;
 
     @ManyToOne
@@ -25,8 +25,10 @@ public class Produtos {
 
     @Column(name = "unipercax_produto", nullable = false)
     private Float uniPerCax;
-    @Column(name = "pesoperuni_produto", nullable = false)
+    @Column(name = "pesoperuni_produto", nullable = false, length = 30)
     private Float pesoPerUni;
+    @Column(name= "uni_med_produto", nullable = false, length = 2)
+    private String Unidade;
     @Column(name = "validade_produto", nullable = false)
     private LocalDateTime validade;
 
@@ -86,6 +88,14 @@ public class Produtos {
         this.pesoPerUni = pesoPerUni;
     }
 
+    public String getUnidade() {
+        return Unidade;
+    }
+
+    public void setUnidade(String unidade) {
+        Unidade = unidade;
+    }
+
     public LocalDateTime getValidade() {
         return validade;
     }
@@ -96,14 +106,16 @@ public class Produtos {
 
     @Override
     public String toString() {
-        return "seg_categoria{" +
-                "id = " + id +
-                "nome_Produto = '"       + nomeProduto + '\'' +
-                "cod_Produto = "         + codProdutos +
-                "preco_Produto = "       + preco +
-                "id_Produto_Linhas = "   + linhas +
-                "uniPerCax_Produto = "   + uniPerCax +
-                "pesoPerUni_Produto = "  + pesoPerUni +
-                "validade_Produto = "    + validade + '}';
+        return "Produtos{" +
+                "id=" + id +
+                ", nomeProduto='" + nomeProduto + '\'' +
+                ", codProdutos='" + codProdutos + '\'' +
+                ", preco=" + preco +
+                ", linhas=" + linhas +
+                ", uniPerCax=" + uniPerCax +
+                ", pesoPerUni=" + pesoPerUni +
+                ", Unidade='" + Unidade + '\'' +
+                ", validade=" + validade +
+                '}';
     }
 }

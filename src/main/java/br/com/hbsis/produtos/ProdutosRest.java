@@ -30,11 +30,11 @@ public class ProdutosRest {
     }
 
     @PostMapping("/import-produtos-fornecedor/{id}")
-    public void importProdutoFornecedor(@PathVariable("id") Long id, @RequestParam MultipartFile file) throws Exception {
-        LOGGER.info("atualizando Produtos do Fornecedor de ID... [{}]", id);
+    public void importProdutoFornecedor(@PathVariable("id") String cod, @RequestParam MultipartFile file) throws Exception {
+        LOGGER.info("atualizando Produtos do Fornecedor de ID... [{}]", cod);
 
         //manda importa
-        produtoService.importProdutoFornecedor(id, file);
+        produtoService.importProdutoFornecedor(cod, file);
     }
 
     @GetMapping("/export-csv")

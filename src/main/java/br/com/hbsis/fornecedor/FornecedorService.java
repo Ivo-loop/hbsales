@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
@@ -138,7 +137,6 @@ public class FornecedorService {
         return FornecedoresDTO.of(fornecedor);
     }
 
-
     //valida as informacoes
     private void validate(FornecedoresDTO fornecedoresDTO) {
         LOGGER.info("Validando Fornecedor");
@@ -182,7 +180,7 @@ public class FornecedorService {
     // Altera as informacoes do banco
     public FornecedoresDTO update(FornecedoresDTO fonecedoresDTO, Long id) {
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFonecedoresRepository.findById(id);
-
+        this.validate(fonecedoresDTO);
         if (fornecedorExistenteOptional.isPresent()) {
             Fornecedor fornecedorExistente = fornecedorExistenteOptional.get();
 

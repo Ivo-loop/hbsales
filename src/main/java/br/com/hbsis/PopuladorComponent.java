@@ -74,7 +74,7 @@ public class PopuladorComponent {
                     CategoriaDTO categoriaDTO = new CategoriaDTO();
                     categoriaDTO.setNomeCategoria(categorias[0][a]);
                     categoriaDTO.setIdCategoriaFornecedor(Long.parseLong(categorias[1][a]));
-                    categoriaDTO.setNumber(Long.parseLong(categorias[2][a]));
+                    categoriaDTO.setCodigo(categorias[2][a]);
 
                     categoriaService.save(categoriaDTO);
                     a++;
@@ -96,14 +96,14 @@ public class PopuladorComponent {
                 }
             }
             List<Linhas> buscaLinhas = linhasService.findAll();
-            if (!buscaLinhas.isEmpty() && !conferiProdutos.isEmpty()) {
+            if (!buscaLinhas.isEmpty() && conferiProdutos.isEmpty()) {
                 String[][] produtos = {
-                        {"antarctica", "1", "2.95", "1", "12", "7", "2019-02-03T00:00:00"},
-                        {"brahma", "2", "2.45", "1", "12", "6", "2019-02-03T00:00:00"},
-                        {"skol", "3", "2.65", "1", "12", "5", "2019-02-03T00:00:00"},
-                        {"soda", "4", "4.00", "2", "9", "4", "2019-02-03T00:00:00"},
-                        {"citrus", "5", "5.50", "2", "6", "3", "2019-02-03T00:00:00"},
-                        {"do bem", "6", "7.89", "3", "8", "2", "2019-02-03T00:00:00"},
+                        {"antarctica", "antar1507", "2.95", "1", "12", "7.700","kg", "2019-02-03T00:00:00"},
+                        {"brahma", "brahm1508", "2.45", "1", "12", "6.20","kg", "2019-02-03T00:00:00"},
+                        {"skol", "skol1508", "2.65", "1", "12", "5.1","kg", "2019-02-03T00:00:00"},
+                        {"soda", "soda1509", "4.00", "2", "9", "4","kg", "2019-02-03T00:00:00"},
+                        {"citrus", "citru1510", "5.50", "2", "6", "3.596","kg", "2019-02-03T00:00:00"},
+                        {"do bem", "dobem1511", "7.89", "3", "8", "2.756","kg", "2019-02-03T00:00:00"},
                 };
                 for (String[] produto : produtos) {
                     ProdutosDTO produtosDTO = new ProdutosDTO(
@@ -114,7 +114,8 @@ public class PopuladorComponent {
                             Long.parseLong(produto[3]),
                             Float.parseFloat(produto[4]),
                             Float.parseFloat(produto[5]),
-                            LocalDateTime.parse(produto[6])
+                            produto[6],
+                            LocalDateTime.parse(produto[7])
                     );
                     produtoService.save(produtosDTO);
                 }

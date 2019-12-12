@@ -56,13 +56,13 @@ public class LinhasService {
     }
 
     //puxa as linhas pelo cod dela
-    public Linhas findBylinhasId(String cod) {
+    public LinhasDTO findByCodLinhas(String cod) {
         Optional<Linhas> linhaOptional = this.iLinhasRepository.findByCodLinhas(cod);
 
         if (linhaOptional.isPresent()) {
-            return linhaOptional.get();
+            return LinhasDTO.of(linhaOptional.get());
         }
-        throw new IllegalArgumentException(String.format("ID %s não existe", cod));
+        throw new IllegalArgumentException(String.format("Cod %s não existe", cod));
     }
 
     //salva tudo
@@ -142,7 +142,6 @@ public class LinhasService {
 
     // salva
     public LinhasDTO save(LinhasDTO linhasDTO) {
-
         this.validate(linhasDTO);
 
         LOGGER.info("Salvando br.com.hbsis.Linhas");
@@ -191,7 +190,7 @@ public class LinhasService {
     // altera
     public LinhasDTO update(LinhasDTO linhasDTO, Long id) {
         Optional<Linhas> LinhasExistenteOptional = this.iLinhasRepository.findById(id);
-
+        this.validate(linhasDTO);
         if (LinhasExistenteOptional.isPresent()) {
             Linhas LinhasExistente = LinhasExistenteOptional.get();
 
@@ -223,4 +222,5 @@ public class LinhasService {
         linhas = this.iLinhasRepository.findAll();
         return linhas;
     }
+
 }

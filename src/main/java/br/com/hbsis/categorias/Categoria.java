@@ -1,7 +1,6 @@
-package br.com.hbsis.CategoriaProduto;
+package br.com.hbsis.categorias;
 
 import br.com.hbsis.fornecedor.Fornecedor;
-
 import javax.persistence.*;
 
 @Entity
@@ -15,6 +14,7 @@ public class Categoria {
     private String nomeCategoria;
     @Column(name = "cod_Categoria", unique = true, nullable = false, length = 100)
     private String codCategoria;
+
     @ManyToOne
     @JoinColumn(name = "id_Categoria_Fornecedor", referencedColumnName = "id")
     private Fornecedor fornecedor;
@@ -22,7 +22,11 @@ public class Categoria {
     public Categoria() {
     }
 
-    public Categoria(Long id, String nomeCategoria, Long id_fornecedor) {
+    public Categoria(Long id, String nomeCategoria, String codCategoria, Fornecedor fornecedor) {
+        this.id = id;
+        this.nomeCategoria = nomeCategoria;
+        this.codCategoria = codCategoria;
+        this.fornecedor = fornecedor;
     }
 
     public Long getId() {
@@ -65,6 +69,4 @@ public class Categoria {
                 "cod_categoria = " + codCategoria +
                 "id_categoria_fornecedor = " + fornecedor + '}';
     }
-
-
 }

@@ -1,4 +1,4 @@
-package br.com.hbsis.LinhasCategorias;
+package br.com.hbsis.linhas;
 
 public class LinhasDTO {
 
@@ -49,7 +49,7 @@ public class LinhasDTO {
         this.codLinhas = codLinhas;
     }
 
-    public static LinhasDTO OF(Linhas linhas) {
+    public static LinhasDTO of(Linhas linhas) {
         return new LinhasDTO(
                 linhas.getId(),
                 linhas.getNomeLinhas(),
@@ -66,7 +66,5 @@ public class LinhasDTO {
                 "cod_Linhas = " + codLinhas +
                 "id_Linhas_Categoria = " + idLinhasCategoria + '}';
     }
-
-
 }
 

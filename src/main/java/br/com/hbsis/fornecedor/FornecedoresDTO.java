@@ -1,20 +1,20 @@
 package br.com.hbsis.fornecedor;
 
 
-public class FonecedoresDTO {
-    private Long id;
-    private String nome;
+public class FornecedoresDTO {
+    private Long   id;
     private String razao;
     private String cnpj;
     private String nomeFan;
     private String endereco;
-    private String telefone;
+    private Long telefone;
     private String email;
 
-    public FonecedoresDTO() {
+    //- deixa viver para mandar json
+    public FornecedoresDTO() {
     }
 
-    public FonecedoresDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, String telefone, String email) {
+    public FornecedoresDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, Long telefone, String email) {
         this.id = id;
         this.razao = razao;
         this.cnpj = cnpj;
@@ -24,8 +24,8 @@ public class FonecedoresDTO {
         this.email = email;
     }
 
-    public static FonecedoresDTO OF(Fornecedor fornecedor) {
-        return new FonecedoresDTO(
+    public static FornecedoresDTO of(Fornecedor fornecedor) {
+        return new FornecedoresDTO(
                 fornecedor.getId(),
                 fornecedor.getRazao(),
                 fornecedor.getCnpj(),
@@ -65,7 +65,7 @@ public class FonecedoresDTO {
     }
 
     public void setNomeFantasia(String nomeFantasia) {
-        this.nomeFan = nomeFan;
+        this.nomeFan = nomeFantasia;
     }
 
     public String getEndereco() {
@@ -76,11 +76,11 @@ public class FonecedoresDTO {
         this.endereco = endereco;
     }
 
-    public String getTelefone() {
+    public Long getTelefone() {
         return telefone;
     }
 
-    public void setTelefone(String telefone) {
+    public void setTelefone(Long telefone) {
         this.telefone = telefone;
     }
 
@@ -97,11 +97,13 @@ public class FonecedoresDTO {
 
         return "seg_fornecedores{" +
                 "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", nomefan='" + nomeFan + '\'' +
-                ", cnpj='" + endereco + '\'' +
-                ", cnpj='" + telefone + '\'' +
-                ", email='" + email + '\'' +
+                ", razao ='"    +razao      + '\'' +
+                ", cnpj='"      +cnpj       + '\'' +
+                ", nomefan='"   +nomeFan    + '\'' +
+                ", endereco='"  +endereco   + '\'' +
+                ", telefone='"  +telefone   + '\'' +
+                ", email='"     +email      + '\'' +
                 '}';
     }
+
 }

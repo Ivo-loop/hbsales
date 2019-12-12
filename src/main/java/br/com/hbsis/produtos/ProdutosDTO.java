@@ -1,4 +1,4 @@
-package br.com.hbsis.Produtos;
+package br.com.hbsis.produtos;
 
 import java.time.LocalDateTime;
 
@@ -10,10 +10,13 @@ public class ProdutosDTO {
     private Long idProdutosLinhas;
     private Float uniPerCax;
     private Float pesoPerUni;
+    private String unidade;
     private LocalDateTime validade;
 
+    public ProdutosDTO() {
+    }
 
-    public ProdutosDTO(Long id, String nomeProduto, String codProdutos, Float preco, Long idProdutosLinhas, Float uniPerCax, Float pesoPerUni, LocalDateTime validade) {
+    public ProdutosDTO(Long id, String nomeProduto, String codProdutos, Float preco, Long idProdutosLinhas, Float uniPerCax, Float pesoPerUni, String unidade, LocalDateTime validade) {
         this.id = id;
         this.nomeProduto = nomeProduto;
         this.codProdutos = codProdutos;
@@ -21,7 +24,22 @@ public class ProdutosDTO {
         this.idProdutosLinhas = idProdutosLinhas;
         this.uniPerCax = uniPerCax;
         this.pesoPerUni = pesoPerUni;
+        this.unidade = unidade;
         this.validade = validade;
+    }
+
+    public static ProdutosDTO of(Produtos produtos) {
+        return new ProdutosDTO(
+                produtos.getId(),
+                produtos.getNomeProduto(),
+                produtos.getCodProdutos(),
+                produtos.getPreco(),
+                produtos.getLinhas().getId(),
+                produtos.getUniPerCax(),
+                produtos.getPesoPerUni(),
+                produtos.getUnidade(),
+                produtos.getValidade()
+        );
     }
 
     public Long getId() {
@@ -80,6 +98,14 @@ public class ProdutosDTO {
         this.pesoPerUni = pesoPerUni;
     }
 
+    public String getUnidade() {
+        return unidade;
+    }
+
+    public void setUnidade(String unidade) {
+        this.unidade = unidade;
+    }
+
     public LocalDateTime getValidade() {
         return validade;
     }
@@ -88,29 +114,4 @@ public class ProdutosDTO {
         this.validade = validade;
     }
 
-    public static ProdutosDTO OF(Produtos produtos) {
-        return new ProdutosDTO(
-                produtos.getId(),
-                produtos.getNomeProduto(),
-                produtos.getCodProdutos(),
-                produtos.getPreco(),
-                produtos.getLinhas().getId(),
-                produtos.getUniPerCax(),
-                produtos.getPesoPerUni(),
-                produtos.getValidade()
-        );
-    }
-
-    @Override
-    public String toString() {
-        return "seg_categoria{" +
-                "id = " + id +
-                "nome_Produto = '" + nomeProduto + '\'' +
-                "cod_Produto = " + codProdutos +
-                "preco_Produto = " + preco +
-                "id_Produto_Linhas = " + idProdutosLinhas +
-                "uniPerCax_Produto = " + uniPerCax +
-                "pesoPerUni_Produto = " + pesoPerUni +
-                "validade_Produto = " + validade + '}';
-    }
 }

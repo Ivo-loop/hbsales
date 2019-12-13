@@ -219,11 +219,4 @@ public class CategoriaService {
 
         this.iCategoriaRepository.deleteById(id);
     }
-
-    //lista categoria
-    public List<Categoria> listarCategoria() {
-        List<Categoria> categorias;
-        categorias = this.iCategoriaRepository.findAll();
-        return categorias;
-    }
 }

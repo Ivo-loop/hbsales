@@ -1,18 +1,11 @@
 package br.com.hbsis.fornecedor;
 
-import com.opencsv.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,59 +55,6 @@ public class FornecedorService {
         return iFonecedoresRepository.findAll();
     }
 
-    //exporta
-    public void exportCSV(HttpServletResponse retorno) throws Exception {
-        String nameArq = "produto.csv";
-        retorno.setContentType("text/csv");
-        retorno.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + nameArq + "\"");
-
-        PrintWriter info = retorno.getWriter();
-
-        ICSVWriter csvInfo = new CSVWriterBuilder(info).withSeparator(';')
-                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-        for (Fornecedor fornecedor : this.findAll()) {
-            csvInfo.writeNext(new String[]{String.valueOf(fornecedor.getId()),
-                    fornecedor.getRazao(),
-                    String.valueOf(fornecedor.getCnpj()),
-                    fornecedor.getNomefan(),
-                    fornecedor.getEndereco(),
-                    String.valueOf(fornecedor.getTelefone()),
-                    fornecedor.getEmail()});
-        }
-    }
-
-    // faz a importacao
-    public List<Fornecedor> readAll(MultipartFile file) throws Exception {
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(0).build();
-
-        List<String[]> linhas = csvReader.readAll();
-        List<Fornecedor> resultadoLeitura = new ArrayList<>();
-
-        for (String[] l : linhas) {
-            try {
-                String[] bean = l[0].replaceAll("\"", "").split(";");
-
-                Fornecedor fornecedor = new Fornecedor();
-
-                fornecedor.setId(Long.parseLong(bean[0]));
-                fornecedor.setRazao(bean[1]);
-                fornecedor.setCnpj(bean[2]);
-                fornecedor.setNomefan(bean[3]);
-                fornecedor.setEndereco(bean[5]);
-                fornecedor.setTelefone(Long.parseLong(bean[6]));
-                fornecedor.setEmail(bean[7]);
-
-                resultadoLeitura.add(fornecedor);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        return iFonecedoresRepository.saveAll(resultadoLeitura);
-    }
 
     //salva o fornecedor no Database
     public FornecedoresDTO save(FornecedoresDTO fornecedoresDTO) {
@@ -209,13 +149,5 @@ public class FornecedorService {
         LOGGER.info("Executando delete para Fornecedor de ID: [{}]", id);
 
         this.iFonecedoresRepository.deleteById(id);
-    }
-
-    //listar os fornecedores
-    public List<Fornecedor> listarForne() {
-        TODO: 12/12/2019 se vc não usa....
-        List<Fornecedor> fornecedores;
-        fornecedores = this.iFonecedoresRepository.findAll();
-        return fornecedores;
     }
 }

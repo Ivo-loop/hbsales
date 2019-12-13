@@ -143,11 +143,4 @@ public class VendasService {
         this.iVendasRepository.deleteById(id);
 
     }
-
-    //lista
-    public List<Vendas> listarVendas() {
-        List<Vendas> vendas;
-        vendas = this.iVendasRepository.findAll();
-        return vendas;
-    }
 }

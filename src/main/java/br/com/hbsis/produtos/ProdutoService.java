@@ -385,11 +385,4 @@ public class ProdutoService {
         this.iProdutosRepository.deleteById(id);
     }
 
-    //lista
-    public List<Produtos> listarProdutos() {
-        List<Produtos> produtos;
-        produtos = this.iProdutosRepository.findAll();
-        return produtos;
-    }
-
 }

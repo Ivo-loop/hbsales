@@ -215,12 +215,4 @@ public class LinhasService {
 
         this.iLinhasRepository.deleteById(id);
     }
-
-    //lista
-    public List<Linhas> listarLinhas() {
-        List<Linhas> linhas;
-        linhas = this.iLinhasRepository.findAll();
-        return linhas;
-    }
-
 }

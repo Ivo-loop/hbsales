@@ -21,22 +21,6 @@ public class FornecedorRest {
         this.fornecedorService = fornecedorService;
     }
 
-    @GetMapping("/export-csv")
-    public void exportCSV(HttpServletResponse response) throws Exception {
-        LOGGER.info("Recebendo solicitação de exportacao de categoria...");
-
-        //manda exporta
-        fornecedorService.exportCSV(response);
-    }
-
-    @PostMapping("/import-csv")
-    public void importCSV(@RequestParam("file") MultipartFile file) throws Exception {
-        LOGGER.info("Recebendo solicitação de importacao de categoria...");
-
-        //manda ler
-        fornecedorService.readAll(file);
-    }
-
     @PostMapping
     public FornecedoresDTO save(@RequestBody FornecedoresDTO fonecedoresDTO) {
         LOGGER.info("Recebendo solicitação de persistência de Fornecedor...");

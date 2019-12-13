@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.ParseException;
 
 
 @RestController
@@ -31,19 +33,20 @@ public class CategoriaRest {
     }
 
     @GetMapping("/export-csv")
-    public void exportCSV(HttpServletResponse response) throws Exception {
+    public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
         LOGGER.info("Recebendo solicitação de exportacao de categoria...");
 
         //manda exporta
         categoriaService.exportCSV(response);
     }
 
+
     @PostMapping("/import-csv")
     public void importCSV(@RequestParam("file") MultipartFile file) throws Exception {
         LOGGER.info("Recebendo solicitação de importacao de categoria...");
 
         //manda ler
-        categoriaService.readAll(file);
+       categoriaService.importCSV(file);
     }
 
     @GetMapping("/{id}")

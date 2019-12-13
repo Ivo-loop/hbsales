@@ -1,30 +1,17 @@
 package br.com.hbsis.produtos;
 
-import br.com.hbsis.categorias.Categoria;
-import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
 import br.com.hbsis.categorias.ICategoriaRepository;
-import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.fornecedor.IFornecedoresRepository;
 import br.com.hbsis.linhas.ILinhasRepository;
-import br.com.hbsis.linhas.Linhas;
-import br.com.hbsis.linhas.LinhasDTO;
 import br.com.hbsis.linhas.LinhasService;
-import com.opencsv.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,223 +63,223 @@ public class ProdutoService {
     }
 
     //importa produto do para o fornecedor
-    public void importProdutoFornecedor(String cod, MultipartFile file) throws Exception {
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-
-        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader)
-                .withSkipLines(1)
-                .build();
-
-        List<String[]> linhaString = csvReader.readAll();
-        List<Produtos> resultadoLeitura = new ArrayList<>();
-
-        for (String[] linha : linhaString) {
-            try {
-                String[] bean = linha[0].replaceAll("\" ", "").replaceAll("/", "-").split(";");
-
-                //criar na hora que eu for setar
-                // TODO: 12/12/2019 só realizar a consulta quando a for utilizar o valor
-                Optional<Fornecedor> optionalFornecedor = iFornecedoresRepository.findByCnpj(cod);
-                Optional<Categoria> optionalCategoria = iCategoriaRepository.findByCodCategoria(bean[9]);
-                Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);
-                Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(bean[0]);
-
-                //fornecedor existe
-                if (optionalFornecedor.isPresent()) {
-
-                    //Categoria nao existe cria categoria
-                    if (!optionalCategoria.isPresent()) {
-                        CategoriaDTO categoriaDTO;
-                        categoriaDTO = new CategoriaDTO(null, bean[10], fornecedorService.findByCnpj(cod).getId(), bean[9].substring(7,10));
-                        categoriaService.save(categoriaDTO);
-                    }
-
-                    //Categoria existe procura e pega ela
-                    Optional<Categoria> optionalCategoria2 = iCategoriaRepository.findByCodCategoria(bean[9]);
-                    if (!optionalCategoria.isPresent() && optionalCategoria2.isPresent()) {
-                        Categoria categoriaclass = new Categoria();
-                        CategoriaDTO categoriaDTO;
-
-                        categoriaDTO = categoriaService.findByCodCategoria(bean[9]);
-
-                        categoriaclass.setId(categoriaDTO.getId());
-                        categoriaclass.setCodCategoria(bean[9]);
-                        categoriaclass.setNomeCategoria(bean[10]);
-                        categoriaclass.setFornecedor(fornecedorService.findByFornecedorId(fornecedorService.findByCnpj(cod).getId()));
-                    }
-
-                    //Linhas nao existe cria linhas
-                    if (!optionalLinhas.isPresent()) {
-                        LinhasDTO linhasDTO;
-                        linhasDTO = new LinhasDTO(null, bean[8], bean[7], categoriaService.findByCodCategoria(bean[9]).getId());
-                        linhasService.save(linhasDTO);
-                    }
-
-                    //Linhas existe procura e pega ela
-                    Optional<Linhas> optionalLinhas1 = iLinhasRepository.findByCodLinhas(bean[7]);
-                    if (!optionalLinhas.isPresent() && optionalLinhas1.isPresent()) {
-                        Categoria categoriaclass = new Categoria();
-
-                        Linhas linhasClass = new Linhas();
-                        LinhasDTO linhasDTO;
-
-                        linhasDTO = linhasService.findByCodLinhas(bean[7]);
-
-                        linhasClass.setId(linhasDTO.getId());
-                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
-                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
-                        linhasClass.setCategoria(categoriaclass);
-                    }
-
-                    //Produto nao existe cria produtos
-                    if (!optionalProdutos.isPresent()) {
-
-                        ProdutosDTO produtosDTO;
-                        produtosDTO = new ProdutosDTO(null, bean[1], bean[0],
-                                Float.parseFloat(bean[2].replaceAll("[R$]", "")),
-                                linhasService.findByCodLinhas(bean[7]).getId(), Float.parseFloat(bean[3]),
-                                Float.parseFloat(bean[4]), bean[5], (LocalDateTime.parse(bean[6].substring(6, 10)
-                                + bean[6].substring(2, 6)
-                                + bean[6].substring(0, 2) + "T00:00:00"))
-                        );
-                        this.save(produtosDTO);
-                    } else {
-
-                        Optional<Produtos> optionalProdutos1 = this.iProdutosRepository.findByCodProdutos(bean[0]);
-                        if (!optionalProdutos.isPresent() && optionalProdutos1.isPresent()) {
-                            Linhas linhasClass = new Linhas();
-
-                            Produtos produtos = new Produtos();
-
-                            produtos.setCodProdutos(bean[0].toUpperCase());
-                            produtos.setNomeProduto(bean[1]);
-                            produtos.setPreco(Float.parseFloat(bean[2].replaceAll("[R$]", "")));
-                            produtos.setUniPerCax(Float.parseFloat(bean[3]));
-                            produtos.setPesoPerUni(Float.parseFloat(bean[4]));
-                            produtos.setUnidade(bean[5]);
-                            System.out.println(bean[6]);
-                            produtos.setValidade(LocalDateTime.parse(bean[6].substring(6, 10)
-                                    + bean[6].substring(2, 6)
-                                    + bean[6].substring(0, 2) + "T00:00:00"));
-                            produtos.setLinhas(linhasClass);
-
-                            produtos.setLinhas(linhasClass);
-
-
-                            this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(bean[0]).getId());
-                        }
-                    }
-                }
-                //fornecedor nao existe
-                else {
-                    throw new IllegalArgumentException("fornecedor nao existe:" + cod);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public void importProdutoFornecedor(String cod, MultipartFile file) throws Exception {
+//        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
+//
+//        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader)
+//                .withSkipLines(1)
+//                .build();
+//
+//        List<String[]> linhaString = csvReader.readAll();
+//        List<Produtos> resultadoLeitura = new ArrayList<>();
+//
+//        for (String[] linha : linhaString) {
+//            try {
+//                String[] bean = linha[0].replaceAll("\" ", "").replaceAll("/", "-").split(";");
+//
+//                //criar na hora que eu for setar
+//                // TODO: 12/12/2019 só realizar a consulta quando a for utilizar o valor
+//                Optional<Fornecedor> optionalFornecedor = iFornecedoresRepository.findByCnpj(cod);
+//                Optional<Categoria> optionalCategoria = iCategoriaRepository.findByCodCategoria(bean[9]);
+//                Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);
+//                Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(bean[0]);
+//
+//                //fornecedor existe
+//                if (optionalFornecedor.isPresent()) {
+//
+//                    //Categoria nao existe cria categoria
+//                    if (!optionalCategoria.isPresent()) {
+//                        CategoriaDTO categoriaDTO;
+//                        categoriaDTO = new CategoriaDTO(null, bean[10], fornecedorService.findByCnpj(cod).getId(), bean[9].substring(7,10));
+//                        categoriaService.save(categoriaDTO);
+//                    }
+//
+//                    //Categoria existe procura e pega ela
+//                    Optional<Categoria> optionalCategoria2 = iCategoriaRepository.findByCodCategoria(bean[9]);
+//                    if (!optionalCategoria.isPresent() && optionalCategoria2.isPresent()) {
+//                        Categoria categoriaclass = new Categoria();
+//                        CategoriaDTO categoriaDTO;
+//
+//                        categoriaDTO = categoriaService.findByCodCategoria(bean[9]);
+//
+//                        categoriaclass.setId(categoriaDTO.getId());
+//                        categoriaclass.setCodCategoria(bean[9]);
+//                        categoriaclass.setNomeCategoria(bean[10]);
+//                        categoriaclass.setFornecedor(fornecedorService.findByFornecedorId(fornecedorService.findByCnpj(cod).getId()));
+//                    }
+//
+//                    //Linhas nao existe cria linhas
+//                    if (!optionalLinhas.isPresent()) {
+//                        LinhasDTO linhasDTO;
+//                        linhasDTO = new LinhasDTO(null, bean[8], bean[7], categoriaService.findByCodCategoria(bean[9]).getId());
+//                        linhasService.save(linhasDTO);
+//                    }
+//
+//                    //Linhas existe procura e pega ela
+//                    Optional<Linhas> optionalLinhas1 = iLinhasRepository.findByCodLinhas(bean[7]);
+//                    if (!optionalLinhas.isPresent() && optionalLinhas1.isPresent()) {
+//                        Categoria categoriaclass = new Categoria();
+//
+//                        Linhas linhasClass = new Linhas();
+//                        LinhasDTO linhasDTO;
+//
+//                        linhasDTO = linhasService.findByCodLinhas(bean[7]);
+//
+//                        linhasClass.setId(linhasDTO.getId());
+//                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
+//                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
+//                        linhasClass.setCategoria(categoriaclass);
+//                    }
+//
+//                    //Produto nao existe cria produtos
+//                    if (!optionalProdutos.isPresent()) {
+//
+//                        ProdutosDTO produtosDTO;
+//                        produtosDTO = new ProdutosDTO(null, bean[1], bean[0],
+//                                Float.parseFloat(bean[2].replaceAll("[R$]", "")),
+//                                linhasService.findByCodLinhas(bean[7]).getId(), Float.parseFloat(bean[3]),
+//                                Float.parseFloat(bean[4]), bean[5], (LocalDateTime.parse(bean[6].substring(6, 10)
+//                                + bean[6].substring(2, 6)
+//                                + bean[6].substring(0, 2) + "T00:00:00"))
+//                        );
+//                        this.save(produtosDTO);
+//                    } else {
+//
+//                        Optional<Produtos> optionalProdutos1 = this.iProdutosRepository.findByCodProdutos(bean[0]);
+//                        if (!optionalProdutos.isPresent() && optionalProdutos1.isPresent()) {
+//                            Linhas linhasClass = new Linhas();
+//
+//                            Produtos produtos = new Produtos();
+//
+//                            produtos.setCodProdutos(bean[0].toUpperCase());
+//                            produtos.setNomeProduto(bean[1]);
+//                            produtos.setPreco(Float.parseFloat(bean[2].replaceAll("[R$]", "")));
+//                            produtos.setUniPerCax(Float.parseFloat(bean[3]));
+//                            produtos.setPesoPerUni(Float.parseFloat(bean[4]));
+//                            produtos.setUnidade(bean[5]);
+//                            System.out.println(bean[6]);
+//                            produtos.setValidade(LocalDateTime.parse(bean[6].substring(6, 10)
+//                                    + bean[6].substring(2, 6)
+//                                    + bean[6].substring(0, 2) + "T00:00:00"));
+//                            produtos.setLinhas(linhasClass);
+//
+//                            produtos.setLinhas(linhasClass);
+//
+//
+//                            this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(bean[0]).getId());
+//                        }
+//                    }
+//                }
+//                //fornecedor nao existe
+//                else {
+//                    throw new IllegalArgumentException("fornecedor nao existe:" + cod);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     //exporta
-    public void exportCSV(HttpServletResponse retorno) throws Exception {
-        String nameArq = "produto.csv";
-        retorno.setContentType("text/csv");
-        retorno.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + nameArq + "\"");
-
-        PrintWriter info = retorno.getWriter();
-
-        ICSVWriter csvWriter = new CSVWriterBuilder(info).withSeparator(';')
-                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
-        String nomeColunas[] = {"codigo", "nome",
-                "preço", "quantidade_por_caixa",
-                "peso_por_unidade",
-                "data_validade", "codigo_linha_categoria",
-                "linha_categoria", "codigo_categoria",
-                "categoria", "razao_social_fornecedor",
-                "cnpj_fornecedor"
-        };
-        csvWriter.writeNext(nomeColunas);
-
-        for (Produtos produtos : this.findAll()) {
-            String splitar = String.valueOf(produtos.getValidade());
-            String[] splitado = splitar.split("-");
-            String formatar = produtos.getLinhas().getCategoria().getFornecedor().getCnpj();
-
-            String fornecedor = formatar.substring(0, 2) + "." + formatar.substring(2, 5) + "." + formatar.substring(5, 8) + "/" +
-                    formatar.substring(8, 12) + "-" + formatar.substring(12, 14);
-
-            csvWriter.writeNext(new String[]{
-                    produtos.getCodProdutos().toUpperCase(),
-                    produtos.getNomeProduto(),
-                    String.valueOf(produtos.getPreco()),
-                    String.valueOf(produtos.getUniPerCax()),
-                    (produtos.getPesoPerUni()) + produtos.getUnidade(),
-                    (splitado[2].substring(0, 2) + "/" + splitado[1] + "/" + splitado[0]),
-                    produtos.getLinhas().getCodLinhas(),
-                    produtos.getLinhas().getNomeLinhas(),
-                    produtos.getLinhas().getCategoria().getCodCategoria(),
-                    produtos.getLinhas().getCategoria().getNomeCategoria(),
-                    produtos.getLinhas().getCategoria().getFornecedor().getRazao(),
-                    fornecedor
-            });
-        }
-    }
-
-    // faz a importacao
-    public List<Produtos> readAll(MultipartFile file) throws Exception {
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-
-        List<String[]> linhas = csvReader.readAll();
-        List<Produtos> resultadoLeitura = new ArrayList<>();
-
-        for (String[] l : linhas) {
-            try {
-                String[] bean = l[0].replaceAll("\"", "").split(";");
-
-                Produtos produtos = new Produtos();
-                Linhas linhasClass = new Linhas();
-                LinhasDTO linhasDTO;
-
-                Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(bean[0]);
-
-                if (!optionalProdutos.isPresent()) {
-
-                    produtos.setCodProdutos(bean[0].toUpperCase());
-                    produtos.setNomeProduto(bean[1]);
-                    produtos.setPreco(Float.parseFloat(bean[2].replaceAll("[R$]", "")));
-                    produtos.setUniPerCax(Float.parseFloat(bean[3]));
-                    produtos.setPesoPerUni(Float.parseFloat(bean[4]));
-                    produtos.setUnidade(bean[5]);
-                    produtos.setValidade(LocalDateTime.parse(bean[6].substring(7, 11)
-                            + bean[6].substring(3, 7)
-                            + bean[6].substring(1, 3) + "T00:00:00"));
-
-                    Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);
-
-                    if (optionalLinhas.isPresent()) {
-
-                        linhasDTO = linhasService.findByCodLinhas(bean[7]);
-
-                        linhasClass.setId(linhasDTO.getId());
-                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
-                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
-                        produtos.setLinhas(linhasClass);
-
-                        produtos.setLinhas(linhasClass);
-                        resultadoLeitura.add(produtos);
-                        return iProdutosRepository.saveAll(resultadoLeitura);
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        return resultadoLeitura;
-    }
+//    public void exportCSV(HttpServletResponse retorno) throws Exception {
+//        String nameArq = "produto.csv";
+//        retorno.setContentType("text/csv");
+//        retorno.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+//                "attachment; filename=\"" + nameArq + "\"");
+//
+//        PrintWriter info = retorno.getWriter();
+//
+//        ICSVWriter csvWriter = new CSVWriterBuilder(info).withSeparator(';')
+//                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
+//                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
+//
+//        String nomeColunas[] = {"codigo", "nome",
+//                "preço", "quantidade_por_caixa",
+//                "peso_por_unidade",
+//                "data_validade", "codigo_linha_categoria",
+//                "linha_categoria", "codigo_categoria",
+//                "categoria", "razao_social_fornecedor",
+//                "cnpj_fornecedor"
+//        };
+//        csvWriter.writeNext(nomeColunas);
+//
+//        for (Produtos produtos : this.findAll()) {
+//            String splitar = String.valueOf(produtos.getValidade());
+//            String[] splitado = splitar.split("-");
+//            String formatar = produtos.getLinhas().getCategoria().getFornecedor().getCnpj();
+//
+//            String fornecedor = formatar.substring(0, 2) + "." + formatar.substring(2, 5) + "." + formatar.substring(5, 8) + "/" +
+//                    formatar.substring(8, 12) + "-" + formatar.substring(12, 14);
+//
+//            csvWriter.writeNext(new String[]{
+//                    produtos.getCodProdutos().toUpperCase(),
+//                    produtos.getNomeProduto(),
+//                    String.valueOf(produtos.getPreco()),
+//                    String.valueOf(produtos.getUniPerCax()),
+//                    (produtos.getPesoPerUni()) + produtos.getUnidade(),
+//                    (splitado[2].substring(0, 2) + "/" + splitado[1] + "/" + splitado[0]),
+//                    produtos.getLinhas().getCodLinhas(),
+//                    produtos.getLinhas().getNomeLinhas(),
+//                    produtos.getLinhas().getCategoria().getCodCategoria(),
+//                    produtos.getLinhas().getCategoria().getNomeCategoria(),
+//                    produtos.getLinhas().getCategoria().getFornecedor().getRazao(),
+//                    fornecedor
+//            });
+//        }
+//    }
+//
+//    // faz a importacao
+//    public List<Produtos> readAll(MultipartFile file) throws Exception {
+//        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
+//        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
+//
+//        List<String[]> linhas = csvReader.readAll();
+//        List<Produtos> resultadoLeitura = new ArrayList<>();
+//
+//        for (String[] l : linhas) {
+//            try {
+//                String[] bean = l[0].replaceAll("\"", "").split(";");
+//
+//                Produtos produtos = new Produtos();
+//                Linhas linhasClass = new Linhas();
+//                LinhasDTO linhasDTO;
+//
+//                Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(bean[0]);
+//
+//                if (!optionalProdutos.isPresent()) {
+//
+//                    produtos.setCodProdutos(bean[0].toUpperCase());
+//                    produtos.setNomeProduto(bean[1]);
+//                    produtos.setPreco(Float.parseFloat(bean[2].replaceAll("[R$]", "")));
+//                    produtos.setUniPerCax(Float.parseFloat(bean[3]));
+//                    produtos.setPesoPerUni(Float.parseFloat(bean[4]));
+//                    produtos.setUnidade(bean[5]);
+//                    produtos.setValidade(LocalDateTime.parse(bean[6].substring(7, 11)
+//                            + bean[6].substring(3, 7)
+//                            + bean[6].substring(1, 3) + "T00:00:00"));
+//
+//                    Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);
+//
+//                    if (optionalLinhas.isPresent()) {
+//
+//                        linhasDTO = linhasService.findByCodLinhas(bean[7]);
+//
+//                        linhasClass.setId(linhasDTO.getId());
+//                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
+//                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
+//                        produtos.setLinhas(linhasClass);
+//
+//                        produtos.setLinhas(linhasClass);
+//                        resultadoLeitura.add(produtos);
+//                        return iProdutosRepository.saveAll(resultadoLeitura);
+//                    }
+//                }
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+//        return resultadoLeitura;
+//    }
 
     //salva
     public ProdutosDTO save(ProdutosDTO produtosDTO) {

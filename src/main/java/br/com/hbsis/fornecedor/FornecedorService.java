@@ -1,11 +1,18 @@
 package br.com.hbsis.fornecedor;
 
+import br.com.hbsis.categorias.Categoria;
+import br.com.hbsis.categorias.CategoriaDTO;
+import br.com.hbsis.categorias.CategoriaService;
+import br.com.hbsis.categorias.ICategoriaRepository;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.MaskFormatter;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,10 +20,17 @@ import java.util.Optional;
 public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
     private final IFornecedoresRepository iFonecedoresRepository;
+    private final CategoriaService categoriaService;
+    private final ICategoriaRepository iCategoriaRepository;
 
+    /*- falar com kbral bug de loop
+     * ele so acontece se o fornecedor da categoria mude, entao nao deve ser utilizado no categoria
+     */
     @Autowired
-    public FornecedorService(IFornecedoresRepository iFonecedoresRepository) {
+    public FornecedorService(IFornecedoresRepository iFonecedoresRepository, @Lazy CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
         this.iFonecedoresRepository = iFonecedoresRepository;
+        this.categoriaService = categoriaService;
+        this.iCategoriaRepository = iCategoriaRepository;
     }
 
     //puxa o fornecedor pelo Id dele, seta ele como DTO
@@ -137,6 +151,15 @@ public class FornecedorService {
             fornecedorExistente.setTelefone(fonecedoresDTO.getTelefone());
             fornecedorExistente.setEmail(fonecedoresDTO.getEmail());
 
+            List<Categoria> buscaCategorias = iCategoriaRepository.findAllByFornecedor_IdIs(id);
+            for (Categoria categorai :buscaCategorias) {
+                CategoriaDTO categoriaDTO = new CategoriaDTO();
+                categoriaDTO.setId(categorai.getId());
+                categoriaDTO.setNomeCategoria(categorai.getNomeCategoria());
+                categoriaDTO.setIdCategoriaFornecedor(categorai.getFornecedor().getId());
+                categoriaDTO.setCodigo("CAT"+fornecedorExistente.getCnpj().substring(10,14)+categorai.getCodCategoria().substring(7,10));
+                categoriaService.update(categoriaDTO, categoriaDTO.getId());
+            }
             fornecedorExistente = this.iFonecedoresRepository.save(fornecedorExistente);
 
             return FornecedoresDTO.of(fornecedorExistente);
@@ -149,5 +172,14 @@ public class FornecedorService {
         LOGGER.info("Executando delete para Fornecedor de ID: [{}]", id);
 
         this.iFonecedoresRepository.deleteById(id);
+    }
+
+    public String getCnpjMask(String cnpj) throws ParseException {
+
+        MaskFormatter mask = new MaskFormatter("##.###.###/####-##");
+        mask.setValueContainsLiteralCharacters(false);
+
+        String formatado = mask.valueToString(cnpj);
+        return formatado;
     }
 }

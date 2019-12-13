@@ -34,7 +34,7 @@ public class ProdutosRest {
         LOGGER.info("atualizando Produtos do Fornecedor de ID... [{}]", cod);
 
         //manda importa
-        produtoService.importProdutoFornecedor(cod, file);
+        //produtoService.importProdutoFornecedor(cod, file);
     }
 
     @GetMapping("/export-csv")
@@ -42,7 +42,7 @@ public class ProdutosRest {
         LOGGER.info("Recebendo solicitação de exportacao de categoria...");
 
         //manda exporta
-        produtoService.exportCSV(retorno);
+       // produtoService.exportCSV(retorno);
     }
 
     @PostMapping("/import-csv")
@@ -50,7 +50,7 @@ public class ProdutosRest {
         LOGGER.info("Recebendo solicitação de importacao de categoria...");
 
         //manda importa
-        produtoService.readAll(file);
+        //produtoService.readAll(file);
     }
 
     @GetMapping("/{id}")

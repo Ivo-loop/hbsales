@@ -34,7 +34,7 @@ public class LinhasRest {
         LOGGER.info("Recebendo solicitação de exportacao de Linhas...");
 
         //manda exporta
-        linhasService.exportCSV(response);
+        //linhasService.exportCSV(response);
     }
 
     @PostMapping("/import-csv")
@@ -42,7 +42,7 @@ public class LinhasRest {
         LOGGER.info("Recebendo solicitação de importacao de Linhas...");
 
         //manda importa
-        linhasService.readAll(file);
+       // linhasService.readAll(file);
     }
 
     @GetMapping("/{id}")

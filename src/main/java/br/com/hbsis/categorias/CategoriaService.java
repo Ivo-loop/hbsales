@@ -1,7 +1,5 @@
 package br.com.hbsis.categorias;
 
-
-import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.fornecedor.FornecedoresDTO;
 import br.com.hbsis.fornecedor.IFornecedoresRepository;
@@ -73,18 +71,24 @@ public class CategoriaService {
 
         //seta o nome do arq
         String categoriaCSV = "categoria.csv";
+
         //seta o tipo do arq da resposta
         response.setContentType("text/csv");
+
         //config do header
         String headerKey = "Content-Disposition";
+
         //como é aberto em anexo
         String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
 
         response.setHeader(headerKey, headerValue);
+
         //instancia Print e seta como escritor
         PrintWriter printWriter = response.getWriter();
+
         //seta cabeça do cvs
         String header = " Código da categoria ; Nome da categoria ; Razão social ;  CNPJ";
+
         // escreve o cabeçario
         printWriter.println(header);
         for (Categoria categoria : iCategoriaRepository.findAll()) {
@@ -102,17 +106,23 @@ public class CategoriaService {
 
         String arquivo = "";
         String separator = ";";
-
+        //achado na net
         try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
+            //para pular a primeira linha ass:
             arquivo = leitor.readLine();
+            //le as linhas
             while ((arquivo = leitor.readLine()) != null) {
                 String[] categoriaCSV = arquivo.split(separator);
-                Optional<FornecedoresDTO> fornecedorOptional = Optional.ofNullable(fornecedorService.findByCnpj(categoriaCSV[3].replaceAll("\\D", "")));
-                Optional<Categoria> categoriaProdutoExisteOptional = this.iCategoriaRepository.findByCodCategoria(categoriaCSV[1]);
+                //"\\D" so mantem os digitos de 0-9
+                Optional<FornecedoresDTO> fornecedorOptional = Optional.ofNullable(fornecedorService.findByCnpj(
+                        categoriaCSV[3].replaceAll("\\D", "")));
+                Optional<Categoria> categoriaProdutoExisteOptional = this.iCategoriaRepository.findByCodCategoria(categoriaCSV[0]);
+
+                //confere se existe se nao ele inseri
                 if (!(categoriaProdutoExisteOptional.isPresent()) && fornecedorOptional.isPresent()) {
                     CategoriaDTO categoria = new CategoriaDTO();
                     categoria.setNomeCategoria(categoriaCSV[1]);
-                    categoria.setCodigo(categoriaCSV[0]);
+                    categoria.setCodigo(categoriaCSV[0].substring(7,10));
                     FornecedoresDTO fornecedor = fornecedorService.findByCnpj(categoriaCSV[3].replaceAll("\\D", ""));
                     categoria.setIdCategoriaFornecedor(fornecedor.getId());
                     this.save(categoria);
@@ -122,51 +132,6 @@ public class CategoriaService {
             e.printStackTrace();
         }
     }
-
-    //le csv
-//    public List<Categoria> readAll(MultipartFile file) throws Exception {
-//        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-//        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-//
-//        List<String[]> linhas = csvReader.readAll();
-//        List<Categoria> resultadoLeitura = new ArrayList<>();
-//
-//        //passa linhas por linha e inseri
-//        for (String[] l : linhas) {
-//            try {
-//                //substitui barra por espaço vazio
-//                String[] bean = l[0].replaceAll("[-\"/]", "")
-//                        .split(";");
-//
-//                Categoria categoria = new Categoria();
-//                Fornecedor fornecedor = new Fornecedor();
-//                FornecedoresDTO fornecedoresDTO;
-//
-//                Optional<Categoria> optionalCategoria = this.iCategoriaRepository.findByCodCategoria(bean[0]);
-//
-//                if (!optionalCategoria.isPresent()) {
-//                    categoria.setNomeCategoria(bean[1]);
-//                    categoria.setCodCategoria(bean[0]);
-//                    Optional<Fornecedor> optionalFornecedor = this.iFornecedoresRepository.findByCnpj(bean[3]);
-//
-//                    if (optionalFornecedor.isPresent()) {
-//                        fornecedoresDTO = fornecedorService.findByCnpj(bean[3]);
-//                        bean[3] = String.valueOf(fornecedoresDTO.getId());
-//                        fornecedor.setId(Long.parseLong(bean[3]));
-//                        categoria.setFornecedor(fornecedor);
-//                        resultadoLeitura.add(categoria);
-//                        //manda salvar tudo
-//                        iCategoriaRepository.saveAll(resultadoLeitura);
-//                    } else {
-//                        throw new IllegalArgumentException("deu ruim ao buscar o fornecedor");
-//                    }
-//                }
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//        return resultadoLeitura;
-//    }
 
     //Salva Categoria no Database
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {

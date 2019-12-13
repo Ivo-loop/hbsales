@@ -135,6 +135,7 @@ public class FornecedorService {
     // Altera as informacoes do banco
     public FornecedoresDTO update(FornecedoresDTO fonecedoresDTO, Long id) {
         // TODO: 12/12/2019 recalcular os códigos das categorias que estão relacionadas com o fornecedor
+        // TODO: 13/12/2019 resolvi
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFonecedoresRepository.findById(id);
         this.validate(fonecedoresDTO);
         if (fornecedorExistenteOptional.isPresent()) {

@@ -132,51 +132,6 @@ public class LinhasService {
         }
     }
 
-
-    //le csv
-//    public List<Linhas> readAll(MultipartFile file) throws Exception {
-//        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-//        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-//
-//        List<String[]> linhas = csvReader.readAll();
-//        List<Linhas> resultadoLeitura = new ArrayList<>();
-//
-//        for (String[] l : linhas) {
-//            try {
-//                String[] bean = l[0].replaceAll("\"", "").split(";");
-//
-//                Linhas linhasCategoria = new Linhas();
-//                Categoria categoria = new Categoria();
-//                CategoriaDTO categoriaDTO;
-//
-//                Optional<Linhas> optionalLinhas = this.iLinhasRepository.findByCodLinhas(bean[0]);
-//
-//                if(!optionalLinhas.isPresent()) {
-//
-//                    linhasCategoria.setCodLinhas(bean[0]);
-//                    linhasCategoria.setNomeLinhas(bean[1]);
-//                    Optional<Categoria> optionalCategoria = iCategoriaRepository.findByCodCategoria(bean[3]);
-//
-//                    if (optionalCategoria.isPresent()) {
-//                        categoriaDTO = categoriaService.findByCodCategoria(bean[3]);
-//                        categoria.setId(categoriaDTO.getId());
-//                        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-//                        linhasCategoria.setCategoria(categoria);
-//
-//                        resultadoLeitura.add(linhasCategoria);
-//                        //manda salvar
-//                        return iLinhasRepository.saveAll(resultadoLeitura);
-//                    }else{
-//                        throw new IllegalArgumentException("deu ruim pegar categoria");
-//                    }
-//                }
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//        return resultadoLeitura;
-//    }
-
     // salva
     public LinhasDTO save(LinhasDTO linhasDTO) {
         this.validate(linhasDTO);

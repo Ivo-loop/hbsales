@@ -39,18 +39,18 @@ public class ProdutosRest {
 
     @GetMapping("/export-csv")
     public void exportCSV(HttpServletResponse retorno) throws Exception {
-        LOGGER.info("Recebendo solicitação de exportacao de categoria...");
+        LOGGER.info("Recebendo solicitação de exportacao de Produto...");
 
         //manda exporta
-       // produtoService.exportCSV(retorno);
+       produtoService.exportCSV(retorno);
     }
 
     @PostMapping("/import-csv")
     public void importCSV(@RequestParam("file") MultipartFile file) throws Exception {
-        LOGGER.info("Recebendo solicitação de importacao de categoria...");
+        LOGGER.info("Recebendo solicitação de importacao de Produto...");
 
         //manda importa
-        //produtoService.readAll(file);
+        produtoService.importCSV(file);
     }
 
     @GetMapping("/{id}")

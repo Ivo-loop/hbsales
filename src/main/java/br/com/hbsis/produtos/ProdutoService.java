@@ -5,13 +5,23 @@ import br.com.hbsis.categorias.ICategoriaRepository;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.fornecedor.IFornecedoresRepository;
 import br.com.hbsis.linhas.ILinhasRepository;
+import br.com.hbsis.linhas.Linhas;
+import br.com.hbsis.linhas.LinhasDTO;
 import br.com.hbsis.linhas.LinhasService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -179,107 +189,97 @@ public class ProdutoService {
 //            }
 //        }
 //    }
+    //Faz a exportacao do banco
+    public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
 
-    //exporta
-//    public void exportCSV(HttpServletResponse retorno) throws Exception {
-//        String nameArq = "produto.csv";
-//        retorno.setContentType("text/csv");
-//        retorno.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-//                "attachment; filename=\"" + nameArq + "\"");
-//
-//        PrintWriter info = retorno.getWriter();
-//
-//        ICSVWriter csvWriter = new CSVWriterBuilder(info).withSeparator(';')
-//                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-//                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-//
-//        String nomeColunas[] = {"codigo", "nome",
-//                "preço", "quantidade_por_caixa",
-//                "peso_por_unidade",
-//                "data_validade", "codigo_linha_categoria",
-//                "linha_categoria", "codigo_categoria",
-//                "categoria", "razao_social_fornecedor",
-//                "cnpj_fornecedor"
-//        };
-//        csvWriter.writeNext(nomeColunas);
-//
-//        for (Produtos produtos : this.findAll()) {
-//            String splitar = String.valueOf(produtos.getValidade());
-//            String[] splitado = splitar.split("-");
-//            String formatar = produtos.getLinhas().getCategoria().getFornecedor().getCnpj();
-//
-//            String fornecedor = formatar.substring(0, 2) + "." + formatar.substring(2, 5) + "." + formatar.substring(5, 8) + "/" +
-//                    formatar.substring(8, 12) + "-" + formatar.substring(12, 14);
-//
-//            csvWriter.writeNext(new String[]{
-//                    produtos.getCodProdutos().toUpperCase(),
-//                    produtos.getNomeProduto(),
-//                    String.valueOf(produtos.getPreco()),
-//                    String.valueOf(produtos.getUniPerCax()),
-//                    (produtos.getPesoPerUni()) + produtos.getUnidade(),
-//                    (splitado[2].substring(0, 2) + "/" + splitado[1] + "/" + splitado[0]),
-//                    produtos.getLinhas().getCodLinhas(),
-//                    produtos.getLinhas().getNomeLinhas(),
-//                    produtos.getLinhas().getCategoria().getCodCategoria(),
-//                    produtos.getLinhas().getCategoria().getNomeCategoria(),
-//                    produtos.getLinhas().getCategoria().getFornecedor().getRazao(),
-//                    fornecedor
-//            });
-//        }
-//    }
-//
-//    // faz a importacao
-//    public List<Produtos> readAll(MultipartFile file) throws Exception {
-//        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-//        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-//
-//        List<String[]> linhas = csvReader.readAll();
-//        List<Produtos> resultadoLeitura = new ArrayList<>();
-//
-//        for (String[] l : linhas) {
-//            try {
-//                String[] bean = l[0].replaceAll("\"", "").split(";");
-//
-//                Produtos produtos = new Produtos();
-//                Linhas linhasClass = new Linhas();
-//                LinhasDTO linhasDTO;
-//
-//                Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(bean[0]);
-//
-//                if (!optionalProdutos.isPresent()) {
-//
-//                    produtos.setCodProdutos(bean[0].toUpperCase());
-//                    produtos.setNomeProduto(bean[1]);
-//                    produtos.setPreco(Float.parseFloat(bean[2].replaceAll("[R$]", "")));
-//                    produtos.setUniPerCax(Float.parseFloat(bean[3]));
-//                    produtos.setPesoPerUni(Float.parseFloat(bean[4]));
-//                    produtos.setUnidade(bean[5]);
-//                    produtos.setValidade(LocalDateTime.parse(bean[6].substring(7, 11)
-//                            + bean[6].substring(3, 7)
-//                            + bean[6].substring(1, 3) + "T00:00:00"));
-//
-//                    Optional<Linhas> optionalLinhas = iLinhasRepository.findByCodLinhas(bean[7]);
-//
-//                    if (optionalLinhas.isPresent()) {
-//
-//                        linhasDTO = linhasService.findByCodLinhas(bean[7]);
-//
-//                        linhasClass.setId(linhasDTO.getId());
-//                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
-//                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
-//                        produtos.setLinhas(linhasClass);
-//
-//                        produtos.setLinhas(linhasClass);
-//                        resultadoLeitura.add(produtos);
-//                        return iProdutosRepository.saveAll(resultadoLeitura);
-//                    }
-//                }
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//        return resultadoLeitura;
-//    }
+        //seta o nome do arq
+        String categoriaCSV = "produto.csv";
+
+        //seta o tipo do arq da resposta
+        response.setContentType("text/csv");
+
+        //config do header
+        String headerKey = "Content-Disposition";
+
+        //como é aberto em anexo
+        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
+
+        response.setHeader(headerKey, headerValue);
+
+        //instancia Print e seta como escritor
+        PrintWriter printWriter = response.getWriter();
+
+        //seta cabeça do cvs
+        String header = " código ; nome ; preço ; quantidade ; peso ; validade ;"+
+                " código da linha ; nome da Linha ;"+
+                " Código da Categoria ; Nome da Categoria ;"+
+                "CNPJ ; razão social";
+
+        // escreve o cabeçario
+        printWriter.println(header);
+        for (Produtos produtos : iProdutosRepository.findAll()) {
+
+            String splitar = String.valueOf(produtos.getValidade());
+            String[] splitado = splitar.split("-");
+
+            String nome = produtos.getNomeProduto();
+            String cod = produtos.getCodProdutos();
+            String preco = "R$"+(produtos.getPreco());
+            String perCaixa = String.valueOf(produtos.getUniPerCax());
+            String pesoPerUnid = produtos.getPesoPerUni()+produtos.getUnidade();
+            String validade = splitado[2].substring(0, 2) + "/" + splitado[1] + "/" + splitado[0];
+
+            String codLinnhas = produtos.getLinhas().getCodLinhas();
+            String nomeLinhas = produtos.getLinhas().getNomeLinhas();
+            String codCategoria = produtos.getLinhas().getCategoria().getCodCategoria();
+            String nomeCategoria = produtos.getLinhas().getCategoria().getNomeCategoria();
+            String cnpj = fornecedorService.getCnpjMask(produtos.getLinhas().getCategoria().getFornecedor().getCnpj());
+            String razao = produtos.getLinhas().getCategoria().getFornecedor().getRazao();
+            //escreve os dados
+            printWriter.println(cod +";"+ nome +";"+ preco +";"+ perCaixa +";"+ pesoPerUnid +";"+ validade
+                    +";"+ codLinnhas +";"+ nomeLinhas +";"+ codCategoria +";"+ nomeCategoria
+                    +";"+ cnpj +";"+ razao
+            );
+        }
+        printWriter.close();
+    }
+
+    //Faz a importacao do banco
+    public void importCSV(MultipartFile importCategoria) {
+        String arquivo = "";
+        String separator = ";";
+        //achado na net
+        try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
+            //para pular uma linha
+            leitor.readLine();
+            //le as linhas
+            while ((arquivo = leitor.readLine()) != null) {
+                String[] produtoCSV = arquivo.split(separator);
+                Optional<LinhasDTO> linhasOptional =  Optional.ofNullable(linhasService.findByCodLinhas(produtoCSV[6]));
+                Optional<Produtos> produtoExisteOptional = this.iProdutosRepository.findByCodProdutos(produtoCSV[0]);
+
+                //confere se existe se nao ele inseri
+                if (!(produtoExisteOptional.isPresent()) && linhasOptional.isPresent()) {
+                    ProdutosDTO produtosDTO = new ProdutosDTO();
+                    produtosDTO.setNomeProduto(produtoCSV[1]);
+                    produtosDTO.setCodProdutos(produtoCSV[0]);
+                    produtosDTO.setPreco(Float.parseFloat(produtoCSV[2].replaceAll("[R$]","")));
+                    produtosDTO.setUniPerCax(Float.parseFloat(produtoCSV[3]));
+                    produtosDTO.setPesoPerUni(Float.parseFloat(produtoCSV[4].substring(0,produtoCSV[4].length()-2)));
+                    produtosDTO.setUnidade(produtoCSV[4].substring(produtoCSV[4].length()-2, produtoCSV[4].length()));
+                    produtosDTO.setValidade(LocalDateTime.parse((produtoCSV[5].substring(6, 10)
+                            + produtoCSV[5].substring(2, 6)
+                            + produtoCSV[5].substring(0, 2) + "T00:00:00").replaceAll("/","-")));
+                    LinhasDTO linhasDTO = linhasService.findByCodLinhas(produtoCSV[6]);
+                    produtosDTO.setIdProdutosLinhas(linhasDTO.getId());
+                    this.save(produtosDTO);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     //salva
     public ProdutosDTO save(ProdutosDTO produtosDTO) {

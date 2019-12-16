@@ -2,7 +2,6 @@ package br.com.hbsis.categorias;
 
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.fornecedor.FornecedoresDTO;
-import br.com.hbsis.fornecedor.IFornecedoresRepository;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +23,11 @@ public class CategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
     private final ICategoriaRepository iCategoriaRepository;
     private final FornecedorService fornecedorService;
-    private final IFornecedoresRepository iFornecedoresRepository;
 
     @Autowired
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService, IFornecedoresRepository iFornecedoresRepository) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService) {
         this.iCategoriaRepository = iCategoriaRepository;
         this.fornecedorService = fornecedorService;
-        this.iFornecedoresRepository = iFornecedoresRepository;
     }
 
     //busca toda categoria
@@ -58,6 +55,7 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    //Busca pelo cod da categoria
     public CategoriaDTO findByCodCategoria(String cod) {
         Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findByCodCategoria(cod);
 
@@ -67,6 +65,7 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", cod));
     }
 
+    //Faz a exportaçao do banco em csv
     public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
 
         //seta o nome do arq
@@ -87,7 +86,7 @@ public class CategoriaService {
         PrintWriter printWriter = response.getWriter();
 
         //seta cabeça do cvs
-        String header = " Código da categoria ; Nome da categoria ; Razão social ;  CNPJ";
+        String header = " Código da categoria ; Nome da categoria ; Razão social ; CNPJ";
 
         // escreve o cabeçario
         printWriter.println(header);
@@ -102,6 +101,7 @@ public class CategoriaService {
         printWriter.close();
     }
 
+    //Faz a importacao do banco
     public void importCSV(MultipartFile importCategoria) {
 
         String arquivo = "";
@@ -122,7 +122,7 @@ public class CategoriaService {
                 if (!(categoriaProdutoExisteOptional.isPresent()) && fornecedorOptional.isPresent()) {
                     CategoriaDTO categoria = new CategoriaDTO();
                     categoria.setNomeCategoria(categoriaCSV[1]);
-                    categoria.setCodigo(categoriaCSV[0].substring(7,10));
+                    categoria.setCodigo(categoriaCSV[0].substring(7, 10));
                     FornecedoresDTO fornecedor = fornecedorService.findByCnpj(categoriaCSV[3].replaceAll("\\D", ""));
                     categoria.setIdCategoriaFornecedor(fornecedor.getId());
                     this.save(categoria);
@@ -153,8 +153,8 @@ public class CategoriaService {
         categoria.setCodCategoria("CAT" + categoria.getFornecedor().getCnpj().substring(10, 14) + cont);
         System.out.println(categoria.getCodCategoria());
 
-        //Retorna para o postman
         Categoria save = this.iCategoriaRepository.save(categoria);
+        //Retorna para o postman
         return CategoriaDTO.of(save);
     }
 

@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,13 +22,11 @@ public class LinhasService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhasService.class);
     private final ILinhasRepository iLinhasRepository;
     private final CategoriaService categoriaService;
-    private final ICategoriaRepository iCategoriaRepository;
 
     @Autowired
-    public LinhasService(ILinhasRepository iLinhasRepository, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
+    public LinhasService(ILinhasRepository iLinhasRepository, CategoriaService categoriaService) {
         this.iLinhasRepository = iLinhasRepository;
         this.categoriaService = categoriaService;
-        this.iCategoriaRepository = iCategoriaRepository;
     }
 
     //puxa a linha pelo Id dele, retorna como DTO
@@ -57,10 +59,46 @@ public class LinhasService {
         throw new IllegalArgumentException(String.format("Cod %s não existe", cod));
     }
 
-    //salva tudo
+    //Busca tudo
     public List<Linhas> findAll() {
         return iLinhasRepository.findAll();
     }
+
+    public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
+
+        //seta o nome do arq
+        String categoriaCSV = "linha.csv";
+
+        //seta o tipo do arq da resposta
+        response.setContentType("text/csv");
+
+        //config do header
+        String headerKey = "Content-Disposition";
+
+        //como é aberto em anexo
+        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
+
+        response.setHeader(headerKey, headerValue);
+
+        //instancia Print e seta como escritor
+        PrintWriter printWriter = response.getWriter();
+
+        //seta cabeça do cvs
+        String header = " Código da Linha ; Nome da Linha ; Código da Categoria ; Nome da Categoria";
+
+        // escreve o cabeçario
+        printWriter.println(header);
+        for (Linhas linhas : iLinhasRepository.findAll()) {
+            String nome = linhas.getNomeLinhas();
+            String cod = linhas.getCodLinhas();
+            String codCategoria = linhas.getCategoria().getCodCategoria();
+            String nomeCategoria = linhas.getCategoria().getNomeCategoria();
+            //escreve os dados
+            printWriter.println(cod + ";" + nome + ";" + codCategoria + ";" + nomeCategoria);
+        }
+        printWriter.close();
+    }
+
 
     //exporta csv
 //    public void exportCSV(HttpServletResponse response) throws Exception {

@@ -1,16 +1,19 @@
 package br.com.hbsis.linhas;
 
 import br.com.hbsis.categorias.Categoria;
+import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
-import br.com.hbsis.categorias.ICategoriaRepository;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.List;
@@ -64,6 +67,7 @@ public class LinhasService {
         return iLinhasRepository.findAll();
     }
 
+    //Faz a exportacao do banco
     public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
 
         //seta o nome do arq
@@ -99,34 +103,37 @@ public class LinhasService {
         printWriter.close();
     }
 
+    //Faz a importacao do banco
+    public void importCSV(MultipartFile importCategoria) {
+        String arquivo = "";
+        String separator = ";";
+        //achado na net
+        try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
+            //para pular uma linha
+            leitor.readLine();
+            //le as linhas
+            while ((arquivo = leitor.readLine()) != null) {
+                String[] linhasCSV = arquivo.split(separator);
+                Optional<CategoriaDTO> cateogriaOptional = Optional.ofNullable(categoriaService.findByCodCategoria(linhasCSV[2]));
+                Optional<Linhas> linhaExisteOptional = this.iLinhasRepository.findByCodLinhas(linhasCSV[0]);
 
-    //exporta csv
-//    public void exportCSV(HttpServletResponse response) throws Exception {
-//        String nomearquivo = "linhas.csv";
-//        response.setContentType("text/csv");
-//        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-//                "attachment; filename=\"" + nomearquivo + "\"");
-//
-//        PrintWriter writer = response.getWriter();
-//
-//        ICSVWriter csvWriter = new CSVWriterBuilder(writer).withSeparator(';')
-//                .withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
-//                .withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-//
-//        String nomeColunas[] = {"codigo", "nome",
-//                "codigo_categoria", "nome_categoria"};
-//        csvWriter.writeNext(nomeColunas);
-//
-//        for (Linhas linhas : this.findAll()) {
-//            csvWriter.writeNext(new String[]{linhas.getCodLinhas(),
-//                    linhas.getNomeLinhas(),
-//                    linhas.getCategoria().getCodCategoria(),
-//                    linhas.getCategoria().getNomeCategoria()
-//            });
-//        }
-//    }
-//
-//    //le csv
+                //confere se existe se nao ele inseri
+                if (!(linhaExisteOptional.isPresent()) && cateogriaOptional.isPresent()) {
+                    LinhasDTO linhasDTO = new LinhasDTO();
+                    linhasDTO.setNomeLinhas(linhasCSV[1]);
+                    linhasDTO.setCodLinhas(linhasCSV[0]);
+                    CategoriaDTO categoria = categoriaService.findByCodCategoria(linhasCSV[2]);
+                    linhasDTO.setidLinhasCategoria(categoria.getId());
+                    this.save(linhasDTO);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    //le csv
 //    public List<Linhas> readAll(MultipartFile file) throws Exception {
 //        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
 //        CSVReader csvReader = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();

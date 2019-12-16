@@ -34,15 +34,15 @@ public class LinhasRest {
         LOGGER.info("Recebendo solicitação de exportacao de Linhas...");
 
         //manda exporta
-        //linhasService.exportCSV(response);
+        linhasService.exportCSV(response);
     }
 
     @PostMapping("/import-csv")
-    public void importCSV(@RequestParam("file") MultipartFile file) throws Exception {
+    public void importCSV(@RequestParam("file") MultipartFile file) {
         LOGGER.info("Recebendo solicitação de importacao de Linhas...");
 
         //manda importa
-       // linhasService.readAll(file);
+        linhasService.importCSV(file);
     }
 
     @GetMapping("/{id}")

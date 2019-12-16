@@ -108,7 +108,7 @@ public class CategoriaService {
         String separator = ";";
         //achado na net
         try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
-            //para pular a primeira linha ass:
+            //para pular a primeira linha
             arquivo = leitor.readLine();
             //le as linhas
             while ((arquivo = leitor.readLine()) != null) {

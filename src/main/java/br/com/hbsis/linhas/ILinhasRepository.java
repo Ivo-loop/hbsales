@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ILinhasRepository extends JpaRepository<Linhas, Long> {
+interface ILinhasRepository extends JpaRepository<Linhas, Long> {
     Optional<Linhas> findByCodLinhas(String cod);
 }

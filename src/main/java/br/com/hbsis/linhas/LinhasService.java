@@ -53,6 +53,16 @@ public class LinhasService {
     }
 
     //puxa as linhas pelo cod dela
+    public Optional<Linhas> findByCodLinhasOptional(String cod) {
+        Optional<Linhas> linhaOptional = this.iLinhasRepository.findByCodLinhas(cod);
+
+        if (linhaOptional.isPresent()) {
+            return linhaOptional;
+        }
+        throw new IllegalArgumentException(String.format("Cod %s não existe", cod));
+    }
+
+    //puxa as linhas pelo cod dela
     public LinhasDTO findByCodLinhas(String cod) {
         Optional<Linhas> linhaOptional = this.iLinhasRepository.findByCodLinhas(cod);
 

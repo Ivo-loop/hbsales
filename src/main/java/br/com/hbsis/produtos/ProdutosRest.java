@@ -34,7 +34,7 @@ public class ProdutosRest {
         LOGGER.info("atualizando Produtos do Fornecedor de ID... [{}]", cod);
 
         //manda importa
-        //produtoService.importProdutoFornecedor(cod, file);
+        produtoService.importProdutoFornecedor(cod, file);
     }
 
     @GetMapping("/export-csv")

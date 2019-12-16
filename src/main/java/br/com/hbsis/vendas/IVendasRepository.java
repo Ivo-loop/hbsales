@@ -7,6 +7,6 @@ import java.util.Optional;
 
 
 @Repository
-public interface IVendasRepository extends JpaRepository<Vendas, Long> {
+interface IVendasRepository extends JpaRepository<Vendas, Long> {
     Optional<Vendas> findById(Long id);
 }

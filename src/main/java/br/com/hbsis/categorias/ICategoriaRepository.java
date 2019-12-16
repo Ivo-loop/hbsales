@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ICategoriaRepository extends JpaRepository<Categoria, Long> {
+interface ICategoriaRepository extends JpaRepository<Categoria, Long> {
     Optional<Categoria> findByCodCategoria(String cod);
     List<Categoria> findAllByFornecedor_IdIs(Long idFornecedor);
     boolean existsById(Long id);

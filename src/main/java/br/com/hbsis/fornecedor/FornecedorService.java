@@ -3,7 +3,6 @@ package br.com.hbsis.fornecedor;
 import br.com.hbsis.categorias.Categoria;
 import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
-import br.com.hbsis.categorias.ICategoriaRepository;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +20,14 @@ public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
     private final IFornecedoresRepository iFonecedoresRepository;
     private final CategoriaService categoriaService;
-    private final ICategoriaRepository iCategoriaRepository;
 
     /*- falar com kbral bug de loop
      * ele so acontece se o fornecedor da categoria mude, entao nao deve ser utilizado no categoria
      */
     @Autowired
-    public FornecedorService(IFornecedoresRepository iFonecedoresRepository, @Lazy CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
+    public FornecedorService(IFornecedoresRepository iFonecedoresRepository, @Lazy CategoriaService categoriaService) {
         this.iFonecedoresRepository = iFonecedoresRepository;
         this.categoriaService = categoriaService;
-        this.iCategoriaRepository = iCategoriaRepository;
     }
 
     //puxa o fornecedor pelo Id dele, seta ele como DTO
@@ -51,6 +48,17 @@ public class FornecedorService {
             return fornecedorOptional.get();
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    //puxa o fornecedor pelo Cnpj dele
+    public Optional<Fornecedor> findByCnpjOptional(String cnpj) {
+
+        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
+
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional;
+        }
+        throw new IllegalArgumentException(String.format("Cnpj %s não existe", cnpj));
     }
 
     //puxa o fornecedor pelo Cnpj dele
@@ -152,7 +160,7 @@ public class FornecedorService {
             fornecedorExistente.setTelefone(fonecedoresDTO.getTelefone());
             fornecedorExistente.setEmail(fonecedoresDTO.getEmail());
 
-            List<Categoria> buscaCategorias = iCategoriaRepository.findAllByFornecedor_IdIs(id);
+            List<Categoria> buscaCategorias = categoriaService.findAllByFornecedor_IdIs(id);
             for (Categoria categorai :buscaCategorias) {
                 CategoriaDTO categoriaDTO = new CategoriaDTO();
                 categoriaDTO.setId(categorai.getId());

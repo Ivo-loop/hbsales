@@ -22,7 +22,8 @@ import java.util.List;
 public class PopuladorComponent {
 
     //- Essa classe faz a populaçao do Database, por favor nao mexer
-    // porfavor conferir se as primary foram resetadas
+    // Error:
+    // 1-porfavor conferir se as primary foram resetadas
 
     //caso o banco esteja vazio, tenho que popular
     private final FornecedorService fornecedorService;

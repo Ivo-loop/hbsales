@@ -144,7 +144,7 @@ public class ProdutoService {
                                     linhasService.findByCodLinhas(csv[7]).getId(), Float.parseFloat(csv[3]),
                                     Float.parseFloat(csv[4]), csv[5], (LocalDateTime.parse((csv[6].substring(6, 10)
                                     + csv[6].substring(2, 6)
-                                    + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/","-")))
+                                    + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")))
                             );
                             this.save(produtosDTO);
                         } else {
@@ -164,7 +164,7 @@ public class ProdutoService {
                                 System.out.println(csv[6]);
                                 produtos.setValidade(LocalDateTime.parse((csv[6].substring(6, 10)
                                         + csv[6].substring(2, 6)
-                                        + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/","-")));
+                                        + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));
                                 produtos.setLinhas(linhasClass);
 
                                 produtos.setLinhas(linhasClass);
@@ -261,8 +261,8 @@ public class ProdutoService {
                     produtosDTO.setCodProdutos(produtoCSV[0]);
                     produtosDTO.setPreco(Float.parseFloat(produtoCSV[2].replaceAll("[R$]", "")));
                     produtosDTO.setUniPerCax(Float.parseFloat(produtoCSV[3]));
-                    produtosDTO.setPesoPerUni(Float.parseFloat( produtoCSV[4].replaceAll("[kgm]","")));
-                    produtosDTO.setUnidade(produtoCSV[4].replaceAll("[\\d,]",""));
+                    produtosDTO.setPesoPerUni(Float.parseFloat(produtoCSV[4].replaceAll("[kgm]", "")));
+                    produtosDTO.setUnidade(produtoCSV[4].replaceAll("[\\d,]", ""));
                     produtosDTO.setValidade(LocalDateTime.parse((produtoCSV[5].substring(6, 10)
                             + produtoCSV[5].substring(2, 6)
                             + produtoCSV[5].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));

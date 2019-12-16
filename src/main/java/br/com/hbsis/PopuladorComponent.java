@@ -99,12 +99,12 @@ public class PopuladorComponent {
             List<Linhas> buscaLinhas = linhasService.findAll();
             if (!buscaLinhas.isEmpty() && conferiProdutos.isEmpty()) {
                 String[][] produtos = {
-                        {"antarctica", "antar1507", "2.95", "1", "12", "7.700","kg", "2019-02-03T00:00:00"},
-                        {"brahma", "brahm1508", "2.45", "2", "12", "6.20","kg", "2019-02-03T00:00:00"},
-                        {"skol", "skol1508", "2.65", "3", "12", "5.1","kg", "2019-02-03T00:00:00"},
-                        {"soda", "soda1509", "4.00", "4", "9", "4","kg", "2019-02-03T00:00:00"},
-                        {"citrus", "citru1510", "5.50", "5", "6", "3.596","kg", "2019-02-03T00:00:00"},
-                        {"do bem", "dobem1511", "7.89", "6", "8", "2.756","kg", "2019-02-03T00:00:00"},
+                        {"antarctica", "antar1507", "2.95", "1", "12", "7.700", "kg", "2019-02-03T00:00:00"},
+                        {"brahma", "brahm1508", "2.45", "2", "12", "6.20", "kg", "2019-02-03T00:00:00"},
+                        {"skol", "skol1508", "2.65", "3", "12", "5.1", "kg", "2019-02-03T00:00:00"},
+                        {"soda", "soda1509", "4.00", "4", "9", "4", "kg", "2019-02-03T00:00:00"},
+                        {"citrus", "citru1510", "5.50", "5", "6", "3.596", "kg", "2019-02-03T00:00:00"},
+                        {"do bem", "dobem1511", "7.89", "6", "8", "2.756", "kg", "2019-02-03T00:00:00"},
                 };
                 for (String[] produto : produtos) {
                     ProdutosDTO produtosDTO = new ProdutosDTO(

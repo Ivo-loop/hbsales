@@ -1,19 +1,28 @@
 package br.com.hbsis.funcionario;
 
-import javax.persistence.*;
-
-@Entity
-@Table(name = "seg_funcionario")
-public class Funcionario {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class FuncionarioDTO {
     private Long id;
-    @Column(name = "nome_funcionario", unique = true, nullable = false, length = 100)
     private String nomeFuncionario;
-    @Column(name = "email_funcionario", nullable = false, length = 255)
     private String email;
-    @Column(name = "uuid_funcionario", unique = true, updatable = false, length = 36)
     private String uuid;
+
+    public FuncionarioDTO(){}
+
+    public FuncionarioDTO(Long id, String login, String senha, String uuid) {
+        this.id = id;
+        this.nomeFuncionario = login;
+        this.email = senha;
+        this.uuid = uuid;
+    }
+
+    public static FuncionarioDTO of(Funcionario funcionario){
+        return new FuncionarioDTO(
+                funcionario.getId(),
+                funcionario.getNomeFuncionario(),
+                funcionario.getEmail(),
+                funcionario.getUuid()
+        );
+    }
 
     public Long getId() {
         return id;
@@ -49,9 +58,9 @@ public class Funcionario {
 
     @Override
     public String toString() {
-        return "Funcionario{" +
+        return "FuncionarioDTO{" +
                 "id=" + id +
-                ", nomeFuncionario ='" + nomeFuncionario + '\'' +
+                ", nomeFuncionario='" + nomeFuncionario + '\'' +
                 ", email='" + email + '\'' +
                 ", uuid='" + uuid + '\'' +
                 '}';

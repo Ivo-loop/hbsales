@@ -77,7 +77,7 @@ public class VendasService {
             Vendas vendas = ProdutoExistencialOpcional.get();
 
             if(vendas.getDiaFinal().isBefore(LocalDateTime.now())){
-                throw new IllegalArgumentException("Desculpa nao polde ser alterado");
+                throw new IllegalArgumentException("Desculpa nao pode ser alterado");
             }
 
             LOGGER.info("Atualizando Produto... id: [{}]", vendas.getId());

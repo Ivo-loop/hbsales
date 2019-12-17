@@ -1,13 +1,10 @@
 package br.com.hbsis.fornecedor;
 
-import br.com.hbsis.categorias.Categoria;
-import br.com.hbsis.categorias.CategoriaDTO;
-import br.com.hbsis.categorias.CategoriaService;
+import br.com.hbsis.categorias.AlterCod;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.MaskFormatter;
@@ -19,15 +16,12 @@ import java.util.Optional;
 public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
     private final IFornecedoresRepository iFonecedoresRepository;
-    private final CategoriaService categoriaService;
+    private final AlterCod alterCod;
 
-    /*- falar com kbral bug de loop
-     * ele so acontece se o fornecedor da categoria mude, entao nao deve ser utilizado no categoria
-     */
     @Autowired
-    public FornecedorService(IFornecedoresRepository iFonecedoresRepository, @Lazy CategoriaService categoriaService) {
+    public FornecedorService(IFornecedoresRepository iFonecedoresRepository, AlterCod alterCod) {
         this.iFonecedoresRepository = iFonecedoresRepository;
-        this.categoriaService = categoriaService;
+        this.alterCod = alterCod;
     }
 
     //puxa o fornecedor pelo Id dele, seta ele como DTO
@@ -142,8 +136,6 @@ public class FornecedorService {
 
     // Altera as informacoes do banco
     public FornecedoresDTO update(FornecedoresDTO fonecedoresDTO, Long id) {
-        // TODO: 12/12/2019 recalcular os códigos das categorias que estão relacionadas com o fornecedor
-        // TODO: 13/12/2019 resolvi
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFonecedoresRepository.findById(id);
         this.validate(fonecedoresDTO);
         if (fornecedorExistenteOptional.isPresent()) {
@@ -160,15 +152,8 @@ public class FornecedorService {
             fornecedorExistente.setTelefone(fonecedoresDTO.getTelefone());
             fornecedorExistente.setEmail(fonecedoresDTO.getEmail());
 
-            List<Categoria> buscaCategorias = categoriaService.findAllByFornecedor_IdIs(id);
-            for (Categoria categorai :buscaCategorias) {
-                CategoriaDTO categoriaDTO = new CategoriaDTO();
-                categoriaDTO.setId(categorai.getId());
-                categoriaDTO.setNomeCategoria(categorai.getNomeCategoria());
-                categoriaDTO.setIdCategoriaFornecedor(categorai.getFornecedor().getId());
-                categoriaDTO.setCodigo("CAT"+fornecedorExistente.getCnpj().substring(10,14)+categorai.getCodCategoria().substring(7,10));
-                categoriaService.update(categoriaDTO, categoriaDTO.getId());
-            }
+            alterCod.AlterCODCat(fornecedorExistente);
+
             fornecedorExistente = this.iFonecedoresRepository.save(fornecedorExistente);
 
             return FornecedoresDTO.of(fornecedorExistente);

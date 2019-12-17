@@ -54,7 +54,7 @@ public class CategoriaRest {
         LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
         //manda busca
-        return this.categoriaService.findById(id);
+        return this.categoriaService.findByIdPost(id);
     }
 
     @PutMapping("/{id}")

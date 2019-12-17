@@ -55,6 +55,15 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public CategoriaDTO findByIdPost(Long id) {
+        Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findById(id);
+
+        if (categoriaOpcional.isPresent()) {
+            return CategoriaDTO.ofPOST(categoriaOpcional.get());
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     //busca a Categoria pelo Id, retorna categoria
     public Categoria findByCategoriaId(Long id) {
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
@@ -175,7 +184,7 @@ public class CategoriaService {
 
         Categoria save = this.iCategoriaRepository.save(categoria);
         //Retorna para o postman
-        return CategoriaDTO.of(save);
+        return CategoriaDTO.ofPOST(save);
     }
 
     // valida os dados
@@ -200,23 +209,27 @@ public class CategoriaService {
     }
 
     // altera as informaçoes da categoria
-    public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
+    public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id)  {
         Optional<Categoria> CategoriaExistencialOpcional = this.iCategoriaRepository.findById(id);
-        this.validate(categoriaDTO);
         if (CategoriaExistencialOpcional.isPresent()) {
             Categoria categoriaExistente = CategoriaExistencialOpcional.get();
+
+            String cont = String.valueOf(categoriaDTO.getCodigo());
+            for (; cont.length() < 3; ) {
+                cont = "0" + cont;
+            }
 
             LOGGER.info("Atualizando Categoria... id: [{}]", categoriaExistente.getId());
             LOGGER.debug("Payload: {}", categoriaDTO);
             LOGGER.debug("Categoria Existente: {}", categoriaExistente);
 
             categoriaExistente.setNomeCategoria(categoriaDTO.getNomeCategoria());
-            categoriaExistente.setCodCategoria(categoriaDTO.getCodigo());
             categoriaExistente.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor()));
+            categoriaExistente.setCodCategoria("CAT" + categoriaExistente.getFornecedor().getCnpj().substring(10, 14) + cont);
 
-            categoriaExistente = this.iCategoriaRepository.save(categoriaExistente);
+            this.iCategoriaRepository.save(categoriaExistente);
 
-            return br.com.hbsis.categorias.CategoriaDTO.of(categoriaExistente);
+            return CategoriaDTO.ofPOST(categoriaExistente);
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }

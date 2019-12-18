@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/produto")
+@RequestMapping("/Funcionario")
 public class FuncionarioRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncionarioRest.class);
     private final FuncionarioService funcionarioService;
@@ -16,7 +16,7 @@ public class FuncionarioRest {
 
     @PostMapping
     public FuncionarioDTO save(@RequestBody FuncionarioDTO funcionarioDTO) {
-        LOGGER.info("Recebendo solicitação de persistência de Linhas...");
+        LOGGER.info("Recebendo solicitação de persistência de funcionario...");
         LOGGER.debug("Payaload: {}", funcionarioDTO);
 
         //manda salva
@@ -27,22 +27,22 @@ public class FuncionarioRest {
     public FuncionarioDTO find(@PathVariable("id") Long id) {
         LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
-        //manda buscar o produto diferenciado
+        //manda buscar o funcionario diferenciado
         return this.funcionarioService.findById(id);
     }
 
     @PutMapping("/{id}")
-    public FuncionarioDTO udpate(@PathVariable("id") Long id, @RequestBody FuncionarioDTO produtosDTO) {
-        LOGGER.info("Recebendo Update para linhas de ID: {}", id);
-        LOGGER.debug("Payload: {}", produtosDTO);
+    public FuncionarioDTO udpate(@PathVariable("id") Long id, @RequestBody FuncionarioDTO funcionarioDTO) {
+        LOGGER.info("Recebendo Update para funcionario de ID: {}", id);
+        LOGGER.debug("Payload: {}", funcionarioDTO);
 
         //manda alterar
-        return this.funcionarioService.update(produtosDTO, id);
+        return this.funcionarioService.update(funcionarioDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
-        LOGGER.info("Recebendo Delete para linhas de ID: {}", id);
+        LOGGER.info("Recebendo Delete para funcionario de ID: {}", id);
 
         //manda sumir
         this.funcionarioService.delete(id);

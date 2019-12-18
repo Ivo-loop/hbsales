@@ -52,7 +52,6 @@ public class FuncionarioService {
         if (funcionarioDTO == null) {
             throw new IllegalArgumentException("fonecedoresDTO não deve ser nulo");
         }
-
         if (StringUtils.isEmpty(funcionarioDTO.getNomeFuncionario())) {
             throw new IllegalArgumentException("Nome não deve ser nulo/vazio");
         }
@@ -64,6 +63,9 @@ public class FuncionarioService {
         }
         if (funcionarioDTO.getEmail().length() > 50) {
             throw new IllegalArgumentException("email muito grande sinto muito");
+        }
+        if (!funcionarioDTO.getEmail().contains("@hbsis.com.br")) {
+            throw new IllegalArgumentException("email invalido sinto muito");
         }
         if (StringUtils.isEmpty(funcionarioDTO.getUuid())) {
             throw new IllegalArgumentException("uuid não deve ser nulo/vazio");

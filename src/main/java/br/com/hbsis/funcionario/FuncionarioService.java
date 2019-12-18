@@ -1,5 +1,7 @@
 package br.com.hbsis.funcionario;
 
+import br.com.hbsis.api.Employee.EmployeeDTO;
+import br.com.hbsis.api.Employee.EmployeeService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,18 +33,21 @@ public class FuncionarioService {
 
         this.validate(funcionarioDTO);
 
+        FuncionarioDTO dto = EmployeeService.validateFuncionarioWithHBEmployee(EmployeeDTO.of(funcionarioDTO));
+
+
         LOGGER.info("Salvando br.com.hbsis.fornecedor");
         LOGGER.debug("br.com.hbsis.fornecedor: {}", funcionarioDTO);
 
         Funcionario funcionario = new Funcionario();
         funcionario.setNomeFuncionario(funcionarioDTO.getNomeFuncionario());
         funcionario.setEmail(funcionarioDTO.getEmail());
-        funcionario.setUuid(funcionarioDTO.getUuid());
+        funcionario.setUuid(dto.getUuid());
 
         funcionario = this.iFuncionarioRepository.save(funcionario);
 
         //Retorna para o postman
-        return funcionarioDTO.of(funcionario);
+        return FuncionarioDTO.of(funcionario);
     }
 
     //valida as informacoes
@@ -81,6 +86,7 @@ public class FuncionarioService {
         this.validate(funcionarioDTO);
         if (FuncionarioExistenteOptional.isPresent()) {
             Funcionario funcionario = FuncionarioExistenteOptional.get();
+            validate(funcionarioDTO);
 
             LOGGER.info("Atualizando Fornecedor... id: [{}]", funcionario.getId());
             LOGGER.debug("Payload: {}", funcionarioDTO);

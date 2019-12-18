@@ -169,7 +169,6 @@ public class ProdutoService {
 
                                 produtos.setLinhas(linhasClass);
 
-
                                 this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(csv[0]).getId());
                             }
                         }

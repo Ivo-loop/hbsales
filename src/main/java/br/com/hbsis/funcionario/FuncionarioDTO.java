@@ -6,8 +6,6 @@ public class FuncionarioDTO {
     private String email;
     private String uuid;
 
-    public FuncionarioDTO(){}
-
     public FuncionarioDTO(Long id, String login, String senha, String uuid) {
         this.id = id;
         this.nomeFuncionario = login;
@@ -15,7 +13,10 @@ public class FuncionarioDTO {
         this.uuid = uuid;
     }
 
-    public static FuncionarioDTO of(Funcionario funcionario){
+    public FuncionarioDTO() {
+    }
+
+    public static FuncionarioDTO of(Funcionario funcionario) {
         return new FuncionarioDTO(
                 funcionario.getId(),
                 funcionario.getNomeFuncionario(),

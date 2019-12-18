@@ -152,7 +152,7 @@ public class FornecedorService {
             fornecedorExistente.setTelefone(fonecedoresDTO.getTelefone());
             fornecedorExistente.setEmail(fonecedoresDTO.getEmail());
 
-            alterCod.AlterCODCat(fornecedorExistente);
+            alterCod.alterCODCat(fornecedorExistente);
 
             fornecedorExistente = this.iFonecedoresRepository.save(fornecedorExistente);
 

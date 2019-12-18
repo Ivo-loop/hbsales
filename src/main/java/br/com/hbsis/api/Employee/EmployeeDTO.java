@@ -1,25 +1,32 @@
 package br.com.hbsis.api.Employee;
 
+import br.com.hbsis.funcionario.FuncionarioDTO;
+
 public class EmployeeDTO {
+    private String nome;
 
-    //- Liga funcionario
-
-    private String employeeName;
-    private String employeeUuid;
-
-    public String getEmployeeName() {
-        return employeeName;
+    public EmployeeDTO(String responseName) {
+        this.nome = responseName;
     }
 
-    public void setEmployeeName(String employeeName) {
-        this.employeeName = employeeName;
+    public static EmployeeDTO of(FuncionarioDTO funcionarioDTO) {
+        return new EmployeeDTO(
+                funcionarioDTO.getNomeFuncionario()
+        );
     }
 
-    public String getEmployeeUuid() {
-        return employeeUuid;
+    public String getNome() {
+        return nome;
     }
 
-    public void setEmployeeUuid(String employeeUuid) {
-        this.employeeUuid = employeeUuid;
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    @Override
+    public String toString() {
+        return "EmployeeDTO{" +
+                "nome='" + nome + '\'' +
+                '}';
     }
 }

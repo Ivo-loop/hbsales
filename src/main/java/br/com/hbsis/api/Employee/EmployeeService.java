@@ -8,28 +8,29 @@ import java.util.Collections;
 
 public class EmployeeService {
 
-    private static final String URL_API = "http://10.2.54.25:9999/swagger-ui.html#/employee-rest/saveUsingPOST";
+    private static final String URL_API = "http://10.2.54.25:9999/api";
+    private static final String KEY = "d04841c4-90ad-4dc8-842b-b3cce24cce30";
     private static final String EMPLOYEES = URL_API + "/employees";
 
     private EmployeeService() {
     }
 
-    public static void validateFuncionarioWithHBEmployee(FuncionarioDTO funcionarioDTO) {
+    public static FuncionarioDTO validateFuncionarioWithHBEmployee(EmployeeDTO inputDTO) {
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpEntity<FuncionarioDTO> dtoHttpEntity = new HttpEntity<>(funcionarioDTO, getHeaders());
-        ResponseEntity<EmployeeDTO> ResponseEntity = restTemplate.exchange(EMPLOYEES,
-                HttpMethod.POST, dtoHttpEntity, EmployeeDTO.class);
+        HttpEntity<EmployeeDTO> dtoHttpEntity = new HttpEntity<>(inputDTO, getHeaders());
+        ResponseEntity<ResponseDTO> ResponseEntity = restTemplate.exchange(EMPLOYEES, HttpMethod.POST, dtoHttpEntity, ResponseDTO.class);
 
         if (ResponseEntity.getStatusCodeValue() == 200) {
+            FuncionarioDTO funcionarioDTO = new FuncionarioDTO();
             funcionarioDTO.setNomeFuncionario(ResponseEntity.getBody().getEmployeeName());
             funcionarioDTO.setUuid(ResponseEntity.getBody().getEmployeeUuid());
-            return;
+            return funcionarioDTO;
         }
-        throw new ReturnException("Employee não teve retorno");
+        throw new IllegalArgumentException("Employee não teve retorno");
     }
 
-    public static HttpHeaders getHeaders() {
+    private static HttpHeaders getHeaders() {
         HttpHeaders httpHeaders = new HttpHeaders();
         addAPI(httpHeaders);
         httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -37,12 +38,12 @@ public class EmployeeService {
     }
 
     private static HttpHeaders addAPI(HttpHeaders httpHeaders) {
-        header("Authorization", "d04841c4-90ad-4dc8-842b-b3cce24cce30", httpHeaders);
+        header("Authorization", KEY, httpHeaders);
         return httpHeaders;
     }
 
-    public static HttpHeaders header(String Name, String key, HttpHeaders httpHeaders) {
-        httpHeaders.add(Name, key);
+    private static HttpHeaders header(String name, String key, HttpHeaders httpHeaders) {
+        httpHeaders.add(name, key);
         return httpHeaders;
     }
 }

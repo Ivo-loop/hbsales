@@ -23,11 +23,13 @@ public class CategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
     private final ICategoriaRepository iCategoriaRepository;
     private final FornecedorService fornecedorService;
+    private final AlterCod alterCod;
 
     @Autowired
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService, AlterCod alterCod) {
         this.iCategoriaRepository = iCategoriaRepository;
         this.fornecedorService = fornecedorService;
+        this.alterCod = alterCod;
     }
 
     //busca toda categoria
@@ -171,15 +173,9 @@ public class CategoriaService {
 
         Categoria categoria = new Categoria();
 
-        String cont = String.valueOf(categoriaDTO.getCodigo());
-
-        for (; cont.length() < 3; ) {
-            cont = "0" + cont;
-        }
-
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
         categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor()));
-        categoria.setCodCategoria("CAT" + categoria.getFornecedor().getCnpj().substring(10, 14) + cont);
+        categoria.setCodCategoria(alterCod.codCategoria(categoria,alterCod.number(categoriaDTO)));
         System.out.println(categoria.getCodCategoria());
 
         Categoria save = this.iCategoriaRepository.save(categoria);
@@ -212,24 +208,19 @@ public class CategoriaService {
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id)  {
         Optional<Categoria> CategoriaExistencialOpcional = this.iCategoriaRepository.findById(id);
         if (CategoriaExistencialOpcional.isPresent()) {
-            Categoria categoriaExistente = CategoriaExistencialOpcional.get();
+            Categoria categoria = CategoriaExistencialOpcional.get();
 
-            String cont = String.valueOf(categoriaDTO.getCodigo());
-            for (; cont.length() < 3; ) {
-                cont = "0" + cont;
-            }
-
-            LOGGER.info("Atualizando Categoria... id: [{}]", categoriaExistente.getId());
+            LOGGER.info("Atualizando Categoria... id: [{}]", categoria.getId());
             LOGGER.debug("Payload: {}", categoriaDTO);
-            LOGGER.debug("Categoria Existente: {}", categoriaExistente);
+            LOGGER.debug("Categoria Existente: {}", categoria);
 
-            categoriaExistente.setNomeCategoria(categoriaDTO.getNomeCategoria());
-            categoriaExistente.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor()));
-            categoriaExistente.setCodCategoria("CAT" + categoriaExistente.getFornecedor().getCnpj().substring(10, 14) + cont);
+            categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
+            categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor()));
+            categoria.setCodCategoria(alterCod.codCategoria(categoria,alterCod.number(categoriaDTO)));
 
-            this.iCategoriaRepository.save(categoriaExistente);
+            this.iCategoriaRepository.save(categoria);
 
-            return CategoriaDTO.ofPOST(categoriaExistente);
+            return CategoriaDTO.ofPOST(categoria);
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }

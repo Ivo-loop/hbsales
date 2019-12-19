@@ -1,16 +1,16 @@
-package br.com.hbsis.api.Employee;
+package br.com.hbsis.api.Employee.InAndOutPut;
 
 import br.com.hbsis.funcionario.FuncionarioDTO;
 
-public class EmployeeDTO {
+public class InputDTO {
     private String nome;
 
-    public EmployeeDTO(String responseName) {
+    public InputDTO(String responseName) {
         this.nome = responseName;
     }
 
-    public static EmployeeDTO of(FuncionarioDTO funcionarioDTO) {
-        return new EmployeeDTO(
+    public static InputDTO of(FuncionarioDTO funcionarioDTO) {
+        return new InputDTO(
                 funcionarioDTO.getNomeFuncionario()
         );
     }
@@ -25,7 +25,7 @@ public class EmployeeDTO {
 
     @Override
     public String toString() {
-        return "EmployeeDTO{" +
+        return "InputDTO{" +
                 "nome='" + nome + '\'' +
                 '}';
     }

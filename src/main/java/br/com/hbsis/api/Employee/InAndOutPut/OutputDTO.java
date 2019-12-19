@@ -1,6 +1,6 @@
-package br.com.hbsis.api.Employee;
+package br.com.hbsis.api.Employee.InAndOutPut;
 
-public class ResponseDTO {
+public class OutputDTO {
 
     //- responde funcionario
 

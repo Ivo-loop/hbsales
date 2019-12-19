@@ -1,5 +1,7 @@
 package br.com.hbsis.api.Employee;
 
+import br.com.hbsis.api.Employee.InAndOutPut.InputDTO;
+import br.com.hbsis.api.Employee.InAndOutPut.OutputDTO;
 import br.com.hbsis.funcionario.FuncionarioDTO;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -15,11 +17,11 @@ public class EmployeeService {
     private EmployeeService() {
     }
 
-    public static FuncionarioDTO validateFuncionarioWithHBEmployee(EmployeeDTO inputDTO) {
+    public static FuncionarioDTO FuncionarioHBEmployee(InputDTO inputDTO) {
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpEntity<EmployeeDTO> dtoHttpEntity = new HttpEntity<>(inputDTO, getHeaders());
-        ResponseEntity<ResponseDTO> ResponseEntity = restTemplate.exchange(EMPLOYEES, HttpMethod.POST, dtoHttpEntity, ResponseDTO.class);
+        HttpEntity<InputDTO> dtoHttpEntity = new HttpEntity<>(inputDTO, getHeaders());
+        ResponseEntity<OutputDTO> ResponseEntity = restTemplate.exchange(EMPLOYEES, HttpMethod.POST, dtoHttpEntity, OutputDTO.class);
 
         if (ResponseEntity.getStatusCodeValue() == 200) {
             FuncionarioDTO funcionarioDTO = new FuncionarioDTO();

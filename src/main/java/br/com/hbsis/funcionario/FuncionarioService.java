@@ -1,6 +1,6 @@
 package br.com.hbsis.funcionario;
 
-import br.com.hbsis.api.Employee.EmployeeDTO;
+import br.com.hbsis.api.Employee.InAndOutPut.InputDTO;
 import br.com.hbsis.api.Employee.EmployeeService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -20,24 +20,23 @@ public class FuncionarioService {
 
     //puxa o Funcionario pelo Id dele, seta ele como DTO
     public FuncionarioDTO findById(Long id) {
-        Optional<Funcionario> fornecedorOptional = this.iFuncionarioRepository.findById(id);
+        Optional<Funcionario> FuncionarioOptional = this.iFuncionarioRepository.findById(id);
 
-        if (fornecedorOptional.isPresent()) {
-            return FuncionarioDTO.of(fornecedorOptional.get());
+        if (FuncionarioOptional.isPresent()) {
+            return FuncionarioDTO.of(FuncionarioOptional.get());
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    //salva o fornecedor no Database
+    //salva o Funcionario no Database
     public FuncionarioDTO save(FuncionarioDTO funcionarioDTO) {
 
         this.validate(funcionarioDTO);
 
-        FuncionarioDTO dto = EmployeeService.validateFuncionarioWithHBEmployee(EmployeeDTO.of(funcionarioDTO));
+        FuncionarioDTO dto = EmployeeService.FuncionarioHBEmployee(InputDTO.of(funcionarioDTO));
 
-
-        LOGGER.info("Salvando br.com.hbsis.fornecedor");
-        LOGGER.debug("br.com.hbsis.fornecedor: {}", funcionarioDTO);
+        LOGGER.info("Salvando br.com.hbsis.Funcionario");
+        LOGGER.debug("br.com.hbsis.funcionario: {}", funcionarioDTO);
 
         Funcionario funcionario = new Funcionario();
         funcionario.setNomeFuncionario(funcionarioDTO.getNomeFuncionario());
@@ -52,7 +51,7 @@ public class FuncionarioService {
 
     //valida as informacoes
     private void validate(FuncionarioDTO funcionarioDTO) {
-        LOGGER.info("Validando Fornecedor");
+        LOGGER.info("Validando Funcionario");
 
         if (funcionarioDTO == null) {
             throw new IllegalArgumentException("fonecedoresDTO não deve ser nulo");
@@ -88,9 +87,9 @@ public class FuncionarioService {
             Funcionario funcionario = FuncionarioExistenteOptional.get();
             validate(funcionarioDTO);
 
-            LOGGER.info("Atualizando Fornecedor... id: [{}]", funcionario.getId());
+            LOGGER.info("Atualizando Funcionario... id: [{}]", funcionario.getId());
             LOGGER.debug("Payload: {}", funcionarioDTO);
-            LOGGER.debug("Fornecedor Existente: {}", funcionario);
+            LOGGER.debug("Funcionario Existente: {}", funcionario);
 
             funcionario.setNomeFuncionario(funcionarioDTO.getNomeFuncionario());
             funcionario.setEmail(funcionarioDTO.getEmail());
@@ -103,9 +102,9 @@ public class FuncionarioService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    //delete o fornecedor do Database
+    //delete o Funcionario do Database
     public void delete(Long id) {
-        LOGGER.info("Executando delete para Fornecedor de ID: [{}]", id);
+        LOGGER.info("Executando delete para Funcionario de ID: [{}]", id);
 
         this.iFuncionarioRepository.deleteById(id);
     }

@@ -176,7 +176,6 @@ public class CategoriaService {
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
         categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor()));
         categoria.setCodCategoria(alterCod.codCategoria(categoria,alterCod.number(categoriaDTO)));
-        System.out.println(categoria.getCodCategoria());
 
         Categoria save = this.iCategoriaRepository.save(categoria);
         //Retorna para o postman

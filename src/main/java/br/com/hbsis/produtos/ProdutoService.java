@@ -41,8 +41,6 @@ public class ProdutoService {
     }
 
     @Autowired
-
-
     //busca tudo
     public List<Produtos> findAll() {
         return iProdutosRepository.findAll();
@@ -54,6 +52,16 @@ public class ProdutoService {
 
         if (ProdutoOpcional.isPresent()) {
             return ProdutosDTO.of(ProdutoOpcional.get());
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+    //busca produto pro Id
+    public Produtos findByIdProduto(Long id) {
+        Optional<Produtos> ProdutoOpcional = this.iProdutosRepository.findById(id);
+
+        if (ProdutoOpcional.isPresent()) {
+            return ProdutoOpcional.get();
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));

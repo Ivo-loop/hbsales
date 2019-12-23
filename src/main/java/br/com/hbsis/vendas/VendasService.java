@@ -1,5 +1,6 @@
 package br.com.hbsis.vendas;
 
+import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 @Service
 public class VendasService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VendasService.class);
     private final IVendasRepository iVendasRepository;
     private final FornecedorService fornecedorService;
@@ -37,6 +39,25 @@ public class VendasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Boolean validaCompra(LocalDateTime hoje, Long id) {
+        for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(id)) {
+            if (hoje.isAfter(vendasValidar.getDiaFinal()) && hoje.isBefore(vendasValidar.getDiaInicial())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Boolean validaRetirada(LocalDateTime hoje, Long id) {
+        for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(id)) {
+            if (hoje.isAfter(vendasValidar.getDiaRetirada())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     //salva
     public VendasDTO save(VendasDTO vendasDTO) {
         this.validate(vendasDTO);
@@ -53,13 +74,13 @@ public class VendasService {
         Long id = vendasDTO.getIdFornecedor();
         vendas.setFornecedorVenda(fornecedorService.findByFornecedorId(id));
 
-        for(Vendas vendasValidar : iVendasRepository.findAll()){
-            if(vendas.getDiaInicial().isBefore(vendasValidar.getDiaFinal())&& vendas.getDiaInicial().isAfter(vendasValidar.getDiaInicial())||
-                    vendas.getDiaInicial().isEqual(vendasValidar.getDiaFinal())){
+        for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(vendasDTO.getIdFornecedor())) {
+            if (vendas.getDiaInicial().isBefore(vendasValidar.getDiaFinal()) && vendas.getDiaInicial().isAfter(vendasValidar.getDiaInicial()) ||
+                    vendas.getDiaInicial().isEqual(vendasValidar.getDiaFinal())) {
                 throw new IllegalArgumentException(" data inicial invalida");
             }
-            if(vendas.getDiaFinal().isAfter(vendasValidar.getDiaInicial()) && vendas.getDiaFinal().isBefore(vendasValidar.getDiaFinal()) ||
-                    vendas.getDiaFinal().isEqual(vendasValidar.getDiaInicial())){
+            if (vendas.getDiaFinal().isAfter(vendasValidar.getDiaInicial()) && vendas.getDiaFinal().isBefore(vendasValidar.getDiaFinal()) ||
+                    vendas.getDiaFinal().isEqual(vendasValidar.getDiaInicial())) {
                 throw new IllegalArgumentException(" data final invalida");
             }
         }
@@ -76,7 +97,7 @@ public class VendasService {
         if (ProdutoExistencialOpcional.isPresent()) {
             Vendas vendas = ProdutoExistencialOpcional.get();
 
-            if(vendas.getDiaFinal().isBefore(LocalDateTime.now())){
+            if (vendas.getDiaFinal().isBefore(LocalDateTime.now())) {
                 throw new IllegalArgumentException("Desculpa nao pode ser alterado");
             }
 
@@ -110,9 +131,11 @@ public class VendasService {
 
         if (validador > validarInicial) {
             throw new IllegalArgumentException("tem algo de errado nas data1 meu bom");
-        }if( validarInicial >= validarFinal){
+        }
+        if (validarInicial >= validarFinal) {
             throw new IllegalArgumentException("tem algo de errado nas data2 meu bom");
-        }if( validarFinal > validarRetirada){
+        }
+        if (validarFinal > validarRetirada) {
             throw new IllegalArgumentException("tem algo de errado nas data3 meu bom");
         }
         if (vendasDTO == null) {

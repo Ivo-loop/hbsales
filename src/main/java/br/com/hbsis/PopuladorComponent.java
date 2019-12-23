@@ -6,12 +6,22 @@ import br.com.hbsis.categorias.CategoriaService;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.fornecedor.FornecedoresDTO;
+import br.com.hbsis.funcionario.Funcionario;
+import br.com.hbsis.funcionario.FuncionarioDTO;
+import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.linhas.Linhas;
 import br.com.hbsis.linhas.LinhasDTO;
 import br.com.hbsis.linhas.LinhasService;
+import br.com.hbsis.pedido.Pedido;
+import br.com.hbsis.pedido.PedidoService;
 import br.com.hbsis.produtos.ProdutoService;
 import br.com.hbsis.produtos.Produtos;
 import br.com.hbsis.produtos.ProdutosDTO;
+import br.com.hbsis.vendas.Vendas;
+import br.com.hbsis.vendas.VendasDTO;
+import br.com.hbsis.vendas.VendasService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -25,17 +35,23 @@ public class PopuladorComponent {
     // Error:
     // 1-porfavor conferir se as primary foram resetadas
 
-    //caso o banco esteja vazio, tenho que popular
+    private static final Logger LOGGER = LoggerFactory.getLogger(PopuladorComponent.class);
     private final FornecedorService fornecedorService;
     private final CategoriaService categoriaService;
     private final LinhasService linhasService;
     private final ProdutoService produtoService;
+    private final FuncionarioService funcionarioService;
+    private final VendasService vendasService;
+    private final PedidoService pedidoService;
 
-    public PopuladorComponent(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, ProdutoService produtoService) {
+    public PopuladorComponent(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, ProdutoService produtoService, FuncionarioService funcionarioService, VendasService vendasService, PedidoService pedidoService) {
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
         this.linhasService = linhasService;
         this.produtoService = produtoService;
+        this.funcionarioService = funcionarioService;
+        this.vendasService = vendasService;
+        this.pedidoService = pedidoService;
     }
 
     @PostConstruct
@@ -44,6 +60,9 @@ public class PopuladorComponent {
         List<Categoria> conferiCategoria = categoriaService.findAll();
         List<Linhas> conferilinhas = linhasService.findAll();
         List<Produtos> conferiProdutos = produtoService.findAll();
+        List<Funcionario> conferiFuncionarios = funcionarioService.findAll();
+        List<Vendas> conferiVendas = vendasService.findAll();
+        List<Pedido> conferiPedido = pedidoService.findAll();
 
         if (buscaFornecedor.isEmpty()) {
             //fornecedor
@@ -96,6 +115,7 @@ public class PopuladorComponent {
                     a++;
                 }
             }
+
             List<Linhas> buscaLinhas = linhasService.findAll();
             if (!buscaLinhas.isEmpty() && conferiProdutos.isEmpty()) {
                 String[][] produtos = {
@@ -120,8 +140,47 @@ public class PopuladorComponent {
                     );
                     produtoService.save(produtosDTO);
                 }
-                System.out.println("deu bom kk");
             }
+
+            if (conferiFuncionarios.isEmpty()) {
+                String[][] funcionarios = {
+                        {"roberto", "roberto@hbsis.com.br", "euid"},
+                        {"rosberto", "rosberto@hbsis.com.br", "euid"},
+                        {"tioberto", "tioberto@hbsis.com.br", "euid"},
+                        {"voberto", "voberto@hbsis.com.br", "euid"},
+                        {"netoberto", "netoberto@hbsis.com.br", "euid"},
+                        {"paiberto", "paiberto@hbsis.com.br", "euid"},
+                };
+                for (String[] funcionario : funcionarios) {
+                    FuncionarioDTO funcionarioDTO = new FuncionarioDTO(
+                            null,
+                            funcionario[0],
+                            funcionario[1],
+                            funcionario[2]
+                    );
+                    funcionarioService.save(funcionarioDTO);
+                }
+            }
+
+            if (conferiVendas.isEmpty()) {
+                String[][] periodos = {
+                        {"primeiro periodo", "12345678901011"},
+                        {"segunda periodo", "12345678901112"},
+                        {"terceiro periodo", "12345678901213"},
+                };
+                for (String[] periodo : periodos) {
+                    VendasDTO funcionarioDTO = new VendasDTO(
+                            null,
+                            periodo[0],
+                            LocalDateTime.now().plusDays(1),
+                            LocalDateTime.now().plusWeeks(1),
+                            LocalDateTime.now().plusMonths(1),
+                            Long.parseLong(periodo[1])
+                    );
+                    vendasService.save(funcionarioDTO);
+                }
+            }
+            LOGGER.info("deu bom ao Repopular.");
         }
     }
 }

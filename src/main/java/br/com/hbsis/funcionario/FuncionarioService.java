@@ -1,12 +1,13 @@
 package br.com.hbsis.funcionario;
 
-import br.com.hbsis.api.Employee.InAndOutPut.InputDTO;
+import br.com.hbsis.api.Employee.InOutPut.EmployeeInputDTO;
 import br.com.hbsis.api.Employee.EmployeeService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,6 +17,11 @@ public class FuncionarioService {
 
     public FuncionarioService(IFuncionarioRepository iFuncionarioRepository) {
         this.iFuncionarioRepository = iFuncionarioRepository;
+    }
+
+    //busca tudo
+    public List<Funcionario> findAll() {
+        return iFuncionarioRepository.findAll();
     }
 
     //puxa o Funcionario pelo Id dele, seta ele como DTO
@@ -28,12 +34,22 @@ public class FuncionarioService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    //puxa o Funcionario pelo Id dele, seta ele como DTO
+    public Funcionario findByIdFuncionario(Long id) {
+        Optional<Funcionario> FuncionarioOptional = this.iFuncionarioRepository.findById(id);
+
+        if (FuncionarioOptional.isPresent()) {
+            return FuncionarioOptional.get();
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     //salva o Funcionario no Database
     public FuncionarioDTO save(FuncionarioDTO funcionarioDTO) {
 
         this.validate(funcionarioDTO);
-
-        FuncionarioDTO dto = EmployeeService.FuncionarioHBEmployee(InputDTO.of(funcionarioDTO));
+        EmployeeInputDTO employeeInputDTO =EmployeeInputDTO.of(funcionarioDTO);
+        FuncionarioDTO dto = EmployeeService.FuncionarioHBEmployee(employeeInputDTO);
 
         LOGGER.info("Salvando br.com.hbsis.Funcionario");
         LOGGER.debug("br.com.hbsis.funcionario: {}", funcionarioDTO);

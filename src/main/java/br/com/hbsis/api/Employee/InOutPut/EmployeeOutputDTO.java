@@ -1,6 +1,6 @@
-package br.com.hbsis.api.Employee.InAndOutPut;
+package br.com.hbsis.api.Employee.InOutPut;
 
-public class OutputDTO {
+public class EmployeeOutputDTO {
 
     //- responde funcionario
 
@@ -10,7 +10,6 @@ public class OutputDTO {
     public String getEmployeeName() {
         return employeeName;
     }
-
     public void setEmployeeName(String employeeName) {
         this.employeeName = employeeName;
     }
@@ -18,7 +17,6 @@ public class OutputDTO {
     public String getEmployeeUuid() {
         return employeeUuid;
     }
-
     public void setEmployeeUuid(String employeeUuid) {
         this.employeeUuid = employeeUuid;
     }

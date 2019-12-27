@@ -15,12 +15,21 @@ public class PedidoRest {
     }
 
     @PostMapping
-    public PedidoDTO save(@RequestBody PedidoDTO pedidoDTO) {
+    public PedidoDTO criar(@RequestBody PedidoDTO pedidoDTO) {
         LOGGER.info("Recebendo solicitação de persistência de Pedido...");
         LOGGER.debug("Payaload: {}", pedidoDTO);
 
         //manda salva
-        return this.pedidoService.save(pedidoDTO);
+        return this.pedidoService.criarPedido(pedidoDTO);
+    }
+
+    @PostMapping("/save/{id}")
+    public PedidoDTO save(@PathVariable("id") Long id) {
+        LOGGER.info("Recebendo solicitação de persistência de Pedido...");
+        LOGGER.debug("Payaload: {}", id);
+
+        //manda salva
+        return this.pedidoService.save(id);
     }
 
     @GetMapping("/{id}")
@@ -62,6 +71,4 @@ public class PedidoRest {
         //manda sumir
         this.pedidoService.delete(id);
     }
-
-
 }

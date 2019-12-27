@@ -23,13 +23,13 @@ public class VendasDTO {
                 '}';
     }
 
-    public VendasDTO(Long id, String descricaoVendas, LocalDateTime diaInicial, LocalDateTime diaFinal, LocalDateTime diaRetirada, Long cnpjFornecedor) {
+    public VendasDTO(Long id, String descricaoVendas, LocalDateTime diaInicial, LocalDateTime diaFinal, LocalDateTime diaRetirada, Long idFornecedor ) {
         this.id = id;
         this.descricaoVendas = descricaoVendas;
         this.diaInicial = diaInicial;
         this.diaFinal = diaFinal;
         this.diaRetirada = diaRetirada;
-        this.idFornecedor = cnpjFornecedor;
+        this.idFornecedor = idFornecedor;
     }
 
     public static VendasDTO of(Vendas vendas) {

@@ -37,16 +37,6 @@ public class CategoriaService {
         return iCategoriaRepository.findAll();
     }
 
-    //Busca
-    public List findAllByFornecedor_IdIs(Long id) {
-        List<Categoria> categoriaOpcional = this.iCategoriaRepository.findAllByFornecedor_IdIs(id);
-
-        if (!categoriaOpcional.isEmpty()) {
-            return categoriaOpcional;
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
     //busca a Categoria pelo Id, retorna ele como DTO
     public CategoriaDTO findById(Long id) {
         Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findById(id);

@@ -1,14 +1,8 @@
 package br.com.hbsis.pedido;
 
-import br.com.hbsis.api.Invoice.Input.InvoiceDTO;
-import br.com.hbsis.api.Invoice.Input.InvoiceItemDTO;
-import br.com.hbsis.api.Invoice.InvoiceService;
-import br.com.hbsis.fornecedor.Fornecedor;
+import br.com.hbsis.api.PortaAPI;
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.fornecedor.FornecedoresDTO;
-import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
-import br.com.hbsis.produtos.ProdutoService;
 import br.com.hbsis.vendas.VendasService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -24,15 +18,15 @@ public class PedidoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PedidoService.class);
     private final IPedidoRepository iPedidoRepository;
     private final FornecedorService fornecedorService;
-    private final ProdutoService produtoService;
     private final VendasService vendasService;
+    private final PortaAPI portaAPI;
     private final FuncionarioService funcionarioService;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, ProdutoService produtoService, VendasService vendasService, FuncionarioService funcionarioService) {
+    public PedidoService(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, VendasService vendasService, PortaAPI portaAPI, FuncionarioService funcionarioService) {
         this.iPedidoRepository = iPedidoRepository;
         this.fornecedorService = fornecedorService;
-        this.produtoService = produtoService;
         this.vendasService = vendasService;
+        this.portaAPI = portaAPI;
         this.funcionarioService = funcionarioService;
     }
 
@@ -46,63 +40,72 @@ public class PedidoService {
         Optional<Pedido> fornecedorOptional = this.iPedidoRepository.findById(id);
 
         if (fornecedorOptional.isPresent()) {
-            return PedidoDTO.of(fornecedorOptional.get(), null);
+            return PedidoDTO.of(fornecedorOptional.get());
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    //puxa o fornecedor pelo Id dele, seta ele como DTO
+    public Pedido findByIdPedido(Long id) {
+        Optional<Pedido> fornecedorOptional = this.iPedidoRepository.findById(id);
+
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional.get();
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+
+
     //salva o fornecedor no Database
-    public PedidoDTO save(PedidoDTO pedidoDTO) {
+    public PedidoDTO criarPedido(PedidoDTO pedidoDTO) {
 
         this.validate(pedidoDTO);
-        if(vendasService.validaCompra(LocalDateTime.now(),pedidoDTO.getIdFornecedorPedido())){
+        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
             throw new IllegalArgumentException("Nao esta no periodo de venda");
         }
 
-        LOGGER.info("Salvando br.com.hbsis.fornecedor");
-        LOGGER.debug("br.com.hbsis.fornecedor: {}", pedidoDTO);
+        LOGGER.info("Criando br.com.hbsis.Pedido");
+        LOGGER.debug("br.com.hbsis.Pedido: {}", pedidoDTO);
 
         Pedido pedido = new Pedido();
         pedido.setCodPedido(pedidoDTO.getCodPedido());
-        pedido.setStatus(pedidoDTO.getStatus());
-        pedido.setFornecedorPedido(fornecedorService.findByFornecedorId(pedidoDTO.getId()));
-        pedido.setProdutosPedido(produtoService.findByIdProduto(pedidoDTO.getIdProdutosPedido()));
+        pedido.setStatus("Ativo");
+        pedido.setFornecedor(fornecedorService.findByFornecedorId(pedidoDTO.getIdFornecedorPedido()));
+        pedido.setFuncionario(funcionarioService.findByIdFuncionario(pedidoDTO.getIdFuncionario()));
         pedido.setDia(LocalDateTime.now());
-        pedido.setAmount(pedidoDTO.getAmount());
-
-        String nome = produtoService.findByIdProduto(pedidoDTO.getIdProdutosPedido()).getNomeProduto();
-        Funcionario funcionario = funcionarioService.findByIdFuncionario(pedidoDTO.getIdFuncionario());
-        InvoiceItemDTO invoiceItemDTO = InvoiceItemDTO.of(pedidoDTO,nome);
-        InvoiceDTO invoiceDTO = InvoiceDTO.of(pedido,invoiceItemDTO,funcionario);
-        InvoiceService.HBInvoice(invoiceDTO);
 
         pedido = this.iPedidoRepository.save(pedido);
 
         //Retorna para o postman
-        return PedidoDTO.of(pedido, null);
+        return PedidoDTO.of(pedido);
+    }
+
+    //salva o fornecedor no Database
+    public PedidoDTO save(Long id) {
+
+        LOGGER.info("Salvando br.com.hbsis.Pedido");
+        LOGGER.debug("br.com.hbsis.Pedido: {}", id);
+
+        Pedido pedido = this.findByIdPedido(id);
+        pedido.setStatus("Ativo");
+
+        portaAPI.validaApi(pedido);
+
+        pedido = this.iPedidoRepository.save(pedido);
+
+        //Retorna para o postman
+        return PedidoDTO.of(pedido);
     }
 
     private void validate(PedidoDTO pedidoDTO) {
         LOGGER.info("Validando Fornecedor");
 
         if (StringUtils.isEmpty(pedidoDTO.getCodPedido())) {
-            throw new IllegalArgumentException("Razao não deve ser nulo/vazio");
-        }
-        if (StringUtils.isEmpty(pedidoDTO.getStatus())) {
-            throw new IllegalArgumentException("Razao não deve ser nulo/vazio");
+            throw new IllegalArgumentException("Cod não deve ser nulo/vazio");
         }
         if (pedidoDTO.getIdFornecedorPedido() == null) {
-            throw new IllegalArgumentException("Razao não deve ser nulo/vazio");
-        }
-        if (pedidoDTO.getIdProdutosPedido() == null) {
-            throw new IllegalArgumentException("Razao não deve ser nulo/vazio");
-        }
-        if (pedidoDTO.getAmount() == null) {
-            throw new IllegalArgumentException("Amount não deve ser nulo/vazio");
-        }
-        Long idForneValido = produtoService.findByIdProduto(pedidoDTO.getIdProdutosPedido()).getLinhas().getCategoria().getFornecedor().getId();
-        if (pedidoDTO.getIdFornecedorPedido() == idForneValido) {
-            throw new IllegalArgumentException("Esse fornecedor nao é dono desse produto");
+            throw new IllegalArgumentException("Fornecedor não deve ser nulo/vazio");
         }
     }
 
@@ -111,7 +114,7 @@ public class PedidoService {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
 
-        if(vendasService.validaCompra(LocalDateTime.now(),pedidoDTO.getIdFornecedorPedido())){
+        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
             throw new IllegalArgumentException("Nao esta no periodo de venda");
         }
 
@@ -122,14 +125,12 @@ public class PedidoService {
             LOGGER.debug("Payload: {}", pedidoDTO);
             LOGGER.debug("Pedido Existente: {}", pedido);
 
-            pedido.setAmount(pedidoDTO.getAmount());
-            pedido.setFornecedorPedido(fornecedorService.findByFornecedorId(pedidoDTO.getId()));
-            pedido.setProdutosPedido(produtoService.findByIdProduto(pedidoDTO.getIdProdutosPedido()));
+            pedido.setFornecedor(fornecedorService.findByFornecedorId(pedidoDTO.getId()));
             pedido.setCodPedido(pedidoDTO.getCodPedido());
 
             pedido = this.iPedidoRepository.save(pedido);
 
-            return PedidoDTO.of(pedido, null);
+            return PedidoDTO.of(pedido);
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
@@ -138,7 +139,7 @@ public class PedidoService {
     public PedidoDTO cancela(PedidoDTO pedidoDTO, Long id) {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
-        if(vendasService.validaCompra(LocalDateTime.now(),pedidoDTO.getIdFornecedorPedido())){
+        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
             throw new IllegalArgumentException("Nao esta no periodo de venda");
         }
         if (produtoExistenteOptional.isPresent()) {
@@ -152,7 +153,7 @@ public class PedidoService {
 
             pedido = this.iPedidoRepository.save(pedido);
 
-            return PedidoDTO.of(pedido, null);
+            return PedidoDTO.of(pedido);
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
@@ -161,7 +162,7 @@ public class PedidoService {
     public PedidoDTO retirado(PedidoDTO pedidoDTO, Long id) {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
-        if(vendasService.validaRetirada(LocalDateTime.now(),pedidoDTO.getIdFornecedorPedido())){
+        if (vendasService.validaRetirada(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
             throw new IllegalArgumentException("Nao pode retirar o pedido hoje");
         }
         if (produtoExistenteOptional.isPresent()) {
@@ -175,7 +176,7 @@ public class PedidoService {
 
             pedido = this.iPedidoRepository.save(pedido);
 
-            return PedidoDTO.of(pedido, null);
+            return PedidoDTO.of(pedido);
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }

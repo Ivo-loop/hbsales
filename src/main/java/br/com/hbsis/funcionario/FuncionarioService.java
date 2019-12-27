@@ -1,6 +1,6 @@
 package br.com.hbsis.funcionario;
 
-import br.com.hbsis.api.Employee.InOutPut.EmployeeInputDTO;
+import br.com.hbsis.api.Employee.EmployeeDTO;
 import br.com.hbsis.api.Employee.EmployeeService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -34,6 +34,7 @@ public class FuncionarioService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+
     //puxa o Funcionario pelo Id dele, seta ele como DTO
     public Funcionario findByIdFuncionario(Long id) {
         Optional<Funcionario> FuncionarioOptional = this.iFuncionarioRepository.findById(id);
@@ -48,8 +49,8 @@ public class FuncionarioService {
     public FuncionarioDTO save(FuncionarioDTO funcionarioDTO) {
 
         this.validate(funcionarioDTO);
-        EmployeeInputDTO employeeInputDTO =EmployeeInputDTO.of(funcionarioDTO);
-        FuncionarioDTO dto = EmployeeService.FuncionarioHBEmployee(employeeInputDTO);
+        EmployeeDTO employeeDTO = EmployeeDTO.of(funcionarioDTO);
+        FuncionarioDTO dto = EmployeeService.FuncionarioHBEmployee(employeeDTO);
 
         LOGGER.info("Salvando br.com.hbsis.Funcionario");
         LOGGER.debug("br.com.hbsis.funcionario: {}", funcionarioDTO);

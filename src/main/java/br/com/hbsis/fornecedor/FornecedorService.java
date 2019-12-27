@@ -37,7 +37,6 @@ public class FornecedorService {
     //puxa o fornecedor pelo Id dele
     public Fornecedor findByFornecedorId(Long id) {
         Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
-
         if (fornecedorOptional.isPresent()) {
             return fornecedorOptional.get();
         }

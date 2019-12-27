@@ -6,8 +6,7 @@ CREATE TABLE seg_pedido
     CHECK(status_pedido IN ('Ativo','Cancelado','Retirado')),
     id_pedido_fornecedo BIGINT        NOT     NULL
         FOREIGN KEY REFERENCES seg_fornecedores (id),
-    id_pedido_produtos  BIGINT        NOT     NULL
-        FOREIGN KEY REFERENCES seg_produtos (id),
-    dia_create_pedido   DATE NULL DEFAULT CURRENT_TIMESTAMP,
-    amount_pedido       INT           NOT     NULL
+    id_pedido_funcionario BIGINT      NOT     NULL
+        FOREIGN KEY REFERENCES seg_funcionario (id),
+    dia_create_pedido   DATE NULL DEFAULT CURRENT_TIMESTAMP
 );

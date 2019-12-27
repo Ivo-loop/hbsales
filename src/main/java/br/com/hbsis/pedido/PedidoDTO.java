@@ -1,39 +1,28 @@
 package br.com.hbsis.pedido;
 
-import br.com.hbsis.funcionario.Funcionario;
-
 public class PedidoDTO {
 
     private Long id;
     private String codPedido;
-    private String status;
     private Long idFornecedorPedido;
-    private Long idProdutosPedido;
     private Long idFuncionario;
-    private Long amount;
 
     public PedidoDTO() {
     }
 
-    public PedidoDTO(Long id, String codPedido, String status, Long idFornecedorPedido, Long idProdutosPedido, Long idFuncionario, Long amount) {
+    public PedidoDTO(Long id, String codPedido, Long idFornecedorPedido, Long idFuncionario) {
         this.id = id;
         this.codPedido = codPedido;
-        this.status = status;
         this.idFornecedorPedido = idFornecedorPedido;
-        this.idProdutosPedido = idProdutosPedido;
         this.idFuncionario = idFuncionario;
-        this.amount = amount;
     }
 
-    public static PedidoDTO of(Pedido pedido, Funcionario funcionario) {
+    public static PedidoDTO of(Pedido pedido) {
         return new PedidoDTO(
                 pedido.getId(),
                 pedido.getCodPedido(),
-                pedido.getStatus(),
-                pedido.getFornecedorPedido().getId(),
-                pedido.getProdutosPedido().getId(),
-                pedido.getAmount(),
-                funcionario.getId()
+                pedido.getFornecedor().getId(),
+                pedido.getFuncionario().getId()
         );
     }
 
@@ -42,10 +31,8 @@ public class PedidoDTO {
         return "PedidoDTO{" +
                 "id=" + id +
                 ", codPedido='" + codPedido + '\'' +
-                ", status='" + status + '\'' +
                 ", idFornecedorPedido=" + idFornecedorPedido +
-                ", idProdutosPedido=" + idProdutosPedido +
-                ", amount=" + amount +
+                ", idFuncionario=" + idFuncionario +
                 '}';
     }
 
@@ -73,35 +60,11 @@ public class PedidoDTO {
         this.codPedido = codPedido;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public Long getIdFornecedorPedido() {
         return idFornecedorPedido;
     }
 
     public void setIdFornecedorPedido(Long idFornecedorPedido) {
         this.idFornecedorPedido = idFornecedorPedido;
-    }
-
-    public Long getIdProdutosPedido() {
-        return idProdutosPedido;
-    }
-
-    public void setIdProdutosPedido(Long idProdutosPedido) {
-        this.idProdutosPedido = idProdutosPedido;
-    }
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Long amount) {
-        this.amount = amount;
     }
 }

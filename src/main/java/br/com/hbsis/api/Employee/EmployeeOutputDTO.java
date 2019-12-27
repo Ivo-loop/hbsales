@@ -1,4 +1,4 @@
-package br.com.hbsis.api.Employee.InOutPut;
+package br.com.hbsis.api.Employee;
 
 public class EmployeeOutputDTO {
 

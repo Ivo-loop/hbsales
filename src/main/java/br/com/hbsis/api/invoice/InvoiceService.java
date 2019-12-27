@@ -1,8 +1,5 @@
-package br.com.hbsis.api.Invoice;
+package br.com.hbsis.api.invoice;
 
-import br.com.hbsis.api.Employee.InOutPut.EmployeeInputDTO;
-import br.com.hbsis.api.Employee.InOutPut.EmployeeOutputDTO;
-import br.com.hbsis.api.Invoice.Input.InvoiceDTO;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,10 +10,8 @@ public class InvoiceService {
     private static final String INVOICE = "http://10.2.54.25:9999/api/invoice";
     private static final String KEY = "d04841c4-90ad-4dc8-842b-b3cce24cce30";
 
-    private InvoiceService() {
-    }
 
-    public static Boolean  HBInvoice(InvoiceDTO inputDTO) {
+    public static Boolean HBInvoice(InvoiceDTO inputDTO) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpEntity<InvoiceDTO> dtoHttpEntity = new HttpEntity<>(inputDTO, getHeaders());

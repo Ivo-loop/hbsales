@@ -164,9 +164,9 @@ public class PopuladorComponent {
 
             if (conferiVendas.isEmpty()) {
                 String[][] periodos = {
-                        {"primeiro periodo", "12345678901011"},
-                        {"segunda periodo", "12345678901112"},
-                        {"terceiro periodo", "12345678901213"},
+                        {"primeiro periodo", "1"},
+                        {"segunda periodo", "2"},
+                        {"terceiro periodo", "3"},
                 };
                 for (String[] periodo : periodos) {
                     VendasDTO funcionarioDTO = new VendasDTO(

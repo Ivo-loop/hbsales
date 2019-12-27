@@ -1,6 +1,5 @@
 package br.com.hbsis.vendas;
 
-import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -28,20 +27,30 @@ public class VendasService {
         return iVendasRepository.findAll();
     }
 
-    //busca produto pro Id
+    //busca Vendas pro Id
     public VendasDTO findById(Long id) {
         Optional<Vendas> vendasOptional = this.iVendasRepository.findById(id);
 
         if (vendasOptional.isPresent()) {
             return VendasDTO.of(vendasOptional.get());
         }
-
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    //busca Vendas pro Id
+    public List<Vendas> findByIdFornecedor(Long id) {
+        List<Vendas> vendasOptional = this.iVendasRepository.findAllFornecedorById(id);
+
+        if (!vendasOptional.isEmpty()) {
+            return vendasOptional;
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+
     public Boolean validaCompra(LocalDateTime hoje, Long id) {
         for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(id)) {
-            if (hoje.isAfter(vendasValidar.getDiaFinal()) && hoje.isBefore(vendasValidar.getDiaInicial())) {
+            if (hoje.isBefore(vendasValidar.getDiaFinal()) && hoje.isAfter(vendasValidar.getDiaInicial())) {
                 return false;
             }
         }
@@ -62,8 +71,8 @@ public class VendasService {
     public VendasDTO save(VendasDTO vendasDTO) {
         this.validate(vendasDTO);
 
-        LOGGER.info("\"Salvando br.com.hbsis.Produto");
-        LOGGER.debug("br.com.hbsis.Produto: {}", vendasDTO);
+        LOGGER.info("\"Salvando br.com.hbsis.Vendas");
+        LOGGER.debug("br.com.hbsis.Vendas: {}", vendasDTO);
 
         Vendas vendas = new Vendas();
 
@@ -92,18 +101,18 @@ public class VendasService {
 
     //Alterar
     public VendasDTO update(VendasDTO vendasDTO, Long id) {
-        Optional<Vendas> ProdutoExistencialOpcional = this.iVendasRepository.findById(id);
+        Optional<Vendas> vendasExistencialOpcional = this.iVendasRepository.findById(id);
 
-        if (ProdutoExistencialOpcional.isPresent()) {
-            Vendas vendas = ProdutoExistencialOpcional.get();
+        if (vendasExistencialOpcional.isPresent()) {
+            Vendas vendas = vendasExistencialOpcional.get();
 
             if (vendas.getDiaFinal().isBefore(LocalDateTime.now())) {
                 throw new IllegalArgumentException("Desculpa nao pode ser alterado");
             }
 
-            LOGGER.info("Atualizando Produto... id: [{}]", vendas.getId());
+            LOGGER.info("Atualizando Vendas... id: [{}]", vendas.getId());
             LOGGER.debug("Payload: {}", vendasDTO);
-            LOGGER.debug("Produto Existente: {}", vendas);
+            LOGGER.debug("Vendas Existente: {}", vendas);
 
             vendas.setDescricaoVendas(vendasDTO.getDescricaoVendas());
             vendas.setDiaInicial(vendasDTO.getDiaInicial());
@@ -121,7 +130,7 @@ public class VendasService {
 
     //valida
     private void validate(VendasDTO vendasDTO) {
-        LOGGER.info("Validando Produto");
+        LOGGER.info("Validando Vendas");
 
         Long validador = Long.parseLong(String.valueOf(LocalDateTime.now()).substring(0, 10).replaceAll("-", ""));
 
@@ -139,10 +148,10 @@ public class VendasService {
             throw new IllegalArgumentException("tem algo de errado nas data3 meu bom");
         }
         if (vendasDTO == null) {
-            throw new IllegalArgumentException("ProdutoDTO não deve ser nulo");
+            throw new IllegalArgumentException("VendasDTO não deve ser nulo");
         }
         if (vendasDTO.getDescricaoVendas() == null) {
-            throw new IllegalArgumentException("Nome da Produto não deve ser nula/vazia");
+            throw new IllegalArgumentException("Nome da Vendas não deve ser nula/vazia");
         }
         if (StringUtils.isEmpty(String.valueOf(vendasDTO.getDiaInicial()))) {
             throw new IllegalArgumentException("Cod linhas não deve ser nula/vazia");
@@ -154,16 +163,15 @@ public class VendasService {
             throw new IllegalArgumentException("Cod peso por unidade não deve ser nula/vazia");
         }
         if (StringUtils.isEmpty(String.valueOf(vendasDTO.getIdFornecedor()))) {
-            throw new IllegalArgumentException("Nome da Produto não deve ser nula/vazia");
+            throw new IllegalArgumentException("Nome da Vendas não deve ser nula/vazia");
         }
         //if()
     }
 
     //deleta
     public void delete(Long id) {
-        LOGGER.info("Executando delete para Produto de ID: [{}]", id);
+        LOGGER.info("Executando delete para Vendas de ID: [{}]", id);
 
         this.iVendasRepository.deleteById(id);
-
     }
 }

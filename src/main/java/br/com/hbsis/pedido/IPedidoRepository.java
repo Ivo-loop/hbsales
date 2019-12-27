@@ -10,4 +10,5 @@ import java.util.List;
 
  List<Pedido> findByFornecedor_Id(Long id);
 
+ List<Pedido> findByfuncionario_Id(Long id);
 }

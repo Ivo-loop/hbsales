@@ -56,6 +56,15 @@ public class PedidoService {
     }
 
 
+    public List<Pedido> pedidoFuncionario(Long id) {
+        List<Pedido> fornecedorOptional = this.iPedidoRepository.findByfuncionario_Id(id);
+
+        if (!fornecedorOptional.isEmpty()) {
+            return fornecedorOptional;
+        }
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
 
     //salva o fornecedor no Database
     public PedidoDTO criarPedido(PedidoDTO pedidoDTO) {

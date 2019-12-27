@@ -1,6 +1,7 @@
 package br.com.hbsis.pedido;
 
 import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.pedido.itens.Itens;
 import br.com.hbsis.pedido.itens.ItensService;
 import br.com.hbsis.vendas.Vendas;
@@ -16,12 +17,14 @@ import java.text.ParseException;
 public class PedidoCSVs {
     private final IPedidoRepository iPedidoRepository;
     private final FornecedorService fornecedorService;
+    private final FuncionarioService funcionarioService;
     private final ItensService itensService;
     private final VendasService vendasService;
 
-    public PedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, ItensService itensService, VendasService vendasService) {
+    public PedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, FuncionarioService funcionarioService, ItensService itensService, VendasService vendasService) {
         this.iPedidoRepository = iPedidoRepository;
         this.fornecedorService = fornecedorService;
+        this.funcionarioService = funcionarioService;
         this.itensService = itensService;
         this.vendasService = vendasService;
     }
@@ -63,6 +66,62 @@ public class PedidoCSVs {
                     for (Itens itens : itensService.findByIdspedido(pedido.getId())) {
 
                         if (!nome.equals(itens.getProdutos().getNomeProduto())) {
+
+                            String dia = String.valueOf(vendas.getDiaInicial()).substring(0, 10) + " até " + String.valueOf(vendas.getDiaFinal()).substring(0, 10);
+
+                            nome = itens.getProdutos().getNomeProduto();
+                            String quat = "" + itensService.soma(pedido.getId(), nome);
+
+                            String cnpj = pedido.getFornecedor().getRazao() + " - " + fornecedorService.getCnpjMask(pedido.getFornecedor().getCnpj());
+                            //escreve os dados
+                            printWriter.println(dia + ";" + quat + ";" + nome + ";" + cnpj);
+                        }
+                    }
+                }
+            }
+        }
+        printWriter.close();
+    }
+
+    public void exportCSVFuncionario(HttpServletResponse response, Long id) throws IOException, ParseException {
+
+        //seta o nome do arq
+        String categoriaCSV = "categoria.csv";
+
+        //seta o tipo do arq da resposta
+        response.setContentType("text/csv");
+
+        //config do header
+        String headerKey = "Content-Disposition";
+
+        //como é aberto em anexo
+        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
+
+        response.setHeader(headerKey, headerValue);
+
+        //instancia Print e seta como escritor
+        PrintWriter printWriter = response.getWriter();
+
+        //seta cabeça do cvs
+        String header = " nome_funcionario ; Periodo ; nome_produto ; quantidade ; fornecedor ";
+
+        // escreve o cabeçario
+        printWriter.println(header);
+
+        String nome = "";
+        Long cont = 0L;
+
+        for (Pedido pedido : iPedidoRepository.findByfuncionario_Id(id)) {
+
+            for (Vendas vendas : vendasService.findByIdFornecedor(pedido.getFornecedor().getId())) {
+
+                if (!vendasService.validaCompra(pedido.getDia(), pedido.getFornecedor().getId())) {
+
+                    for (Itens itens : itensService.findByIdspedido(pedido.getId())) {
+
+                        if (!nome.equals(itens.getProdutos().getNomeProduto())) {
+
+                            String funcionario = funcionarioService.findByIdFuncionario(id).getNomeFuncionario();
 
                             String dia = String.valueOf(vendas.getDiaInicial()).substring(0, 10) + " até " + String.valueOf(vendas.getDiaFinal()).substring(0, 10);
 

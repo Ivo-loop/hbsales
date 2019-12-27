@@ -4,14 +4,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.ParseException;
+
 @RestController
-@RequestMapping("/Pedido")
+@RequestMapping("/pedido")
 public class PedidoRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(PedidoRest.class);
     private final PedidoService pedidoService;
+    private final PedidoCSVs pedidoCSVs;
 
-    public PedidoRest(PedidoService pedidoService) {
+    public PedidoRest(PedidoService pedidoService, PedidoCSVs pedidoCSVs) {
         this.pedidoService = pedidoService;
+        this.pedidoCSVs = pedidoCSVs;
     }
 
     @PostMapping
@@ -21,6 +27,14 @@ public class PedidoRest {
 
         //manda salva
         return this.pedidoService.criarPedido(pedidoDTO);
+    }
+
+    @GetMapping("/export-csv/{id}")
+    public void exportCSV(HttpServletResponse response, @PathVariable("id") Long id) throws IOException, ParseException {
+        LOGGER.info("Recebendo solicitação de exportacao de categoria...");
+
+        //manda exporta
+        pedidoCSVs.exportCSV(response, id);
     }
 
     @PostMapping("/save/{id}")

@@ -4,16 +4,16 @@ public class PedidoDTO {
 
     private Long id;
     private String codPedido;
-    private Long idFornecedorPedido;
+    private Long idFornecedor;
     private Long idFuncionario;
 
     public PedidoDTO() {
     }
 
-    public PedidoDTO(Long id, String codPedido, Long idFornecedorPedido, Long idFuncionario) {
+    public PedidoDTO(Long id, String codPedido, Long idFornecedor, Long idFuncionario) {
         this.id = id;
         this.codPedido = codPedido;
-        this.idFornecedorPedido = idFornecedorPedido;
+        this.idFornecedor = idFornecedor;
         this.idFuncionario = idFuncionario;
     }
 
@@ -31,7 +31,7 @@ public class PedidoDTO {
         return "PedidoDTO{" +
                 "id=" + id +
                 ", codPedido='" + codPedido + '\'' +
-                ", idFornecedorPedido=" + idFornecedorPedido +
+                ", idFornecedorPedido=" + idFornecedor +
                 ", idFuncionario=" + idFuncionario +
                 '}';
     }
@@ -60,11 +60,11 @@ public class PedidoDTO {
         this.codPedido = codPedido;
     }
 
-    public Long getIdFornecedorPedido() {
-        return idFornecedorPedido;
+    public Long getIdFornecedor() {
+        return idFornecedor;
     }
 
-    public void setIdFornecedorPedido(Long idFornecedorPedido) {
-        this.idFornecedorPedido = idFornecedorPedido;
+    public void setIdFornecedor(Long idFornecedor) {
+        this.idFornecedor = idFornecedor;
     }
 }

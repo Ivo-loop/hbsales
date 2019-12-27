@@ -92,7 +92,6 @@ public class ItensService {
         Produtos produtos = produtoService.findByIdProduto(itensDTO.getIdProduto());
         Pedido pedido = pedidoService.findByIdPedido(itensDTO.getIdPedido());
 
-
         if (itensDTO == null) {
             throw new IllegalArgumentException("fonecedoresDTO não deve ser nulo");
         }
@@ -125,7 +124,6 @@ public class ItensService {
             itens.setPedido(pedidoService.findByIdPedido(itensDTO.getIdPedido()));
             itens.setProdutos(produtoService.findByIdProduto(itensDTO.getIdProduto()));
             itens.setAmount(itensDTO.getAmount());
-
 
             itens = this.itensRepository.save(itens);
 

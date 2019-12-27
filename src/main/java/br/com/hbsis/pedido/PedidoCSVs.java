@@ -1,22 +1,25 @@
 package br.com.hbsis.pedido;
 
 import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.pedido.itens.Itens;
 import br.com.hbsis.pedido.itens.ItensService;
 import br.com.hbsis.vendas.Vendas;
 import br.com.hbsis.vendas.VendasService;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
 
-public class pedidoCSVs {
+@Component
+public class PedidoCSVs {
     private final IPedidoRepository iPedidoRepository;
     private final FornecedorService fornecedorService;
     private final ItensService itensService;
     private final VendasService vendasService;
 
-    public pedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, ItensService itensService, VendasService vendasService) {
+    public PedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, ItensService itensService, VendasService vendasService) {
         this.iPedidoRepository = iPedidoRepository;
         this.fornecedorService = fornecedorService;
         this.itensService = itensService;
@@ -48,17 +51,29 @@ public class pedidoCSVs {
         // escreve o cabeçario
         printWriter.println(header);
 
-        for (Pedido pedido : iPedidoRepository.findByFornecedor_Id(id)) {
-            for (Vendas vendas : vendasService.findByIdFornecedor(id)) {
-                if (vendasService.validaCompra(pedido.getDia(), pedido.getFornecedor().getId())) {
+        String nome = "";
+        Long cont = 0L;
 
-                    String dia = vendas.getDiaInicial() + " até " + vendas.getDiaFinal();
-                    String nome = itensService.findByIdpedido(pedido.getId()).getProdutos().getNomeProduto();
-                    String cod = "" + itensService.soma(pedido.getId() , nome);
+        for (Vendas vendas : vendasService.findByIdFornecedor(id)) {
 
-                    String cnpj = pedido.getFornecedor().getRazao() + " - " + fornecedorService.getCnpjMask(pedido.getFornecedor().getCnpj());
-                    //escreve os dados
-                    printWriter.println(cod + ";" + nome + ";" + cnpj);
+            for (Pedido pedido : iPedidoRepository.findByFornecedor_Id(id)) {
+
+                if (!vendasService.validaCompra(pedido.getDia(), pedido.getFornecedor().getId())) {
+
+                    for (Itens itens : itensService.findByIdspedido(pedido.getId())) {
+
+                        if (!nome.equals(itens.getProdutos().getNomeProduto())) {
+
+                            String dia = String.valueOf(vendas.getDiaInicial()).substring(0, 10) + " até " + String.valueOf(vendas.getDiaFinal()).substring(0, 10);
+
+                            nome = itens.getProdutos().getNomeProduto();
+                            String quat = "" + itensService.soma(pedido.getId(), nome);
+
+                            String cnpj = pedido.getFornecedor().getRazao() + " - " + fornecedorService.getCnpjMask(pedido.getFornecedor().getCnpj());
+                            //escreve os dados
+                            printWriter.println(dia + ";" + quat + ";" + nome + ";" + cnpj);
+                        }
+                    }
                 }
             }
         }

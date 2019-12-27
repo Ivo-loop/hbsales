@@ -61,7 +61,7 @@ public class PedidoService {
     public PedidoDTO criarPedido(PedidoDTO pedidoDTO) {
 
         this.validate(pedidoDTO);
-        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
+        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedor())) {
             throw new IllegalArgumentException("Nao esta no periodo de venda");
         }
 
@@ -71,7 +71,7 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setCodPedido(pedidoDTO.getCodPedido());
         pedido.setStatus("Ativo");
-        pedido.setFornecedor(fornecedorService.findByFornecedorId(pedidoDTO.getIdFornecedorPedido()));
+        pedido.setFornecedor(fornecedorService.findByFornecedorId(pedidoDTO.getIdFornecedor()));
         pedido.setFuncionario(funcionarioService.findByIdFuncionario(pedidoDTO.getIdFuncionario()));
         pedido.setDia(LocalDateTime.now());
 
@@ -104,7 +104,7 @@ public class PedidoService {
         if (StringUtils.isEmpty(pedidoDTO.getCodPedido())) {
             throw new IllegalArgumentException("Cod não deve ser nulo/vazio");
         }
-        if (pedidoDTO.getIdFornecedorPedido() == null) {
+        if (pedidoDTO.getIdFornecedor() == null) {
             throw new IllegalArgumentException("Fornecedor não deve ser nulo/vazio");
         }
     }
@@ -114,7 +114,7 @@ public class PedidoService {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
 
-        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
+        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedor())) {
             throw new IllegalArgumentException("Nao esta no periodo de venda");
         }
 
@@ -139,7 +139,7 @@ public class PedidoService {
     public PedidoDTO cancela(PedidoDTO pedidoDTO, Long id) {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
-        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
+        if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedor())) {
             throw new IllegalArgumentException("Nao esta no periodo de venda");
         }
         if (produtoExistenteOptional.isPresent()) {
@@ -162,7 +162,7 @@ public class PedidoService {
     public PedidoDTO retirado(PedidoDTO pedidoDTO, Long id) {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
-        if (vendasService.validaRetirada(LocalDateTime.now(), pedidoDTO.getIdFornecedorPedido())) {
+        if (vendasService.validaRetirada(LocalDateTime.now(), pedidoDTO.getIdFornecedor())) {
             throw new IllegalArgumentException("Nao pode retirar o pedido hoje");
         }
         if (produtoExistenteOptional.isPresent()) {

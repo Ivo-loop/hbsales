@@ -15,7 +15,6 @@ import java.util.List;
 @Component
 public class Mail {
 
-
     @Autowired
     private final JavaMailSender mailSender;
     private final VendasService vendasService;
@@ -28,19 +27,18 @@ public class Mail {
     }
 
     public void mailSave(Pedido pedido) {
-        List<Itens> itens = itemBusca.findAllByPedido_IdIs(pedido.getId());
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("O produto " + pedido.getFuncionario().getNomeFuncionario() + " foi comprado");
+        message.setSubject("Confirmaçao de compra");
+
         message.setText("Olá "
                 + (pedido.getFuncionario().getNomeFuncionario()) + "\r\n"
-                + "Você fez a compra de : " + "\r\n"
-                + itensPego(itens)
                 + "(Código do pedido; " + pedido.getCodPedido() + "    Data prevista para retirada do produto : ("
                 + vendasService.dates(pedido.getFornecedor().getId(), pedido.getDia()).getDiaRetirada() + ")" + "\r\n"
                 + "HBSIS - Soluções em TI" + "\r\n"
                 + "Rua Theodoro Holtrup, 982 - Vila Nova, Blumenau - SC"
                 + "(47) 2123-5400");
-        message.setTo("dannatomio@gmail.com");
+
+        message.setTo(pedido.getFuncionario().getEmail());
         message.setFrom("ivopaulo.puehler@gmail.com");
 
         System.out.println("enviando email");
@@ -50,14 +48,6 @@ public class Mail {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public ArrayList itensPego(List<Itens> itens) {
-        ArrayList<String> mensagem = new ArrayList<>();
-        for (Itens item : itens) {
-            mensagem.add("" + item.getAmount() + " " + item.getProdutos().getNomeProduto() + "\r\n");
-        }
-        return mensagem;
     }
 }
 

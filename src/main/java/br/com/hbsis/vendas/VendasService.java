@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,6 @@ public class VendasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    //busca Vendas pro Id
     public List<Vendas> findByIdFornecedor(Long id) {
         List<Vendas> vendasOptional = this.iVendasRepository.findAllFornecedorById(id);
 
@@ -45,6 +45,15 @@ public class VendasService {
             return vendasOptional;
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public Vendas dates(Long id, LocalDateTime diaCreate){
+        for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(id)) {
+            if (diaCreate.isBefore(vendasValidar.getDiaFinal()) && diaCreate.isAfter(vendasValidar.getDiaInicial())) {
+                return vendasValidar;
+            }
+        }
+        throw new IllegalArgumentException("Erro no dia da retirada");
     }
 
 

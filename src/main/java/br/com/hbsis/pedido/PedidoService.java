@@ -3,6 +3,7 @@ package br.com.hbsis.pedido;
 import br.com.hbsis.api.PortaAPI;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.FuncionarioService;
+import br.com.hbsis.mail.Mail;
 import br.com.hbsis.vendas.VendasService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -21,13 +22,15 @@ public class PedidoService {
     private final VendasService vendasService;
     private final PortaAPI portaAPI;
     private final FuncionarioService funcionarioService;
+    private final Mail mail;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, VendasService vendasService, PortaAPI portaAPI, FuncionarioService funcionarioService) {
+    public PedidoService(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, VendasService vendasService, PortaAPI portaAPI, FuncionarioService funcionarioService, Mail mail) {
         this.iPedidoRepository = iPedidoRepository;
         this.fornecedorService = fornecedorService;
         this.vendasService = vendasService;
         this.portaAPI = portaAPI;
         this.funcionarioService = funcionarioService;
+        this.mail = mail;
     }
 
     //busca tudo
@@ -102,6 +105,7 @@ public class PedidoService {
         portaAPI.validaApi(pedido);
 
         pedido = this.iPedidoRepository.save(pedido);
+        mail.mailSave(pedido);
 
         //Retorna para o postman
         return PedidoDTO.of(pedido);

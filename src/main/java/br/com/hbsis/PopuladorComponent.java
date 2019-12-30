@@ -14,6 +14,7 @@ import br.com.hbsis.linhas.LinhasDTO;
 import br.com.hbsis.linhas.LinhasService;
 import br.com.hbsis.pedido.Pedido;
 import br.com.hbsis.pedido.PedidoService;
+import br.com.hbsis.pedido.itens.ItensService;
 import br.com.hbsis.produtos.ProdutoService;
 import br.com.hbsis.produtos.Produtos;
 import br.com.hbsis.produtos.ProdutosDTO;
@@ -43,8 +44,9 @@ public class PopuladorComponent {
     private final FuncionarioService funcionarioService;
     private final VendasService vendasService;
     private final PedidoService pedidoService;
+    private final ItensService itensService;
 
-    public PopuladorComponent(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, ProdutoService produtoService, FuncionarioService funcionarioService, VendasService vendasService, PedidoService pedidoService) {
+    public PopuladorComponent(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, ProdutoService produtoService, FuncionarioService funcionarioService, VendasService vendasService, PedidoService pedidoService, ItensService itensService) {
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
         this.linhasService = linhasService;
@@ -52,6 +54,7 @@ public class PopuladorComponent {
         this.funcionarioService = funcionarioService;
         this.vendasService = vendasService;
         this.pedidoService = pedidoService;
+        this.itensService = itensService;
     }
 
     @PostConstruct
@@ -179,6 +182,10 @@ public class PopuladorComponent {
                     );
                     vendasService.save(funcionarioDTO);
                 }
+            }
+
+            if(conferiPedido.isEmpty()){
+
             }
             LOGGER.info("deu bom ao Repopular.");
         }

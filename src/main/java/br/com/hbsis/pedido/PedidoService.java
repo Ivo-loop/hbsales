@@ -1,11 +1,13 @@
 package br.com.hbsis.pedido;
 
 import br.com.hbsis.api.PortaAPI;
+import br.com.hbsis.carrinho.Carrinho;
+import br.com.hbsis.carrinho.CarrinhoService;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.mail.Mail;
+import br.com.hbsis.pedido.itens.ItensTransforme;
 import br.com.hbsis.vendas.VendasService;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,17 +21,21 @@ public class PedidoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PedidoService.class);
     private final IPedidoRepository iPedidoRepository;
     private final FornecedorService fornecedorService;
-    private final VendasService vendasService;
-    private final PortaAPI portaAPI;
     private final FuncionarioService funcionarioService;
+    private final CarrinhoService carrinhoService;
+    private final VendasService vendasService;
+    private final ItensTransforme itensTransforme;
+    private final PortaAPI portaAPI;
     private final Mail mail;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, VendasService vendasService, PortaAPI portaAPI, FuncionarioService funcionarioService, Mail mail) {
+    public PedidoService(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, FuncionarioService funcionarioService, VendasService vendasService, CarrinhoService carrinhoService, ItensTransforme itensTransforme, PortaAPI portaAPI, Mail mail) {
         this.iPedidoRepository = iPedidoRepository;
         this.fornecedorService = fornecedorService;
-        this.vendasService = vendasService;
-        this.portaAPI = portaAPI;
         this.funcionarioService = funcionarioService;
+        this.vendasService = vendasService;
+        this.carrinhoService = carrinhoService;
+        this.itensTransforme = itensTransforme;
+        this.portaAPI = portaAPI;
         this.mail = mail;
     }
 
@@ -70,41 +76,36 @@ public class PedidoService {
 
 
     //salva o fornecedor no Database
-    public PedidoDTO criarPedido(PedidoDTO pedidoDTO) {
+    public PedidoDTO save(Long idCarrinho) {
+
+        Carrinho carrinho = carrinhoService.findbyId(idCarrinho);
+
+        PedidoDTO pedidoDTO = new PedidoDTO(
+                null,
+                carrinho.getCodPedido(),
+                carrinho.getFornecedor().getId(),
+                carrinho.getFuncionario().getId()
+        );
+
+        LOGGER.info("Salvando br.com.hbsis.Pedido");
+        LOGGER.debug("br.com.hbsis.Pedido: {}", idCarrinho);
 
         this.validate(pedidoDTO);
         if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedor())) {
             throw new IllegalArgumentException("Nao esta no periodo de venda");
         }
 
-        LOGGER.info("Criando br.com.hbsis.Pedido");
-        LOGGER.debug("br.com.hbsis.Pedido: {}", pedidoDTO);
-
         Pedido pedido = new Pedido();
         pedido.setCodPedido(pedidoDTO.getCodPedido());
-        pedido.setStatus("Ativo");
         pedido.setFornecedor(fornecedorService.findByFornecedorId(pedidoDTO.getIdFornecedor()));
-        pedido.setFuncionario(funcionarioService.findByIdFuncionario(pedidoDTO.getIdFuncionario()));
+        pedido.setFuncionario(funcionarioService.findByIdFuncionario(pedidoDTO.getIdFornecedor()));
+        pedido.setStatus("Ativo");
         pedido.setDia(LocalDateTime.now());
 
         pedido = this.iPedidoRepository.save(pedido);
 
-        //Retorna para o postman
-        return PedidoDTO.of(pedido);
-    }
-
-    //salva o fornecedor no Database
-    public PedidoDTO save(Long id) {
-
-        LOGGER.info("Salvando br.com.hbsis.Pedido");
-        LOGGER.debug("br.com.hbsis.Pedido: {}", id);
-
-        Pedido pedido = this.findByIdPedido(id);
-        pedido.setStatus("Ativo");
-
+        itensTransforme.Itensproduto(pedido.getId(),idCarrinho);
         portaAPI.validaApi(pedido);
-
-        pedido = this.iPedidoRepository.save(pedido);
         mail.mailSave(pedido);
 
         //Retorna para o postman
@@ -114,11 +115,8 @@ public class PedidoService {
     private void validate(PedidoDTO pedidoDTO) {
         LOGGER.info("Validando Fornecedor");
 
-        if (StringUtils.isEmpty(pedidoDTO.getCodPedido())) {
-            throw new IllegalArgumentException("Cod não deve ser nulo/vazio");
-        }
-        if (pedidoDTO.getIdFornecedor() == null) {
-            throw new IllegalArgumentException("Fornecedor não deve ser nulo/vazio");
+        if (pedidoDTO == null) {
+            throw new IllegalArgumentException("PedidoDTO nao deve ser nulo/vazio");
         }
     }
 

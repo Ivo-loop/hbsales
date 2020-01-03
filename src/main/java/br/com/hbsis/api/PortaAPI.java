@@ -6,7 +6,7 @@ import br.com.hbsis.api.invoice.InvoiceService;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.pedido.Pedido;
-import br.com.hbsis.pedido.itens.ItemBusca;
+import br.com.hbsis.pedido.itens.ItemComponent;
 import br.com.hbsis.pedido.itens.Itens;
 import org.springframework.stereotype.Component;
 
@@ -17,18 +17,18 @@ import java.util.List;
 public class PortaAPI {
 
     private final FuncionarioService funcionarioService;
-    private final ItemBusca itensService;
+    private final ItemComponent itensService;
 
-    public PortaAPI(FuncionarioService funcionarioService, ItemBusca itensService) {
+    public PortaAPI(FuncionarioService funcionarioService, ItemComponent itensService) {
         this.funcionarioService = funcionarioService;
         this.itensService = itensService;
     }
 
-    public Boolean validaApi(Pedido pedido) {
+    public void validaApi(Pedido pedido) {
         Funcionario funcionario = funcionarioService.findByIdFuncionario(pedido.getFuncionario().getId());
         List<InvoiceItemDTO> invoiceItemDTO = this.listItem(pedido.getId());
         InvoiceDTO invoiceDTO = InvoiceDTO.of(pedido, invoiceItemDTO, funcionario.getUuid(), this.total(pedido.getId()));
-        return InvoiceService.HBInvoice(invoiceDTO);
+        InvoiceService.HBInvoice(invoiceDTO);
     }
 
     private List<InvoiceItemDTO> listItem(Long id) {
@@ -49,11 +49,9 @@ public class PortaAPI {
 
     private Float total(Long id) {
         List<Itens> itens = itensService.findAllByPedido_IdIs(id);
-        Itens item = new Itens();
-        Float bata = 0F;
-        for (int i = 0; i < itens.size(); i++) {
-
-            bata += (itens.get(i).getAmount() * itens.get(i).getProdutos().getPreco());
+        float bata = 0F;
+        for (Itens iten : itens) {
+            bata += (iten.getAmount() * iten.getProdutos().getPreco());
         }
         return bata;
     }

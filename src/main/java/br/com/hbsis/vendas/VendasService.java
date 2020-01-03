@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class VendasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public List<Vendas> findByIdFornecedor(Long id) {
+    public List<Vendas> findByAllIdFornecedor(Long id) {
         List<Vendas> vendasOptional = this.iVendasRepository.findAllFornecedorById(id);
 
         if (!vendasOptional.isEmpty()) {
@@ -47,21 +46,23 @@ public class VendasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public Vendas dates(Long id, LocalDateTime diaCreate){
-        for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(id)) {
-            if (diaCreate.isBefore(vendasValidar.getDiaFinal()) && diaCreate.isAfter(vendasValidar.getDiaInicial())) {
-                return vendasValidar;
-            }
+    public Vendas findByIdFornecedor(Long id) {
+        Optional<Vendas> vendasOptional = this.iVendasRepository.findByIdFornecedor(id);
+
+        if (vendasOptional.isPresent()) {
+            return vendasOptional.get();
         }
-        throw new IllegalArgumentException("Erro no dia da retirada");
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Vendas dates(Long id) {
+        return this.findByIdFornecedor(id);
+    }
 
     public Boolean validaCompra(LocalDateTime hoje, Long id) {
-        for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(id)) {
-            if (hoje.isBefore(vendasValidar.getDiaFinal()) && hoje.isAfter(vendasValidar.getDiaInicial())) {
-                return false;
-            }
+        Vendas vendasValidar = iVendasRepository.findByIdFornecedor(id).get();
+        if (vendasValidar.getDiaInicial().isBefore(hoje) && vendasValidar.getDiaFinal().isAfter(hoje)) {
+            return false;
         }
         return true;
     }
@@ -74,7 +75,6 @@ public class VendasService {
         }
         return true;
     }
-
 
     //salva
     public VendasDTO save(VendasDTO vendasDTO) {

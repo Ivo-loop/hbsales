@@ -67,7 +67,7 @@ public class ItensService {
         return total;
     }
 
-    //salva o Itens no Database
+    //salva o ItensCarrinho no Database
     public ItensDTO save(ItensDTO itensDTO) {
 
         this.validate(itensDTO);
@@ -91,10 +91,6 @@ public class ItensService {
         LOGGER.info("Validando Item");
         Produtos produtos = produtoService.findByIdProduto(itensDTO.getIdProduto());
         Pedido pedido = pedidoService.findByIdPedido(itensDTO.getIdPedido());
-
-        if (itensDTO == null) {
-            throw new IllegalArgumentException("fonecedoresDTO não deve ser nulo");
-        }
 
         if (itensDTO.getAmount() == null) {
             throw new IllegalArgumentException("Amount não deve ser nula/vazia");

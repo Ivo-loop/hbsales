@@ -57,7 +57,7 @@ public class PedidoCSVs {
         String nome = "";
         Long cont = 0L;
 
-        for (Vendas vendas : vendasService.findByIdFornecedor(id)) {
+        for (Vendas vendas : vendasService.findByAllIdFornecedor(id)) {
 
             for (Pedido pedido : iPedidoRepository.findByFornecedor_Id(id)) {
 
@@ -113,7 +113,7 @@ public class PedidoCSVs {
 
         for (Pedido pedido : iPedidoRepository.findByfuncionario_Id(id)) {
 
-            for (Vendas vendas : vendasService.findByIdFornecedor(pedido.getFornecedor().getId())) {
+            for (Vendas vendas : vendasService.findByAllIdFornecedor(pedido.getFornecedor().getId())) {
 
                 if (!vendasService.validaCompra(pedido.getDia(), pedido.getFornecedor().getId())) {
 

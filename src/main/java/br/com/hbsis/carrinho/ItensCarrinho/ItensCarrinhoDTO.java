@@ -1,28 +1,28 @@
-package br.com.hbsis.pedido.itens;
+package br.com.hbsis.carrinho.ItensCarrinho;
 
-public class ItensDTO {
+public class ItensCarrinhoDTO {
 
     private Long id;
     private Long idProduto;
-    private Long idPedido;
+    private Long idCarrinho;
     private Long amount;
 
-    public ItensDTO(Long id, Long idProduto, Long idPedido, Long amount) {
+    public ItensCarrinhoDTO(Long id, Long idProduto, Long idCarrinho, Long amount) {
         this.id = id;
         this.idProduto = idProduto;
-        this.idPedido = idPedido;
+        this.idCarrinho = idCarrinho;
         this.amount = amount;
     }
 
-    public ItensDTO() {
+    public ItensCarrinhoDTO() {
     }
 
-    public static ItensDTO of(Itens itens){
-        return new ItensDTO(
-                itens.getId(),
-                itens.getProdutos().getId(),
-                itens.getPedido().getId(),
-                itens.getAmount()
+    public static ItensCarrinhoDTO of(ItensCarrinho itensCarrinho){
+        return new ItensCarrinhoDTO(
+                itensCarrinho.getId(),
+                itensCarrinho.getProdutos().getId(),
+                itensCarrinho.getCarrinho().getId(),
+                itensCarrinho.getAmount()
         );
     }
 
@@ -31,7 +31,7 @@ public class ItensDTO {
         return "ItensCarrinhoDTO{" +
                 "id=" + id +
                 ", idProduto=" + idProduto +
-                ", idPedido=" + idPedido +
+                ", idCarrinho=" + idCarrinho +
                 ", amount=" + amount +
                 '}';
     }
@@ -52,12 +52,12 @@ public class ItensDTO {
         this.idProduto = idProduto;
     }
 
-    public Long getIdPedido() {
-        return idPedido;
+    public Long getIdCarrinho() {
+        return idCarrinho;
     }
 
-    public void setIdPedido(Long idPedido) {
-        this.idPedido = idPedido;
+    public void setIdCarrinho(Long idPedido) {
+        this.idCarrinho = idPedido;
     }
 
     public Long getAmount() {

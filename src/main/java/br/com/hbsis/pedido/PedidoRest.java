@@ -21,15 +21,6 @@ public class PedidoRest {
         this.pedidoCSVs = pedidoCSVs;
     }
 
-    @PostMapping
-    public PedidoDTO criar(@RequestBody PedidoDTO pedidoDTO) {
-        LOGGER.info("Recebendo solicitação de persistência de Pedido...");
-        LOGGER.debug("Payaload: {}", pedidoDTO);
-
-        //manda salva
-        return this.pedidoService.criarPedido(pedidoDTO);
-    }
-
     @GetMapping("/export-csv/{id}")
     public void exportCSV(HttpServletResponse response, @PathVariable("id") Long id) throws IOException, ParseException {
         LOGGER.info("Recebendo solicitação de exportacao de categoria...");

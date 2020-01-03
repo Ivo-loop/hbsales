@@ -1,13 +1,14 @@
-package br.com.hbsis.pedido.itens;
+package br.com.hbsis.carrinho.ItensCarrinho;
 
+import br.com.hbsis.carrinho.Carrinho;
 import br.com.hbsis.pedido.Pedido;
 import br.com.hbsis.produtos.Produtos;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name="seg_items")
-public class Itens {
+@Table(name="seg_itens_Carrinho")
+public class ItensCarrinho {
 
 
     @Id
@@ -15,19 +16,19 @@ public class Itens {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "id_itens_pedido", referencedColumnName = "id")
-    private Pedido pedido;
+    @JoinColumn(name = "id_itens_carrinho", referencedColumnName = "id")
+    private Carrinho carrinho;
 
     @ManyToOne
-    @JoinColumn(name = "id_itens_produtos", referencedColumnName = "id")
+    @JoinColumn(name = "id_itens_produto", referencedColumnName = "id")
     private Produtos produtos;
 
     @Column(name = "amount_itens",nullable = false, length = 10)
     private Long amount;
 
-    public Itens(Long id, Pedido pedido, Produtos produtos, Long amount) {
+    public ItensCarrinho(Long id, Carrinho carrinho, Produtos produtos, Long amount) {
         this.id = id;
-        this.pedido = pedido;
+        this.carrinho = carrinho;
         this.produtos = produtos;
         this.amount = amount;
     }
@@ -36,13 +37,13 @@ public class Itens {
     public String toString() {
         return "ItensCarrinho{" +
                 "id=" + id +
-                ", pedido=" + pedido +
+                ", carrinho=" + carrinho +
                 ", produtos=" + produtos +
                 ", amount=" + amount +
                 '}';
     }
 
-    public Itens() {
+    public ItensCarrinho() {
     }
 
     public Long getId() {
@@ -53,12 +54,12 @@ public class Itens {
         this.id = id;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public Carrinho getCarrinho() {
+        return carrinho;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void setCarrinho(Carrinho carrinho) {
+        this.carrinho = carrinho;
     }
 
     public Produtos getProdutos() {

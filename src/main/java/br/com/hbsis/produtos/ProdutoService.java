@@ -115,7 +115,7 @@ public class ProdutoService {
                             categoriaclass.setId(categoriaDTO.getId());
                             categoriaclass.setCodCategoria(csv[9]);
                             categoriaclass.setNomeCategoria(csv[10]);
-                            categoriaclass.setFornecedor(fornecedorService.findByFornecedorId(fornecedorService.findByCnpj(cod).getId()));
+                            categoriaclass.setFornecedor(fornecedorService.findById(fornecedorService.findByCnpj(cod).getId()));
                         }
 
                         //Linhas nao existe cria linhas
@@ -169,7 +169,6 @@ public class ProdutoService {
                                 produtos.setUniPerCax(Float.parseFloat(csv[3]));
                                 produtos.setPesoPerUni(Float.parseFloat(csv[4]));
                                 produtos.setUnidade(csv[5]);
-                                System.out.println(csv[6]);
                                 produtos.setValidade(LocalDateTime.parse((csv[6].substring(6, 10)
                                         + csv[6].substring(2, 6)
                                         + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));

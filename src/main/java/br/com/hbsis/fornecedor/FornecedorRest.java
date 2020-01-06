@@ -4,14 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/fornecedores")
 public class FornecedorRest {
-    //Controle do Postman
+    //-Controle do Postman
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorRest.class);
 
     private final FornecedorService fornecedorService;
@@ -22,7 +19,7 @@ public class FornecedorRest {
     }
 
     @PostMapping
-    public FornecedoresDTO save(@RequestBody FornecedoresDTO fonecedoresDTO) {
+    public FornecedorDTO save(@RequestBody FornecedorDTO fonecedoresDTO) {
         LOGGER.info("Recebendo solicitação de persistência de Fornecedor...");
         LOGGER.debug("Payaload: {}", fonecedoresDTO);
 
@@ -31,15 +28,15 @@ public class FornecedorRest {
     }
 
     @GetMapping("/{id}")
-    public FornecedoresDTO find(@PathVariable("id") Long id) {
+    public FornecedorDTO find(@PathVariable("id") Long id) {
         LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
         //manda buscar
-        return this.fornecedorService.findById(id);
+        return this.fornecedorService.findByIdDTO(id);
     }
 
     @PutMapping("/{id}")
-    public FornecedoresDTO udpate(@PathVariable("id") Long id, @RequestBody FornecedoresDTO fonecedoresDTO) {
+    public FornecedorDTO udpate(@PathVariable("id") Long id, @RequestBody FornecedorDTO fonecedoresDTO) {
         LOGGER.info("Recebendo Update para Fornecedor de ID: {}", id);
         LOGGER.debug("Payload: {}", fonecedoresDTO);
 

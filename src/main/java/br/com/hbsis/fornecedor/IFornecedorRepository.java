@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-interface IFornecedoresRepository extends JpaRepository<Fornecedor, Long> {
-    @Override
-    boolean existsById(Long id);
+interface IFornecedorRepository extends JpaRepository<Fornecedor, Long> {
+
     Optional<Fornecedor> findByCnpj(String cnpj);
 }

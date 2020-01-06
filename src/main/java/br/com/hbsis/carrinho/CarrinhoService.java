@@ -52,7 +52,7 @@ public class CarrinhoService {
 
         Carrinho carrinho = new Carrinho();
         carrinho.setCodPedido(carrinhoDTO.getCodPedido());
-        carrinho.setFornecedor(fornecedorService.findByFornecedorId(carrinhoDTO.getIdFornecedor()));
+        carrinho.setFornecedor(fornecedorService.findById(carrinhoDTO.getIdFornecedor()));
         carrinho.setFuncionario(funcionarioService.findByIdFuncionario(carrinhoDTO.getIdFuncionario()));
 
         carrinho = this.iCarrinhoRepository.save(carrinho);
@@ -91,7 +91,7 @@ public class CarrinhoService {
             LOGGER.debug("Payload: {}", carrinhoDTO);
             LOGGER.debug("Pedido Existente: {}", pedido);
 
-            pedido.setFornecedor(fornecedorService.findByFornecedorId(carrinhoDTO.getId()));
+            pedido.setFornecedor(fornecedorService.findById(carrinhoDTO.getId()));
             pedido.setCodPedido(carrinhoDTO.getCodPedido());
 
             pedido = this.iCarrinhoRepository.save(pedido);

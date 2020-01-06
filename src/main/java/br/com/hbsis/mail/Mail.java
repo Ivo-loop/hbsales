@@ -35,10 +35,10 @@ public class Mail {
         message.setTo(pedido.getFuncionario().getEmail());
         message.setFrom("ivopaulo.puehler@gmail.com");
 
-        LOGGER.info("Enviando");
+        LOGGER.info("Enviando mail");
         try {
             mailSender.send(message);
-            System.out.println("email enviado");
+            LOGGER.info("Enviado");
         } catch (Exception e) {
             LOGGER.debug("email deu ruim", e);
         }

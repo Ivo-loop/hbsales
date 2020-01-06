@@ -97,7 +97,7 @@ public class PedidoService {
 
         Pedido pedido = new Pedido();
         pedido.setCodPedido(pedidoDTO.getCodPedido());
-        pedido.setFornecedor(fornecedorService.findByFornecedorId(pedidoDTO.getIdFornecedor()));
+        pedido.setFornecedor(fornecedorService.findById(pedidoDTO.getIdFornecedor()));
         pedido.setFuncionario(funcionarioService.findByIdFuncionario(pedidoDTO.getIdFornecedor()));
         pedido.setStatus("Ativo");
         pedido.setDia(LocalDateTime.now());
@@ -136,7 +136,7 @@ public class PedidoService {
             LOGGER.debug("Payload: {}", pedidoDTO);
             LOGGER.debug("Pedido Existente: {}", pedido);
 
-            pedido.setFornecedor(fornecedorService.findByFornecedorId(pedidoDTO.getId()));
+            pedido.setFornecedor(fornecedorService.findById(pedidoDTO.getId()));
             pedido.setCodPedido(pedidoDTO.getCodPedido());
 
             pedido = this.iPedidoRepository.save(pedido);

@@ -1,7 +1,7 @@
 package br.com.hbsis.categorias;
 
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.fornecedor.FornecedoresDTO;
+import br.com.hbsis.fornecedor.FornecedorDTO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +135,7 @@ public class CategoriaService {
             while ((arquivo = leitor.readLine()) != null) {
                 String[] categoriaCSV = arquivo.split(separator);
                 //"\\D" so mantem os digitos de 0-9
-                Optional<FornecedoresDTO> fornecedorOptional = Optional.ofNullable(fornecedorService.findByCnpj(
+                Optional<FornecedorDTO> fornecedorOptional = Optional.ofNullable(fornecedorService.findByCnpj(
                         categoriaCSV[3].replaceAll("\\D", "")));
                 Optional<Categoria> categoriaProdutoExisteOptional = this.iCategoriaRepository.findByCodCategoria(categoriaCSV[0]);
 
@@ -144,7 +144,7 @@ public class CategoriaService {
                     CategoriaDTO categoria = new CategoriaDTO();
                     categoria.setNomeCategoria(categoriaCSV[1]);
                     categoria.setCodigo(categoriaCSV[0].substring(7, 10));
-                    FornecedoresDTO fornecedor = fornecedorService.findByCnpj(categoriaCSV[3].replaceAll("\\D", ""));
+                    FornecedorDTO fornecedor = fornecedorService.findByCnpj(categoriaCSV[3].replaceAll("\\D", ""));
                     categoria.setIdCategoriaFornecedor(fornecedor.getId());
                     this.save(categoria);
                 }
@@ -164,7 +164,7 @@ public class CategoriaService {
         Categoria categoria = new Categoria();
 
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-        categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor()));
+        categoria.setFornecedor(fornecedorService.findById(categoriaDTO.getIdCategoriaFornecedor()));
         categoria.setCodCategoria(alterCod.codCategoria(categoria,alterCod.number(categoriaDTO)));
 
         Categoria save = this.iCategoriaRepository.save(categoria);
@@ -204,7 +204,7 @@ public class CategoriaService {
             LOGGER.debug("Categoria Existente: {}", categoria);
 
             categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-            categoria.setFornecedor(fornecedorService.findByFornecedorId(categoriaDTO.getIdCategoriaFornecedor()));
+            categoria.setFornecedor(fornecedorService.findById(categoriaDTO.getIdCategoriaFornecedor()));
             categoria.setCodCategoria(alterCod.codCategoria(categoria,alterCod.number(categoriaDTO)));
 
             this.iCategoriaRepository.save(categoria);

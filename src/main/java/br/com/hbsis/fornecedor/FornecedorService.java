@@ -1,7 +1,6 @@
 package br.com.hbsis.fornecedor;
 
 import br.com.hbsis.categorias.AlterCod;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,164 +14,118 @@ import java.util.Optional;
 @Service
 public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
-    private final IFornecedoresRepository iFonecedoresRepository;
+    private final IFornecedorRepository iFornecedorRepository;
+    private final FornecedorValidate fornecedorValidate;
+    private final FornecedorFind fornecedorFind;
     private final AlterCod alterCod;
 
     @Autowired
-    public FornecedorService(IFornecedoresRepository iFonecedoresRepository, AlterCod alterCod) {
-        this.iFonecedoresRepository = iFonecedoresRepository;
+    public FornecedorService(IFornecedorRepository iFornecedorRepository, FornecedorFind fornecedorFind, FornecedorValidate fornecedorValidate, AlterCod alterCod) {
+        this.iFornecedorRepository = iFornecedorRepository;
+        this.fornecedorValidate = fornecedorValidate;
+        this.fornecedorFind = fornecedorFind;
         this.alterCod = alterCod;
     }
 
-    //puxa o fornecedor pelo Id dele, seta ele como DTO
-    public FornecedoresDTO findById(Long id) {
-        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
-
-        if (fornecedorOptional.isPresent()) {
-            return FornecedoresDTO.of(fornecedorOptional.get());
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
     //puxa o fornecedor pelo Id dele
-    public Fornecedor findByFornecedorId(Long id) {
-        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
-        if (fornecedorOptional.isPresent()) {
-            return fornecedorOptional.get();
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    public Fornecedor findById(Long id) {
+        return fornecedorFind.findFornecedorById(id);
+    }
+
+    //puxa o fornecedor pelo Id dele, seta ele como DTO
+    public FornecedorDTO findByIdDTO(Long id) {
+        return fornecedorFind.findFornecedorDTOById(id);
     }
 
     //puxa o fornecedor pelo Cnpj dele
+    public FornecedorDTO findByCnpj(String cnpj) {
+        return fornecedorFind.findByCnpj(cnpj);
+    }
+
+    //puxa o fornecedor pelo Cnpj dele, seta ele como optional
     public Optional<Fornecedor> findByCnpjOptional(String cnpj) {
-
-        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
-
-        if (fornecedorOptional.isPresent()) {
-            return fornecedorOptional;
-        }
-        throw new IllegalArgumentException(String.format("Cnpj %s não existe", cnpj));
+        return fornecedorFind.findByCnpjOptional(cnpj);
     }
 
-    //puxa o fornecedor pelo Cnpj dele
-    public FornecedoresDTO findByCnpj(String cnpj) {
-
-        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
-
-        if (fornecedorOptional.isPresent()) {
-            return FornecedoresDTO.of(fornecedorOptional.get());
-        }
-        throw new IllegalArgumentException(String.format("Cnpj %s não existe", cnpj));
-    }
-
-    //busca tudo
+    //busca todos os fornecedores
     public List<Fornecedor> findAll() {
-        return iFonecedoresRepository.findAll();
-    }
-
-
-    //salva o fornecedor no Database
-    public FornecedoresDTO save(FornecedoresDTO fornecedoresDTO) {
-
-        this.validate(fornecedoresDTO);
-
-        LOGGER.info("Salvando br.com.hbsis.fornecedor");
-        LOGGER.debug("br.com.hbsis.fornecedor: {}", fornecedoresDTO);
-
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setRazao(fornecedoresDTO.getRazao());
-        fornecedor.setCnpj(fornecedoresDTO.getCnpj());
-        fornecedor.setNomefan(fornecedoresDTO.getNomeFan());
-        fornecedor.setEndereco(fornecedoresDTO.getEndereco());
-        fornecedor.setTelefone(fornecedoresDTO.getTelefone());
-        fornecedor.setEmail(fornecedoresDTO.getEmail());
-
-        fornecedor = this.iFonecedoresRepository.save(fornecedor);
-
-        //Retorna para o postman
-        return FornecedoresDTO.of(fornecedor);
+        return fornecedorFind.findAll();
     }
 
     //valida as informacoes
-    private void validate(FornecedoresDTO fornecedoresDTO) {
-        LOGGER.info("Validando Fornecedor");
+    private void validate(FornecedorDTO fornecedorDTO) {
+        fornecedorValidate.validate(fornecedorDTO);
+    }
 
-        if (fornecedoresDTO == null) {
-            throw new IllegalArgumentException("fonecedoresDTO não deve ser nulo");
-        }
+    private Fornecedor setFornecedor(FornecedorDTO fornecedorDTO) {
 
-        if (fornecedoresDTO.getCnpj() == null) {
-            throw new IllegalArgumentException("Cnpj não deve ser nula/vazia");
-        }
-        if (StringUtils.isEmpty(fornecedoresDTO.getRazao())) {
-            throw new IllegalArgumentException("Razao não deve ser nulo/vazio");
-        }
-        if (StringUtils.isEmpty(fornecedoresDTO.getEmail())) {
-            throw new IllegalArgumentException("email não deve ser nula/vazia");
-        }
-        if (StringUtils.isEmpty(fornecedoresDTO.getEndereco())) {
-            throw new IllegalArgumentException("endereço não deve ser nulo/vazio");
-        }
-        if (StringUtils.isEmpty(fornecedoresDTO.getNomeFan())) {
-            throw new IllegalArgumentException("nome fantasia não deve ser nula/vazia");
-        }
-        if (fornecedoresDTO.getTelefone() == null) {
-            throw new IllegalArgumentException("telefone não deve ser nulo/vazio");
-        }
-        String cont1 = String.valueOf(fornecedoresDTO.getCnpj());
-        if (cont1.length() != 14) {
-            throw new IllegalArgumentException("Cnpj diferente que 14," +
-                    "Confira se colocou algum caracter especial");
-        }
-        String cont2 = String.valueOf(fornecedoresDTO.getTelefone());
-        if (cont2.length() != 13) {
-            throw new IllegalArgumentException("telefone diferente que 13 digitos, confira se possui DDD e DDI");
-        }
-        if (fornecedoresDTO.getEmail().length() > 50) {
-            throw new IllegalArgumentException("email muito grande sinto muito");
-        }
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor.setRazao(fornecedorDTO.getRazao());
+        fornecedor.setCnpj(fornecedorDTO.getCnpj());
+        fornecedor.setNomefan(fornecedorDTO.getNomeFan());
+        fornecedor.setEndereco(fornecedorDTO.getEndereco());
+        fornecedor.setTelefone(fornecedorDTO.getTelefone());
+        fornecedor.setEmail(fornecedorDTO.getEmail());
+
+        return fornecedor;
+    }
+
+    private Fornecedor setFornecedor(FornecedorDTO fornecedorDTO, Fornecedor fornecedor) {
+
+        fornecedor.setRazao(fornecedorDTO.getRazao());
+        fornecedor.setCnpj(fornecedorDTO.getCnpj());
+        fornecedor.setNomefan(fornecedorDTO.getNomeFan());
+        fornecedor.setEndereco(fornecedorDTO.getEndereco());
+        fornecedor.setTelefone(fornecedorDTO.getTelefone());
+        fornecedor.setEmail(fornecedorDTO.getEmail());
+
+        return fornecedor;
+    }
+
+    public String getCnpjMask(String cnpj) throws ParseException {
+        MaskFormatter mask = new MaskFormatter("##.###.###/####-##");
+        mask.setValueContainsLiteralCharacters(false);
+        return mask.valueToString(cnpj);
+    }
+
+    //salva o fornecedor no Database
+    public FornecedorDTO save(FornecedorDTO fornecedorDTO) {
+
+        this.validate(fornecedorDTO);
+
+        LOGGER.info("Salvando br.com.hbsis.fornecedor");
+        LOGGER.debug("br.com.hbsis.fornecedor: {}", fornecedorDTO);
+
+        Fornecedor fornecedor = this.setFornecedor(fornecedorDTO);
+        fornecedor = this.iFornecedorRepository.save(fornecedor);
+
+        return FornecedorDTO.of(fornecedor);
     }
 
     // Altera as informacoes do banco
-    public FornecedoresDTO update(FornecedoresDTO fonecedoresDTO, Long id) {
-        Optional<Fornecedor> fornecedorExistenteOptional = this.iFonecedoresRepository.findById(id);
+    public FornecedorDTO update(FornecedorDTO fonecedoresDTO, Long id) {
+
         this.validate(fonecedoresDTO);
-        if (fornecedorExistenteOptional.isPresent()) {
-            Fornecedor fornecedorExistente = fornecedorExistenteOptional.get();
 
-            LOGGER.info("Atualizando Fornecedor... id: [{}]", fornecedorExistente.getId());
-            LOGGER.debug("Payload: {}", fonecedoresDTO);
-            LOGGER.debug("Fornecedor Existente: {}", fornecedorExistente);
+        Fornecedor findfornecedor = this.findById(id);
 
-            fornecedorExistente.setRazao(fonecedoresDTO.getRazao());
-            fornecedorExistente.setCnpj(fonecedoresDTO.getCnpj());
-            fornecedorExistente.setNomefan(fonecedoresDTO.getNomeFan());
-            fornecedorExistente.setEndereco(fonecedoresDTO.getEndereco());
-            fornecedorExistente.setTelefone(fonecedoresDTO.getTelefone());
-            fornecedorExistente.setEmail(fonecedoresDTO.getEmail());
+        LOGGER.info("Atualizando Fornecedor... id: [{}]", findfornecedor.getId());
+        LOGGER.debug("Payload: {}", fonecedoresDTO);
+        LOGGER.debug("Fornecedor Existente: {}", findfornecedor);
 
-            alterCod.alterCODCat(fornecedorExistente);
+        Fornecedor fornecedor = this.setFornecedor(fonecedoresDTO, findfornecedor);
 
-            fornecedorExistente = this.iFonecedoresRepository.save(fornecedorExistente);
+        alterCod.alterCODCat(fornecedor);
 
-            return FornecedoresDTO.of(fornecedorExistente);
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+        fornecedor = this.iFornecedorRepository.save(fornecedor);
+
+        return FornecedorDTO.of(fornecedor);
+
     }
 
     //delete o fornecedor do Database
     public void delete(Long id) {
         LOGGER.info("Executando delete para Fornecedor de ID: [{}]", id);
-
-        this.iFonecedoresRepository.deleteById(id);
-    }
-
-    public String getCnpjMask(String cnpj) throws ParseException {
-
-        MaskFormatter mask = new MaskFormatter("##.###.###/####-##");
-        mask.setValueContainsLiteralCharacters(false);
-
-        String formatado = mask.valueToString(cnpj);
-        return formatado;
+        this.iFornecedorRepository.deleteById(id);
     }
 }

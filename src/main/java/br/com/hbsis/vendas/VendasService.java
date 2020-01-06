@@ -90,7 +90,7 @@ public class VendasService {
         vendas.setDiaFinal(vendasDTO.getDiaFinal());
         vendas.setDiaRetirada(vendasDTO.getDiaRetirada());
         Long id = vendasDTO.getIdFornecedor();
-        vendas.setFornecedorVenda(fornecedorService.findByFornecedorId(id));
+        vendas.setFornecedorVenda(fornecedorService.findById(id));
 
         for (Vendas vendasValidar : iVendasRepository.findAllFornecedorById(vendasDTO.getIdFornecedor())) {
             if (vendas.getDiaInicial().isBefore(vendasValidar.getDiaFinal()) && vendas.getDiaInicial().isAfter(vendasValidar.getDiaInicial()) ||
@@ -128,7 +128,7 @@ public class VendasService {
             vendas.setDiaFinal(vendasDTO.getDiaFinal());
             vendas.setDiaRetirada(vendasDTO.getDiaRetirada());
             Long cod = vendasDTO.getIdFornecedor();
-            vendas.setFornecedorVenda(fornecedorService.findByFornecedorId(cod));
+            vendas.setFornecedorVenda(fornecedorService.findById(cod));
 
             vendas = this.iVendasRepository.save(vendas);
 

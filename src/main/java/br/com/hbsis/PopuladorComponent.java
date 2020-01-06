@@ -5,7 +5,7 @@ import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.fornecedor.FornecedoresDTO;
+import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioDTO;
 import br.com.hbsis.funcionario.FuncionarioService;
@@ -73,11 +73,11 @@ public class PopuladorComponent {
                     {"12345678901011", "12345678901112", "12345678901213"},
                     {"rosberto", "tioberto", "voberto"},
                     {"1", "12", "123"},
-                    {"5547123456789", "5547123456789", "5547123456789"},
+                    {"69998748000121", "85497101000172", "90723503000188"},
                     {"rosberto", "tioberto", "voberto"}
             };
             for (int a = 0; a <= 2; ) {
-                FornecedoresDTO fonecedoresDTO = new FornecedoresDTO();
+                FornecedorDTO fonecedoresDTO = new FornecedorDTO();
                 fonecedoresDTO.setRazao(fornecedor[0][a]);
                 fonecedoresDTO.setCnpj(fornecedor[1][a]);
                 fonecedoresDTO.setNomeFantasia(fornecedor[2][a]);

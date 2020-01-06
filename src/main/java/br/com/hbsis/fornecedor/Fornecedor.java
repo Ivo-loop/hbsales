@@ -1,6 +1,7 @@
 package br.com.hbsis.fornecedor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -20,6 +21,7 @@ public class Fornecedor {
     private String endereco;
     @Column(name = "telefone", unique = true, nullable = false, length = 11)
     private Long telefone;
+    @Email
     @Column(name = "email", unique = true, nullable = false, length = 200)
     private String email;
 

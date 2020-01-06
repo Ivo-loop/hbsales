@@ -1,7 +1,7 @@
 package br.com.hbsis.fornecedor;
 
 
-public class FornecedoresDTO {
+public class FornecedorDTO {
     private Long   id;
     private String razao;
     private String cnpj;
@@ -10,11 +10,10 @@ public class FornecedoresDTO {
     private Long telefone;
     private String email;
 
-    //- deixa viver para mandar json
-    public FornecedoresDTO() {
+    public FornecedorDTO() {
     }
 
-    public FornecedoresDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, Long telefone, String email) {
+    public FornecedorDTO(Long id, String razao, String cnpj, String nomeFan, String endereco, Long telefone, String email) {
         this.id = id;
         this.razao = razao;
         this.cnpj = cnpj;
@@ -24,8 +23,8 @@ public class FornecedoresDTO {
         this.email = email;
     }
 
-    public static FornecedoresDTO of(Fornecedor fornecedor) {
-        return new FornecedoresDTO(
+    public static FornecedorDTO of(Fornecedor fornecedor) {
+        return new FornecedorDTO(
                 fornecedor.getId(),
                 fornecedor.getRazao(),
                 fornecedor.getCnpj(),
@@ -94,7 +93,6 @@ public class FornecedoresDTO {
 
     @Override
     public String toString() {
-
         return "seg_fornecedores{" +
                 "id=" + id +
                 ", razao ='"    +razao      + '\'' +

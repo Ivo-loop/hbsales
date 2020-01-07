@@ -4,17 +4,14 @@ import br.com.hbsis.categorias.Categoria;
 import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
 import br.com.hbsis.fornecedor.Fornecedor;
-import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.fornecedor.FornecedorDTO;
+import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioDTO;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.linhas.Linhas;
 import br.com.hbsis.linhas.LinhasDTO;
 import br.com.hbsis.linhas.LinhasService;
-import br.com.hbsis.pedido.Pedido;
-import br.com.hbsis.pedido.PedidoService;
-import br.com.hbsis.pedido.itens.ItensService;
 import br.com.hbsis.produtos.ProdutoService;
 import br.com.hbsis.produtos.Produtos;
 import br.com.hbsis.produtos.ProdutosDTO;
@@ -43,18 +40,14 @@ public class PopuladorComponent {
     private final ProdutoService produtoService;
     private final FuncionarioService funcionarioService;
     private final VendasService vendasService;
-    private final PedidoService pedidoService;
-    private final ItensService itensService;
 
-    public PopuladorComponent(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, ProdutoService produtoService, FuncionarioService funcionarioService, VendasService vendasService, PedidoService pedidoService, ItensService itensService) {
+    public PopuladorComponent(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, ProdutoService produtoService, FuncionarioService funcionarioService, VendasService vendasService) {
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
         this.linhasService = linhasService;
         this.produtoService = produtoService;
         this.funcionarioService = funcionarioService;
         this.vendasService = vendasService;
-        this.pedidoService = pedidoService;
-        this.itensService = itensService;
     }
 
     @PostConstruct
@@ -65,7 +58,6 @@ public class PopuladorComponent {
         List<Produtos> conferiProdutos = produtoService.findAll();
         List<Funcionario> conferiFuncionarios = funcionarioService.findAll();
         List<Vendas> conferiVendas = vendasService.findAll();
-        List<Pedido> conferiPedido = pedidoService.findAll();
 
         if (buscaFornecedor.isEmpty()) {
             //fornecedor
@@ -93,11 +85,13 @@ public class PopuladorComponent {
             if (!termino.isEmpty() && conferiCategoria.isEmpty()) {
                 String[][] categorias = {{"cerveja", "refri", "suco"},
                         {"1", "2", "3"}, {"123", "12", "1"}};
+
                 for (int a = 0; a <= 2; ) {
-                    CategoriaDTO categoriaDTO = new CategoriaDTO();
-                    categoriaDTO.setNomeCategoria(categorias[0][a]);
-                    categoriaDTO.setIdCategoriaFornecedor(Long.parseLong(categorias[1][a]));
-                    categoriaDTO.setCodigo(categorias[2][a]);
+                    CategoriaDTO categoriaDTO = new CategoriaDTO(
+                            null,
+                            categorias[0][a],
+                            Long.parseLong(categorias[1][a]),
+                            categorias[2][a]);
 
                     categoriaService.save(categoriaDTO);
                     a++;
@@ -182,10 +176,6 @@ public class PopuladorComponent {
                     );
                     vendasService.save(funcionarioDTO);
                 }
-            }
-
-            if(conferiPedido.isEmpty()){
-
             }
             LOGGER.info("deu bom ao Repopular.");
         }

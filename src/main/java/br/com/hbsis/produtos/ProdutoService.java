@@ -56,6 +56,7 @@ public class ProdutoService {
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
+
     //busca produto pro Id
     public Produtos findByIdProduto(Long id) {
         Optional<Produtos> ProdutoOpcional = this.iProdutosRepository.findById(id);
@@ -107,14 +108,12 @@ public class ProdutoService {
                         //Categoria existe procura e pega ela
                         Optional<Categoria> optionalCategoria2 = categoriaService.findByCodCategoriaOptinal(csv[9]);
                         if (!optionalCategoria.isPresent() && optionalCategoria2.isPresent()) {
-                            Categoria categoriaclass = new Categoria();
-                            CategoriaDTO categoriaDTO;
 
+                            CategoriaDTO categoriaDTO;
                             categoriaDTO = categoriaService.findByCodCategoria(csv[9]);
 
-                            categoriaclass.setId(categoriaDTO.getId());
-                            categoriaclass.setCodCategoria(csv[9]);
-                            categoriaclass.setNomeCategoria(csv[10]);
+                            Categoria categoriaclass = categoriaService.setCategoria(categoriaDTO);
+
                             categoriaclass.setFornecedor(fornecedorService.findById(fornecedorService.findByCnpj(cod).getId()));
                         }
 
@@ -122,7 +121,8 @@ public class ProdutoService {
                         Optional<Linhas> optionalLinhas = linhasService.findByCodLinhasOptional(csv[7]);
                         if (!optionalLinhas.isPresent()) {
                             LinhasDTO linhasDTO;
-                            linhasDTO = new LinhasDTO(null, csv[8], csv[7], categoriaService.findByCodCategoria(csv[9]).getId());
+                            linhasDTO = new LinhasDTO(null, csv[8], csv[7],
+                                    categoriaService.findByCodCategoria(csv[9]).getId());
                             linhasService.save(linhasDTO);
                         }
 
@@ -155,30 +155,29 @@ public class ProdutoService {
                                     + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")))
                             );
                             this.save(produtosDTO);
-                        } else {
-
-                            Optional<Produtos> optionalProdutos1 = this.iProdutosRepository.findByCodProdutos(csv[0]);
-                            if (!optionalProdutos.isPresent() && optionalProdutos1.isPresent()) {
-                                Linhas linhasClass = new Linhas();
-
-                                Produtos produtos = new Produtos();
-
-                                produtos.setCodProdutos(csv[0].toUpperCase());
-                                produtos.setNomeProduto(csv[1]);
-                                produtos.setPreco(Float.parseFloat(csv[2].replaceAll("[R$]", "")));
-                                produtos.setUniPerCax(Float.parseFloat(csv[3]));
-                                produtos.setPesoPerUni(Float.parseFloat(csv[4]));
-                                produtos.setUnidade(csv[5]);
-                                produtos.setValidade(LocalDateTime.parse((csv[6].substring(6, 10)
-                                        + csv[6].substring(2, 6)
-                                        + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));
-                                produtos.setLinhas(linhasClass);
-
-                                produtos.setLinhas(linhasClass);
-
-                                this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(csv[0]).getId());
-                            }
                         }
+
+                        if (optionalProdutos.isPresent()) {
+                            Linhas linhasClass = new Linhas();
+
+                            Produtos produtos = new Produtos();
+
+                            produtos.setCodProdutos(csv[0].toUpperCase());
+                            produtos.setNomeProduto(csv[1]);
+                            produtos.setPreco(Float.parseFloat(csv[2].replaceAll("[R$]", "")));
+                            produtos.setUniPerCax(Float.parseFloat(csv[3]));
+                            produtos.setPesoPerUni(Float.parseFloat(csv[4]));
+                            produtos.setUnidade(csv[5]);
+                            produtos.setValidade(LocalDateTime.parse((csv[6].substring(6, 10)
+                                    + csv[6].substring(2, 6)
+                                    + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));
+                            produtos.setLinhas(linhasClass);
+
+                            produtos.setLinhas(linhasClass);
+
+                            this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(csv[0]).getId());
+                        }
+
                     }
                     //fornecedor nao existe
                     else {

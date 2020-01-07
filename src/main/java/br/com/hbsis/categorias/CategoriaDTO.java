@@ -21,15 +21,6 @@ public class CategoriaDTO {
                 categoria.getId(),
                 categoria.getNomeCategoria(),
                 categoria.getFornecedor().getId(),
-                categoria.getCodCategoria().substring(categoria.getCodCategoria().length()-3)
-        );
-    }
-
-    public static CategoriaDTO ofPOST(Categoria categoria) {
-        return new CategoriaDTO(
-                categoria.getId(),
-                categoria.getNomeCategoria(),
-                categoria.getFornecedor().getId(),
                 categoria.getCodCategoria()
         );
     }

@@ -24,7 +24,7 @@ class FornecedorFind {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    //puxa o fornecedor pelo Id dele, seta ele como DTO
+    //puxa o fornecedor pelo Id dele, retorna ele como DTO
     FornecedorDTO findFornecedorDTOById(Long id) {
 
         Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findById(id);
@@ -36,17 +36,6 @@ class FornecedorFind {
     }
 
     //puxa o fornecedor pelo Cnpj dele
-    Optional<Fornecedor> findByCnpjOptional(String cnpj) {
-
-        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
-
-        if (fornecedorOptional.isPresent()) {
-            return fornecedorOptional;
-        }
-        throw new IllegalArgumentException(String.format("Cnpj %s não existe", cnpj));
-    }
-
-    //puxa o fornecedor pelo Cnpj dele
     FornecedorDTO findByCnpj(String cnpj) {
 
         Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
@@ -55,6 +44,17 @@ class FornecedorFind {
             return FornecedorDTO.of(fornecedorOptional.get());
         }
         throw new IllegalArgumentException(String.format("Nao existe Fornecedor com o Cnpj: %s não existe", cnpj));
+    }
+
+    //puxa o fornecedor pelo Cnpj dele, retorna ele como Optional
+    Optional<Fornecedor> findByCnpjOptional(String cnpj) {
+
+        Optional<Fornecedor> fornecedorOptional = this.iFonecedoresRepository.findByCnpj(cnpj);
+
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional;
+        }
+        throw new IllegalArgumentException(String.format("Cnpj %s não existe", cnpj));
     }
 
     //busca tudo

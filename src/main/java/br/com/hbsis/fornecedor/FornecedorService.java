@@ -120,7 +120,6 @@ public class FornecedorService {
         fornecedor = this.iFornecedorRepository.save(fornecedor);
 
         return FornecedorDTO.of(fornecedor);
-
     }
 
     //delete o fornecedor do Database

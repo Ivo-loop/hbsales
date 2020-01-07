@@ -1,7 +1,9 @@
 package br.com.hbsis.categorias;
 
-import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.ExportImport.ExportCSV;
+import br.com.hbsis.ExportImport.ImportCSV;
 import br.com.hbsis.fornecedor.FornecedorDTO;
+import br.com.hbsis.fornecedor.FornecedorService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.List;
@@ -23,94 +23,71 @@ public class CategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
     private final ICategoriaRepository iCategoriaRepository;
     private final FornecedorService fornecedorService;
+    private final CategoriaFind categoriaFind;
+    private final ExportCSV exportCSV;
+    private final ImportCSV importCSV;
     private final AlterCod alterCod;
 
     @Autowired
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService, AlterCod alterCod) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService, ExportCSV exportCSV, CategoriaFind categoriaFind, ImportCSV importCSV, AlterCod alterCod) {
         this.iCategoriaRepository = iCategoriaRepository;
         this.fornecedorService = fornecedorService;
+        this.exportCSV = exportCSV;
+        this.categoriaFind = categoriaFind;
+        this.importCSV = importCSV;
         this.alterCod = alterCod;
     }
 
     //busca toda categoria
     public List<Categoria> findAll() {
-        return iCategoriaRepository.findAll();
+        return categoriaFind.findAll();
     }
 
     //busca a Categoria pelo Id, retorna ele como DTO
     public CategoriaDTO findById(Long id) {
-        Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findById(id);
-
-        if (categoriaOpcional.isPresent()) {
-            return CategoriaDTO.of(categoriaOpcional.get());
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
-    public CategoriaDTO findByIdPost(Long id) {
-        Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findById(id);
-
-        if (categoriaOpcional.isPresent()) {
-            return CategoriaDTO.ofPOST(categoriaOpcional.get());
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+        return categoriaFind.findByIdDTO(id);
     }
 
     //busca a Categoria pelo Id, retorna categoria
     public Categoria findByCategoriaId(Long id) {
-        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
-
-        if (categoriaOptional.isPresent()) {
-            return categoriaOptional.get();
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+        return categoriaFind.findById(id);
     }
 
     //Busca pelo cod da categoria
     public Optional<Categoria> findByCodCategoriaOptinal(String cod) {
-        Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findByCodCategoria(cod);
-
-        if (categoriaOpcional.isPresent()) {
-            return categoriaOpcional;
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", cod));
+        return categoriaFind.findByCodCategoriaOptinal(cod);
     }
 
     //Busca pelo cod da categoria
     public CategoriaDTO findByCodCategoria(String cod) {
-        Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findByCodCategoria(cod);
+        return categoriaFind.findByCodCategoria(cod);
+    }
 
-        if (categoriaOpcional.isPresent()) {
-            return CategoriaDTO.of(categoriaOpcional.get());
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", cod));
+    public Categoria setCategoria(CategoriaDTO categoriaDTO) {
+        Categoria categoria = new Categoria();
+        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
+        categoria.setFornecedor(fornecedorService.findById(categoriaDTO.getIdCategoriaFornecedor()));
+        categoria.setCodCategoria(alterCod.codCategoria(categoria, alterCod.number(categoriaDTO)));
+
+        return categoria;
+    }
+
+    public Categoria setCategoria(CategoriaDTO categoriaDTO, Categoria categoria) {
+        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
+        categoria.setFornecedor(fornecedorService.findById(categoriaDTO.getIdCategoriaFornecedor()));
+        categoria.setCodCategoria(alterCod.codCategoria(categoria, alterCod.number(categoriaDTO)));
+
+        return categoria;
     }
 
     //Faz a exportaçao do banco em csv
-    public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
+    void exportCSV(HttpServletResponse response) throws IOException, ParseException {
 
-        //seta o nome do arq
-        String categoriaCSV = "categoria.csv";
-
-        //seta o tipo do arq da resposta
-        response.setContentType("text/csv");
-
-        //config do header
-        String headerKey = "Content-Disposition";
-
-        //como é aberto em anexo
-        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
-
-        response.setHeader(headerKey, headerValue);
-
-        //instancia Print e seta como escritor
-        PrintWriter printWriter = response.getWriter();
-
-        //seta cabeça do cvs
+        //seta cabeça do csv
         String header = " Código da categoria ; Nome da categoria ; Razão social ; CNPJ";
+        exportCSV.Export(response, header);
 
-        // escreve o cabeçario
-        printWriter.println(header);
+        PrintWriter printWriter = response.getWriter();
         for (Categoria categoria : iCategoriaRepository.findAll()) {
             String nome = categoria.getNomeCategoria();
             String cod = categoria.getCodCategoria();
@@ -123,36 +100,32 @@ public class CategoriaService {
     }
 
     //Faz a importacao do banco
-    public void importCSV(MultipartFile importCategoria) {
+    void importCSV(MultipartFile importCategoria) {
+        String[][] CSV = importCSV.Import(importCategoria);
+        for (String[] campo : CSV) {
+            if (campo[0] != null) {
+                String codCat = campo[0];
+                String nomeCat = campo[1];
+                String Cnpj = campo[3];
 
-        String arquivo = "";
-        String separator = ";";
-        //achado na net
-        try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
-            //para pular a primeira linha
-            arquivo = leitor.readLine();
-            //le as linhas
-            while ((arquivo = leitor.readLine()) != null) {
-                String[] categoriaCSV = arquivo.split(separator);
-                //"\\D" so mantem os digitos de 0-9
                 Optional<FornecedorDTO> fornecedorOptional = Optional.ofNullable(fornecedorService.findByCnpj(
-                        categoriaCSV[3].replaceAll("\\D", "")));
-                Optional<Categoria> categoriaProdutoExisteOptional = this.iCategoriaRepository.findByCodCategoria(categoriaCSV[0]);
+                        Cnpj.replaceAll("\\D", "")));
+                Optional<Categoria> categoriaProdutoExisteOptional = this.iCategoriaRepository.findByCodCategoria(campo[0]);
 
                 //confere se existe se nao ele inseri
                 if (!(categoriaProdutoExisteOptional.isPresent()) && fornecedorOptional.isPresent()) {
-                    CategoriaDTO categoria = new CategoriaDTO();
-                    categoria.setNomeCategoria(categoriaCSV[1]);
-                    categoria.setCodigo(categoriaCSV[0].substring(7, 10));
-                    FornecedorDTO fornecedor = fornecedorService.findByCnpj(categoriaCSV[3].replaceAll("\\D", ""));
-                    categoria.setIdCategoriaFornecedor(fornecedor.getId());
-                    this.save(categoria);
+                    CategoriaDTO categoriaDTO = new CategoriaDTO(
+                            null,
+                            nomeCat,
+                            fornecedorOptional.get().getId(),
+                            codCat.substring(7, 10)
+                    );
+                    this.save(categoriaDTO);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
+
 
     //Salva Categoria no Database
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
@@ -161,15 +134,11 @@ public class CategoriaService {
         LOGGER.info("\"Salvando br.com.hbsis.Categoria");
         LOGGER.debug("br.com.hbsis.Categoria: {}", categoriaDTO);
 
-        Categoria categoria = new Categoria();
-
-        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-        categoria.setFornecedor(fornecedorService.findById(categoriaDTO.getIdCategoriaFornecedor()));
-        categoria.setCodCategoria(alterCod.codCategoria(categoria,alterCod.number(categoriaDTO)));
+        Categoria categoria = this.setCategoria(categoriaDTO);
 
         Categoria save = this.iCategoriaRepository.save(categoria);
         //Retorna para o postman
-        return CategoriaDTO.ofPOST(save);
+        return CategoriaDTO.of(save);
     }
 
     // valida os dados
@@ -194,22 +163,20 @@ public class CategoriaService {
     }
 
     // altera as informaçoes da categoria
-    public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id)  {
+    public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
         Optional<Categoria> CategoriaExistencialOpcional = this.iCategoriaRepository.findById(id);
         if (CategoriaExistencialOpcional.isPresent()) {
-            Categoria categoria = CategoriaExistencialOpcional.get();
+            Categoria categoriaFind = CategoriaExistencialOpcional.get();
 
-            LOGGER.info("Atualizando Categoria... id: [{}]", categoria.getId());
+            LOGGER.info("Atualizando Categoria... id: [{}]", categoriaFind.getId());
             LOGGER.debug("Payload: {}", categoriaDTO);
-            LOGGER.debug("Categoria Existente: {}", categoria);
+            LOGGER.debug("Categoria Existente: {}", categoriaFind);
 
-            categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-            categoria.setFornecedor(fornecedorService.findById(categoriaDTO.getIdCategoriaFornecedor()));
-            categoria.setCodCategoria(alterCod.codCategoria(categoria,alterCod.number(categoriaDTO)));
+            Categoria categoria = this.setCategoria(categoriaDTO, categoriaFind);
 
             this.iCategoriaRepository.save(categoria);
 
-            return CategoriaDTO.ofPOST(categoria);
+            return CategoriaDTO.of(categoria);
         }
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }

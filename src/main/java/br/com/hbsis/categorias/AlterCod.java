@@ -27,21 +27,19 @@ public class AlterCod {
         }
     }
 
-    public String codCategoria(Fornecedor fornecedor, Categoria categoria){
+     private String codCategoria(Fornecedor fornecedor, Categoria categoria){
         String cnpj = fornecedor.getCnpj();
-        String cod =(CAT + cnpj.substring(10, 14) + categoria.getCodCategoria().substring(7, 10));
-        return cod;
+         return (CAT + cnpj.substring(10, 14) + categoria.getCodCategoria().substring(7, 10));
     }
 
-    public String codCategoria(Categoria categoria, String number) {
+    String codCategoria(Categoria categoria, String number) {
         String cnpj = categoria.getFornecedor().getCnpj();
-        String cod =(CAT + cnpj.substring(10, 14) + number);
-        return cod;
+        return (CAT + cnpj.substring(10, 14) + number);
     }
 
-    public String number(CategoriaDTO categoriaDTO){
-        String cont = String.valueOf(categoriaDTO.getCodigo());
-        while(cont.length() < 3) { cont = "0" + cont; }
-        return cont;
+    String number(CategoriaDTO categoriaDTO){
+        StringBuilder cont = new StringBuilder(String.valueOf(categoriaDTO.getCodigo()));
+        while(cont.length() < 3) { cont.insert(0, "0"); }
+        return cont.toString();
     }
 }

@@ -13,12 +13,13 @@ import java.io.InputStreamReader;
 public class ImportCSV {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportCSV.class);
 
-    public String[][] Import(MultipartFile importCategoria) {
+    public String[][] leitorCSV(MultipartFile importCategoria) {
         String[][] CSV = new String[10000][11];
 
         try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
 
-            String linhaDoArquivo = leitor.readLine();
+            leitor.readLine();
+            String linhaDoArquivo;
 
             for (int qtdLinha = 0; (linhaDoArquivo = leitor.readLine()) != null; qtdLinha++) {
 

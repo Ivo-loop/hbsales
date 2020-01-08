@@ -9,15 +9,14 @@ import java.io.PrintWriter;
 @Component
 public class ExportCSV {
 
-    public PrintWriter  Export(HttpServletResponse response, String header) throws IOException {
-        String arquivoCSV = "arquivo.csv";
+    public void writerHeader(HttpServletResponse response, String header, String name) throws IOException {
+        String arquivoCSV = name+".csv";
         response.setContentType("text/csv");
         String headerKey = "Content-Disposition";
         String headerValue = String.format("attachment; filename=\"%s\"", arquivoCSV);
         response.setHeader(headerKey, headerValue);
         PrintWriter printWriter = response.getWriter();
         printWriter.println(header);
-        return  printWriter;
     }
 
 }

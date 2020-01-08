@@ -15,7 +15,7 @@ public class CategoriaFind {
 
 
     //busca a Categoria pelo Id
-    public Categoria findById(Long id) {
+     Categoria findById(Long id) {
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
 
         if (categoriaOptional.isPresent()) {
@@ -25,16 +25,7 @@ public class CategoriaFind {
     }
 
     //busca a Categoria pelo Id, retorna ele como DTO
-    public CategoriaDTO findByIdDTO(Long id) {
-        Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findById(id);
-
-        if (categoriaOpcional.isPresent()) {
-            return CategoriaDTO.of(categoriaOpcional.get());
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
-    public CategoriaDTO findByIdPost(Long id) {
+     CategoriaDTO findByIdDTO(Long id) {
         Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findById(id);
 
         if (categoriaOpcional.isPresent()) {
@@ -44,7 +35,7 @@ public class CategoriaFind {
     }
 
     //Busca pelo cod da categoria
-    public Optional<Categoria> findByCodCategoriaOptinal(String cod) {
+     Optional<Categoria> findByCodCategoriaOptinal(String cod) {
         Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findByCodCategoria(cod);
 
         if (categoriaOpcional.isPresent()) {
@@ -54,7 +45,7 @@ public class CategoriaFind {
     }
 
     //Busca pelo cod da categoria
-    public CategoriaDTO findByCodCategoria(String cod) {
+     CategoriaDTO findByCodCategoria(String cod) {
         Optional<Categoria> categoriaOpcional = this.iCategoriaRepository.findByCodCategoria(cod);
 
         if (categoriaOpcional.isPresent()) {

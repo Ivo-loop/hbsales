@@ -72,7 +72,7 @@ public class CategoriaService {
         return categoria;
     }
 
-    public Categoria setCategoria(CategoriaDTO categoriaDTO, Categoria categoria) {
+    private Categoria setCategoria(CategoriaDTO categoriaDTO, Categoria categoria) {
         categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
         categoria.setFornecedor(fornecedorService.findById(categoriaDTO.getIdCategoriaFornecedor()));
         categoria.setCodCategoria(alterCod.codCategoria(categoria, alterCod.number(categoriaDTO)));
@@ -85,7 +85,7 @@ public class CategoriaService {
 
         //seta cabeça do csv
         String header = " Código da categoria ; Nome da categoria ; Razão social ; CNPJ";
-        exportCSV.Export(response, header);
+        exportCSV.writerHeader(response, header, "Categoria");
 
         PrintWriter printWriter = response.getWriter();
         for (Categoria categoria : iCategoriaRepository.findAll()) {
@@ -101,7 +101,7 @@ public class CategoriaService {
 
     //Faz a importacao do banco
     void importCSV(MultipartFile importCategoria) {
-        String[][] CSV = importCSV.Import(importCategoria);
+        String[][] CSV = importCSV.leitorCSV(importCategoria);
         for (String[] campo : CSV) {
             if (campo[0] != null) {
                 String codCat = campo[0];

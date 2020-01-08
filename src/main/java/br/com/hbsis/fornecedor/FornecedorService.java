@@ -33,7 +33,7 @@ public class FornecedorService {
     }
 
     //puxa o fornecedor pelo Id dele, seta ele como DTO
-    public FornecedorDTO findByIdDTO(Long id) {
+     FornecedorDTO findByIdDTO(Long id) {
         return fornecedorFind.findFornecedorDTOById(id);
     }
 

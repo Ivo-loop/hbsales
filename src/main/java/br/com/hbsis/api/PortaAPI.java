@@ -2,7 +2,6 @@ package br.com.hbsis.api;
 
 import br.com.hbsis.api.invoice.InvoiceDTO;
 import br.com.hbsis.api.invoice.InvoiceItemDTO;
-import br.com.hbsis.api.invoice.InvoiceService;
 import br.com.hbsis.funcionario.Funcionario;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.pedido.Pedido;
@@ -17,38 +16,38 @@ import java.util.List;
 public class PortaAPI {
 
     private final FuncionarioService funcionarioService;
-    private final ItemComponent itensService;
+    private final ItemComponent itemComponent;
 
-    public PortaAPI(FuncionarioService funcionarioService, ItemComponent itensService) {
+    public PortaAPI(FuncionarioService funcionarioService, ItemComponent itemComponent) {
         this.funcionarioService = funcionarioService;
-        this.itensService = itensService;
+        this.itemComponent = itemComponent;
     }
 
     public void validaApi(Pedido pedido) {
         Funcionario funcionario = funcionarioService.findByIdFuncionario(pedido.getFuncionario().getId());
         List<InvoiceItemDTO> invoiceItemDTO = this.listItem(pedido.getId());
         InvoiceDTO invoiceDTO = InvoiceDTO.of(pedido, invoiceItemDTO, funcionario.getUuid(), this.total(pedido.getId()));
-        InvoiceService.HBInvoice(invoiceDTO);
+        ApiService.HBInvoice(invoiceDTO);
     }
 
     private List<InvoiceItemDTO> listItem(Long id) {
-        return listInvoice(itensService.findAllByPedido_IdIs(id));
+        return listInvoice(itemComponent.findAllByPedido_IdIs(id));
     }
 
     private List<InvoiceItemDTO> listInvoice(List<Itens> itens) {
         List<InvoiceItemDTO> bata = new ArrayList<>();
         Itens item = new Itens();
-        for (int i = 0; i < itens.size(); i++) {
+        for (Itens iten : itens) {
 
-            item.setAmount(itens.get(i).getAmount());
-            item.setProdutos(itens.get(i).getProdutos());
+            item.setAmount(iten.getAmount());
+            item.setProdutos(iten.getProdutos());
             bata.add(InvoiceItemDTO.of(item));
         }
         return bata;
     }
 
     private Float total(Long id) {
-        List<Itens> itens = itensService.findAllByPedido_IdIs(id);
+        List<Itens> itens = itemComponent.findAllByPedido_IdIs(id);
         float bata = 0F;
         for (Itens iten : itens) {
             bata += (iten.getAmount() * iten.getProdutos().getPreco());

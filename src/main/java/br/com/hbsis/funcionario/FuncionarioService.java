@@ -1,7 +1,7 @@
 package br.com.hbsis.funcionario;
 
+import br.com.hbsis.api.ApiService;
 import br.com.hbsis.api.Employee.EmployeeDTO;
-import br.com.hbsis.api.Employee.EmployeeService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class FuncionarioService {
 
         this.validate(funcionarioDTO);
         EmployeeDTO employeeDTO = EmployeeDTO.of(funcionarioDTO);
-        FuncionarioDTO dto = EmployeeService.FuncionarioHBEmployee(employeeDTO);
+        FuncionarioDTO dto = ApiService.FuncionarioHBEmployee(employeeDTO);
 
         LOGGER.info("Salvando br.com.hbsis.Funcionario");
         LOGGER.debug("br.com.hbsis.funcionario: {}", funcionarioDTO);

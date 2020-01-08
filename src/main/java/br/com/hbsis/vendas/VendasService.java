@@ -46,7 +46,7 @@ public class VendasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public Vendas findByIdFornecedor(Long id) {
+     private Vendas findByIdFornecedor(Long id) {
         Optional<Vendas> vendasOptional = this.iVendasRepository.findByIdFornecedor(id);
 
         if (vendasOptional.isPresent()) {
@@ -60,11 +60,8 @@ public class VendasService {
     }
 
     public Boolean validaCompra(LocalDateTime hoje, Long id) {
-        Vendas vendasValidar = iVendasRepository.findByIdFornecedor(id).get();
-        if (vendasValidar.getDiaInicial().isBefore(hoje) && vendasValidar.getDiaFinal().isAfter(hoje)) {
-            return false;
-        }
-        return true;
+        Vendas vendasValidar = this.findByIdFornecedor(id);
+        return !vendasValidar.getDiaInicial().isBefore(hoje) || !vendasValidar.getDiaFinal().isAfter(hoje);
     }
 
     public Boolean validaRetirada(LocalDateTime hoje, Long id) {
@@ -155,9 +152,6 @@ public class VendasService {
         }
         if (validarFinal > validarRetirada) {
             throw new IllegalArgumentException("tem algo de errado nas data3 meu bom");
-        }
-        if (vendasDTO == null) {
-            throw new IllegalArgumentException("VendasDTO não deve ser nulo");
         }
         if (vendasDTO.getDescricaoVendas() == null) {
             throw new IllegalArgumentException("Nome da Vendas não deve ser nula/vazia");

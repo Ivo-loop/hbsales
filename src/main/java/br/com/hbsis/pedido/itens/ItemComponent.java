@@ -1,16 +1,12 @@
 package br.com.hbsis.pedido.itens;
 
 
-import br.com.hbsis.carrinho.ItensCarrinho.ItensCarrinho;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class ItemComponent {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemComponent.class);
     private final ItensRepository itensRepository;
 
     public ItemComponent(ItensRepository itensRepository) {

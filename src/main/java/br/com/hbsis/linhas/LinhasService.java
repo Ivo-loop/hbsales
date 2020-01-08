@@ -1,5 +1,7 @@
 package br.com.hbsis.linhas;
 
+import br.com.hbsis.ExportImport.ExportCSV;
+import br.com.hbsis.ExportImport.ImportCSV;
 import br.com.hbsis.categorias.Categoria;
 import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
@@ -11,11 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,83 +24,51 @@ public class LinhasService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhasService.class);
     private final ILinhasRepository iLinhasRepository;
     private final CategoriaService categoriaService;
+    private final LinhasFind linhasFind;
+    private final ExportCSV exportCSV;
+    private final ImportCSV importCSV;
 
     @Autowired
-    public LinhasService(ILinhasRepository iLinhasRepository, CategoriaService categoriaService) {
+    public LinhasService(ILinhasRepository iLinhasRepository, CategoriaService categoriaService, LinhasFind linhasFind, ExportCSV exportCSV, ImportCSV importCSV) {
         this.iLinhasRepository = iLinhasRepository;
         this.categoriaService = categoriaService;
-    }
-
-    //puxa a linha pelo Id dele, retorna como DTO
-    public LinhasDTO findById(Long id) {
-        Optional<Linhas> linhaOptional = this.iLinhasRepository.findById(id);
-
-        if (linhaOptional.isPresent()) {
-            return LinhasDTO.of(linhaOptional.get());
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+        this.linhasFind = linhasFind;
+        this.exportCSV = exportCSV;
+        this.importCSV = importCSV;
     }
 
     //puxa o linhas pelo Id dela
-    public Linhas findBylinhasId(Long id) {
-        Optional<Linhas> linhaOptional = this.iLinhasRepository.findById(id);
+    public Linhas findById(Long id) {
+        return linhasFind.findById(id);
+    }
 
-        if (linhaOptional.isPresent()) {
-            return linhaOptional.get();
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    //puxa a linha pelo Id dele, retorna como DTO
+    LinhasDTO findByIdDTO(Long id) {
+        return linhasFind.findByIdDTO(id);
     }
 
     //puxa as linhas pelo cod dela
     public Optional<Linhas> findByCodLinhasOptional(String cod) {
-        Optional<Linhas> linhaOptional = this.iLinhasRepository.findByCodLinhas(cod);
-
-        if (linhaOptional.isPresent()) {
-            return linhaOptional;
-        }
-        throw new IllegalArgumentException(String.format("Cod %s não existe", cod));
+        return linhasFind.findByCodLinhasOptional(cod);
     }
 
-    //puxa as linhas pelo cod dela
-    public LinhasDTO findByCodLinhas(String cod) {
-        Optional<Linhas> linhaOptional = this.iLinhasRepository.findByCodLinhas(cod);
-
-        if (linhaOptional.isPresent()) {
-            return LinhasDTO.of(linhaOptional.get());
-        }
-        throw new IllegalArgumentException(String.format("Cod %s não existe", cod));
+    //puxa as linhas pelo cod dela, retorna com DTO
+    public LinhasDTO findByCodLinhasDTO(String cod) {
+        return linhasFind.findByCodLinhasDTO(cod);
     }
 
     //Busca tudo
     public List<Linhas> findAll() {
-        return iLinhasRepository.findAll();
+        return linhasFind.findAll();
     }
 
     //Faz a exportacao do banco
-    public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
+    void exportCSV(HttpServletResponse response) throws IOException {
 
-        //seta o nome do arq
-        String categoriaCSV = "linha.csv";
-
-        //seta o tipo do arq da resposta
-        response.setContentType("text/csv");
-
-        //config do header
-        String headerKey = "Content-Disposition";
-
-        //como é aberto em anexo
-        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
-
-        response.setHeader(headerKey, headerValue);
-
-        //instancia Print e seta como escritor
-        PrintWriter printWriter = response.getWriter();
-
-        //seta cabeça do cvs
         String header = " Código da Linha ; Nome da Linha ; Código da Categoria ; Nome da Categoria";
-
+        exportCSV.writerHeader(response, header, "Linhas");
         // escreve o cabeçario
-        printWriter.println(header);
+        PrintWriter printWriter = response.getWriter();
         for (Linhas linhas : iLinhasRepository.findAll()) {
             String nome = linhas.getNomeLinhas();
             String cod = linhas.getCodLinhas();
@@ -114,31 +81,28 @@ public class LinhasService {
     }
 
     //Faz a importacao do banco
-    public void importCSV(MultipartFile importCategoria) {
-        String arquivo = "";
-        String separator = ";";
-        //achado na net
-        try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
-            //para pular uma linha
-            leitor.readLine();
-            //le as linhas
-            while ((arquivo = leitor.readLine()) != null) {
-                String[] linhasCSV = arquivo.split(separator);
-                Optional<CategoriaDTO> cateogriaOptional = Optional.ofNullable(categoriaService.findByCodCategoria(linhasCSV[2]));
-                Optional<Linhas> linhaExisteOptional = this.iLinhasRepository.findByCodLinhas(linhasCSV[0]);
+    void importCSV(MultipartFile importCategoria) {
+        String[][] CSV = importCSV.leitorCSV(importCategoria);
+
+        for (String[] campo : CSV) {
+
+            if (campo[0] != null) {
+                String codLinha = campo[0];
+                String nomelinha = campo[1];
+                String codCat = campo[2];
+                Optional<CategoriaDTO> cateogriaOptional = Optional.ofNullable(categoriaService.findByCodCategoria(codCat));
+                Optional<Linhas> linhaExisteOptional = this.iLinhasRepository.findByCodLinhas(codLinha);
 
                 //confere se existe se nao ele inseri
                 if (!(linhaExisteOptional.isPresent()) && cateogriaOptional.isPresent()) {
                     LinhasDTO linhasDTO = new LinhasDTO();
-                    linhasDTO.setNomeLinhas(linhasCSV[1]);
-                    linhasDTO.setCodLinhas(linhasCSV[0]);
-                    CategoriaDTO categoria = categoriaService.findByCodCategoria(linhasCSV[2]);
+                    linhasDTO.setNomeLinhas(nomelinha);
+                    linhasDTO.setCodLinhas(codLinha);
+                    CategoriaDTO categoria = categoriaService.findByCodCategoria(codCat);
                     linhasDTO.setidLinhasCategoria(categoria.getId());
                     this.save(linhasDTO);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -149,15 +113,15 @@ public class LinhasService {
         LOGGER.info("Salvando br.com.hbsis.Linhas");
         LOGGER.debug("br.com.hbsis.Linhas: {}", linhasDTO);
 
-        String cont = String.valueOf(linhasDTO.getCodLinhas());
+        StringBuilder cont = new StringBuilder(String.valueOf(linhasDTO.getCodLinhas()));
 
         for (; cont.length() < 10; ) {
-            cont = "0" + cont;
+            cont.insert(0, "0");
         }
 
         Linhas linhas = new Linhas();
         linhas.setNomeLinhas(linhasDTO.getNomeLinhas());
-        linhas.setCodLinhas(cont.toUpperCase());
+        linhas.setCodLinhas(cont.toString().toUpperCase());
         Long id = linhasDTO.getidLinhasCategoria();
         Categoria byCategoriaId = categoriaService.findByCategoriaId(id);
         linhas.setCategoria(byCategoriaId);

@@ -134,7 +134,7 @@ public class ProdutoService {
                             Linhas linhasClass = new Linhas();
                             LinhasDTO linhasDTO;
 
-                            linhasDTO = linhasService.findByCodLinhas(csv[7]);
+                            linhasDTO = linhasService.findByCodLinhasDTO(csv[7]);
 
                             linhasClass.setId(linhasDTO.getId());
                             linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
@@ -149,7 +149,7 @@ public class ProdutoService {
                             ProdutosDTO produtosDTO;
                             produtosDTO = new ProdutosDTO(null, csv[1], csv[0],
                                     Float.parseFloat(csv[2].replaceAll("[R$]", "")),
-                                    linhasService.findByCodLinhas(csv[7]).getId(), Float.parseFloat(csv[3]),
+                                    linhasService.findByCodLinhasDTO(csv[7]).getId(), Float.parseFloat(csv[3]),
                                     Float.parseFloat(csv[4]), csv[5], (LocalDateTime.parse((csv[6].substring(6, 10)
                                     + csv[6].substring(2, 6)
                                     + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")))
@@ -256,7 +256,7 @@ public class ProdutoService {
             //le as linhas
             while ((arquivo = leitor.readLine()) != null) {
                 String[] produtoCSV = arquivo.split(separator);
-                Optional<LinhasDTO> linhasOptional = Optional.ofNullable(linhasService.findByCodLinhas(produtoCSV[6]));
+                Optional<LinhasDTO> linhasOptional = Optional.ofNullable(linhasService.findByCodLinhasDTO(produtoCSV[6]));
                 Optional<Produtos> produtoExisteOptional = this.iProdutosRepository.findByCodProdutos(produtoCSV[0]);
 
                 //confere se existe se nao ele inseri
@@ -271,7 +271,7 @@ public class ProdutoService {
                     produtosDTO.setValidade(LocalDateTime.parse((produtoCSV[5].substring(6, 10)
                             + produtoCSV[5].substring(2, 6)
                             + produtoCSV[5].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));
-                    LinhasDTO linhasDTO = linhasService.findByCodLinhas(produtoCSV[6]);
+                    LinhasDTO linhasDTO = linhasService.findByCodLinhasDTO(produtoCSV[6]);
                     produtosDTO.setIdProdutosLinhas(linhasDTO.getId());
                     this.save(produtosDTO);
                 }
@@ -306,7 +306,7 @@ public class ProdutoService {
         produtos.setUnidade(produtosDTO.getUnidade());
         Long id = produtosDTO.getIdProdutosLinhas();
 
-        produtos.setLinhas(linhasService.findBylinhasId(id));
+        produtos.setLinhas(linhasService.findById(id));
 
         //Retorna para o postman
         Produtos save = this.iProdutosRepository.save(produtos);
@@ -354,7 +354,7 @@ public class ProdutoService {
             produtosExistente.setNomeProduto(produtosDTO.getNomeProduto());
             produtosExistente.setCodProdutos(produtosDTO.getCodProdutos());
             produtosExistente.setPreco(produtosDTO.getPreco());
-            produtosExistente.setLinhas(linhasService.findBylinhasId(produtosDTO.getIdProdutosLinhas()));
+            produtosExistente.setLinhas(linhasService.findById(produtosDTO.getIdProdutosLinhas()));
             produtosExistente.setUniPerCax(produtosDTO.getUniPerCax());
             produtosExistente.setPesoPerUni(produtosDTO.getPesoPerUni());
             produtosExistente.setValidade(produtosDTO.getValidade());

@@ -50,7 +50,7 @@ public class LinhasRest {
         LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
         //manda buscar
-        return this.linhasService.findById(id);
+        return this.linhasService.findByIdDTO(id);
     }
 
     @PutMapping("/{id}")

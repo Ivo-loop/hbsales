@@ -1,7 +1,6 @@
 package br.com.hbsis.pedido;
 
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.pedido.itens.Itens;
 import br.com.hbsis.pedido.itens.ItensService;
 import br.com.hbsis.vendas.Vendas;
@@ -17,19 +16,17 @@ import java.text.ParseException;
 public class PedidoCSVs {
     private final IPedidoRepository iPedidoRepository;
     private final FornecedorService fornecedorService;
-    private final FuncionarioService funcionarioService;
     private final ItensService itensService;
     private final VendasService vendasService;
 
-    public PedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, FuncionarioService funcionarioService, ItensService itensService, VendasService vendasService) {
+    public PedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, ItensService itensService, VendasService vendasService) {
         this.iPedidoRepository = iPedidoRepository;
         this.fornecedorService = fornecedorService;
-        this.funcionarioService = funcionarioService;
         this.itensService = itensService;
         this.vendasService = vendasService;
     }
 
-    public void exportCSV(HttpServletResponse response, Long id) throws IOException, ParseException {
+    void exportCSV(HttpServletResponse response, Long id) throws IOException, ParseException {
 
         //seta o nome do arq
         String categoriaCSV = "categoria.csv";
@@ -55,7 +52,6 @@ public class PedidoCSVs {
         printWriter.println(header);
 
         String nome = "";
-        Long cont = 0L;
 
         for (Vendas vendas : vendasService.findByAllIdFornecedor(id)) {
 
@@ -83,7 +79,7 @@ public class PedidoCSVs {
         printWriter.close();
     }
 
-    public void exportCSVFuncionario(HttpServletResponse response, Long id) throws IOException, ParseException {
+    void exportCSVFuncionario(HttpServletResponse response, Long id) throws IOException, ParseException {
 
         //seta o nome do arq
         String categoriaCSV = "categoria.csv";
@@ -109,7 +105,6 @@ public class PedidoCSVs {
         printWriter.println(header);
 
         String nome = "";
-        Long cont = 0L;
 
         for (Pedido pedido : iPedidoRepository.findByfuncionario_Id(id)) {
 
@@ -120,8 +115,6 @@ public class PedidoCSVs {
                     for (Itens itens : itensService.findByIdspedido(pedido.getId())) {
 
                         if (!nome.equals(itens.getProdutos().getNomeProduto())) {
-
-                            String funcionario = funcionarioService.findByIdFuncionario(id).getNomeFuncionario();
 
                             String dia = String.valueOf(vendas.getDiaInicial()).substring(0, 10) + " até " + String.valueOf(vendas.getDiaFinal()).substring(0, 10);
 

@@ -26,24 +26,24 @@ public class CarrinhoService {
         this.vendasService = vendasService;
     }
 
-    public Carrinho findbyId(Long id){
+    public Carrinho findbyId(Long id) {
         Optional<Carrinho> carrinhoOptional = iCarrinhoRepository.findById(id);
-        if(carrinhoOptional.isPresent()){
+        if (carrinhoOptional.isPresent()) {
             return carrinhoOptional.get();
         }
         throw new IllegalArgumentException(String.format("IdCarrinho %s não existe", id));
     }
 
-    public CarrinhoDTO findbyIdDTO(Long id){
+    CarrinhoDTO findbyIdDTO(Long id) {
         Optional<Carrinho> carrinhoOptional = iCarrinhoRepository.findById(id);
-        if(carrinhoOptional.isPresent()){
+        if (carrinhoOptional.isPresent()) {
             return CarrinhoDTO.of(carrinhoOptional.get());
         }
         throw new IllegalArgumentException(String.format("IdCarrinho %s não existe", id));
     }
 
     //salva o fornecedor no Database
-    public CarrinhoDTO criarPedido(CarrinhoDTO carrinhoDTO) {
+    CarrinhoDTO criarPedido(CarrinhoDTO carrinhoDTO) {
 
         this.validate(carrinhoDTO);
 

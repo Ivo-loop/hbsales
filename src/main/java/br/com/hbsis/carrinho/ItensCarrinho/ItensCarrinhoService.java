@@ -48,25 +48,6 @@ public class ItensCarrinhoService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public ItensCarrinho findByIdpedido(Long id) {
-        Optional<ItensCarrinho> fornecedorOptional = this.itensCarRepository.findByCarrinho_IdIs(id);
-
-        if (fornecedorOptional.isPresent()) {
-            return fornecedorOptional.get();
-        }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
-    public Long soma(Long idPedido, String idProduto) {
-        Long total = 0L;
-        for (ItensCarrinho itensCarrinho : this.findByIdsCarrinho(idPedido)) {
-            if (itensCarrinho.getProdutos().getNomeProduto().equals(idProduto)) {
-                total += itensCarrinho.getAmount();
-            }
-        }
-        return total;
-    }
-
     //salva o ItensCarrinho no Database
     public ItensCarrinhoDTO save(ItensCarrinhoDTO itensCarrinhoDTO) {
 
@@ -91,10 +72,6 @@ public class ItensCarrinhoService {
         LOGGER.info("Validando Item");
         Produtos produtos = produtoService.findByIdProduto(itensCarrinhoDTO.getIdProduto());
         Carrinho pedido = carrinhoService.findbyId(itensCarrinhoDTO.getIdCarrinho());
-
-        if (itensCarrinhoDTO == null) {
-            throw new IllegalArgumentException("fonecedoresDTO não deve ser nulo");
-        }
 
         if (itensCarrinhoDTO.getAmount() == null) {
             throw new IllegalArgumentException("Amount não deve ser nula/vazia");

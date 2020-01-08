@@ -1,5 +1,7 @@
 package br.com.hbsis.produtos;
 
+import br.com.hbsis.Tools.ExportImport.ExportCSV;
+import br.com.hbsis.Tools.ExportImport.ImportCSV;
 import br.com.hbsis.categorias.Categoria;
 import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
@@ -16,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -28,16 +28,20 @@ import java.util.Optional;
 @Service
 public class ProdutoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoService.class);
+    private final IProdutosRepository iProdutosRepository;
     private final FornecedorService fornecedorService;
     private final CategoriaService categoriaService;
     private final LinhasService linhasService;
-    private final IProdutosRepository iProdutosRepository;
+    private final ExportCSV exportCSV;
+    private final ImportCSV importCSV;
 
-    public ProdutoService(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, IProdutosRepository iProdutosRepository) {
+    public ProdutoService(FornecedorService fornecedorService, CategoriaService categoriaService, LinhasService linhasService, IProdutosRepository iProdutosRepository, ExportCSV exportCSV, ImportCSV importCSV) {
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
         this.linhasService = linhasService;
         this.iProdutosRepository = iProdutosRepository;
+        this.exportCSV = exportCSV;
+        this.importCSV = importCSV;
     }
 
     @Autowired
@@ -68,7 +72,7 @@ public class ProdutoService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public ProdutosDTO findByCodProdutos(String cod) {
+    private ProdutosDTO findByCodProdutos(String cod) {
         Optional<Produtos> categoriaOpcional = this.iProdutosRepository.findByCodProdutos(cod);
 
         if (categoriaOpcional.isPresent()) {
@@ -78,137 +82,110 @@ public class ProdutoService {
     }
 
     //importa produto do para o fornecedor
-    public void importProdutoFornecedor(String cod, MultipartFile file) throws Exception {
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        try (BufferedReader leitor = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+    void importProdutoFornecedor(String cod, MultipartFile multipartFile) {
+        String[][] CSV = importCSV.leitorCSV(multipartFile);
 
-            String arquivo = "";
-            String separator = ";";
+        for (String[] campo : CSV) {
+            if (campo[0] != null) {
 
-            //para pular uma linha
-            leitor.readLine();
+                String codProduto = campo[0],   nomeProduto = campo[1];
+                String precoProduto = campo[2], quant = campo[3];
+                String peso = campo[4],         unidadeMed = campo[5];
+                String codLinha = campo[7],     nomeLinha = campo[8];
+                String codCat = campo[9],       nomeCAT = campo[10];
+                String validade = (campo[6].substring(6, 10) + campo[6].substring(2, 6)
+                        + campo[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-");
 
-            //le as linhas
-            while ((arquivo = leitor.readLine()) != null) {
-                try {
-                    String[] csv = arquivo.split(separator);
+                //fornecedor existe
+                Optional<Fornecedor> optionalFornecedor = fornecedorService.findByCnpjOptional(cod);
+                if (optionalFornecedor.isPresent()) {
 
-                    //fornecedor existe
-                    Optional<Fornecedor> optionalFornecedor = fornecedorService.findByCnpjOptional(cod);
-                    if (optionalFornecedor.isPresent()) {
+                    //Categoria nao existe cria categoria
+                    Optional<Categoria> optionalCategoria = categoriaService.findByCodCategoriaOptinal(codCat);
+                    if (!optionalCategoria.isPresent()) {
+                        CategoriaDTO categoriaDTO;
+                        categoriaDTO = new CategoriaDTO(null, nomeCAT, fornecedorService.findByCnpj(cod).getId(), codCat.substring(7, 10));
+                        categoriaService.save(categoriaDTO);
+                    }
 
-                        //Categoria nao existe cria categoria
-                        Optional<Categoria> optionalCategoria = categoriaService.findByCodCategoriaOptinal(csv[9]);
-                        if (!optionalCategoria.isPresent()) {
-                            CategoriaDTO categoriaDTO;
-                            categoriaDTO = new CategoriaDTO(null, csv[10], fornecedorService.findByCnpj(cod).getId(), csv[9].substring(7, 10));
-                            categoriaService.save(categoriaDTO);
-                        }
+                    //Categoria existe procura e pega ela
+                    Optional<Categoria> optionalCategoria2 = categoriaService.findByCodCategoriaOptinal(codCat);
+                    if (!optionalCategoria.isPresent() && optionalCategoria2.isPresent()) {
 
-                        //Categoria existe procura e pega ela
-                        Optional<Categoria> optionalCategoria2 = categoriaService.findByCodCategoriaOptinal(csv[9]);
-                        if (!optionalCategoria.isPresent() && optionalCategoria2.isPresent()) {
+                        CategoriaDTO categoriaDTO;
+                        categoriaDTO = categoriaService.findByCodCategoria(codCat);
 
-                            CategoriaDTO categoriaDTO;
-                            categoriaDTO = categoriaService.findByCodCategoria(csv[9]);
-
-                            Categoria categoriaclass = categoriaService.setCategoria(categoriaDTO);
-
-                            categoriaclass.setFornecedor(fornecedorService.findById(fornecedorService.findByCnpj(cod).getId()));
-                        }
-
-                        //Linhas nao existe cria linhas
-                        Optional<Linhas> optionalLinhas = linhasService.findByCodLinhasOptional(csv[7]);
-                        if (!optionalLinhas.isPresent()) {
-                            LinhasDTO linhasDTO;
-                            linhasDTO = new LinhasDTO(null, csv[8], csv[7],
-                                    categoriaService.findByCodCategoria(csv[9]).getId());
-                            linhasService.save(linhasDTO);
-                        }
-
-                        //Linhas existe procura e pega ela
-                        Optional<Linhas> optionalLinhas1 = linhasService.findByCodLinhasOptional(csv[7]);
-                        if (!optionalLinhas.isPresent() && optionalLinhas1.isPresent()) {
-                            Categoria categoriaclass = new Categoria();
-
-                            Linhas linhasClass = new Linhas();
-                            LinhasDTO linhasDTO;
-
-                            linhasDTO = linhasService.findByCodLinhasDTO(csv[7]);
-
-                            linhasClass.setId(linhasDTO.getId());
-                            linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
-                            linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
-                            linhasClass.setCategoria(categoriaclass);
-                        }
-
-                        //Produto nao existe cria produtos
-                        Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(csv[0]);
-                        if (!optionalProdutos.isPresent()) {
-
-                            ProdutosDTO produtosDTO;
-                            produtosDTO = new ProdutosDTO(null, csv[1], csv[0],
-                                    Float.parseFloat(csv[2].replaceAll("[R$]", "")),
-                                    linhasService.findByCodLinhasDTO(csv[7]).getId(), Float.parseFloat(csv[3]),
-                                    Float.parseFloat(csv[4]), csv[5], (LocalDateTime.parse((csv[6].substring(6, 10)
-                                    + csv[6].substring(2, 6)
-                                    + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")))
-                            );
-                            this.save(produtosDTO);
-                        }
-
-                        if (optionalProdutos.isPresent()) {
-                            Linhas linhasClass = new Linhas();
-
-                            Produtos produtos = new Produtos();
-
-                            produtos.setCodProdutos(csv[0].toUpperCase());
-                            produtos.setNomeProduto(csv[1]);
-                            produtos.setPreco(Float.parseFloat(csv[2].replaceAll("[R$]", "")));
-                            produtos.setUniPerCax(Float.parseFloat(csv[3]));
-                            produtos.setPesoPerUni(Float.parseFloat(csv[4]));
-                            produtos.setUnidade(csv[5]);
-                            produtos.setValidade(LocalDateTime.parse((csv[6].substring(6, 10)
-                                    + csv[6].substring(2, 6)
-                                    + csv[6].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));
-                            produtos.setLinhas(linhasClass);
-
-                            produtos.setLinhas(linhasClass);
-
-                            this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(csv[0]).getId());
-                        }
+                        Categoria categoriaclass = categoriaService.setCategoria(categoriaDTO);
+                        categoriaclass.setFornecedor(fornecedorService.findById(fornecedorService.findByCnpj(cod).getId()));
 
                     }
-                    //fornecedor nao existe
-                    else {
-                        throw new IllegalArgumentException("fornecedor nao existe:" + cod);
+
+                    //Linhas nao existe cria linhas
+                    Optional<Linhas> optionalLinhas = linhasService.findByCodLinhasOptional(codLinha);
+                    if (!optionalLinhas.isPresent()) {
+                        LinhasDTO linhasDTO;
+                        linhasDTO = new LinhasDTO(null, nomeLinha, codLinha,
+                                categoriaService.findByCodCategoria(codCat).getId());
+                        linhasService.save(linhasDTO);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+
+                    //Linhas existe procura e pega ela
+                    Optional<Linhas> optionalLinhas1 = linhasService.findByCodLinhasOptional(codLinha);
+                    if (!optionalLinhas.isPresent() && optionalLinhas1.isPresent()) {
+                        Categoria categoriaclass = new Categoria();
+
+                        Linhas linhasClass = new Linhas();
+                        LinhasDTO linhasDTO;
+
+                        linhasDTO = linhasService.findByCodLinhasDTO(codLinha);
+
+                        linhasClass.setId(linhasDTO.getId());
+                        linhasClass.setNomeLinhas(linhasDTO.getNomeLinhas());
+                        linhasClass.setCodLinhas(linhasDTO.getCodLinhas());
+                        linhasClass.setCategoria(categoriaclass);
+                    }
+
+                    //Produto nao existe cria produtos
+                    Optional<Produtos> optionalProdutos = this.iProdutosRepository.findByCodProdutos(codProduto);
+                    if (!optionalProdutos.isPresent()) {
+
+                        ProdutosDTO produtosDTO;
+                        produtosDTO = new ProdutosDTO(null, nomeProduto, codProduto,
+                                Float.parseFloat(precoProduto),
+                                linhasService.findByCodLinhasDTO(codLinha).getId(), Float.parseFloat(nomeProduto),
+                                Float.parseFloat(peso), unidadeMed, (LocalDateTime.parse(validade))
+                        );
+                        this.save(produtosDTO);
+                    }
+
+                    if (optionalProdutos.isPresent()) {
+                        Linhas linhasClass = new Linhas();
+                        Produtos produtos = new Produtos();
+
+                        produtos.setCodProdutos(codProduto.toUpperCase());
+                        produtos.setNomeProduto(nomeProduto);
+                        produtos.setPreco(Float.parseFloat(precoProduto));
+                        produtos.setUniPerCax(Float.parseFloat(quant));
+                        produtos.setPesoPerUni(Float.parseFloat(peso));
+                        produtos.setUnidade(unidadeMed);
+                        produtos.setValidade(LocalDateTime.parse((validade)));
+                        produtos.setLinhas(linhasClass);
+
+                        this.update(ProdutosDTO.of(produtos), this.findByCodProdutos(codProduto).getId());
+                    }
                 }
             }
+            //fornecedor nao existe
+            else {
+                throw new IllegalArgumentException("fornecedor nao existe:" + cod);
+            }
         }
+
     }
 
+
     //Faz a exportacao do banco
-    public void exportCSV(HttpServletResponse response) throws IOException, ParseException {
-
-        //seta o nome do arq
-        String categoriaCSV = "produto.csv";
-
-        //seta o tipo do arq da resposta
-        response.setContentType("text/csv");
-
-        //config do header
-        String headerKey = "Content-Disposition";
-
-        //como é aberto em anexo
-        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
-
-        response.setHeader(headerKey, headerValue);
-
-        //instancia Print e seta como escritor
-        PrintWriter printWriter = response.getWriter();
+    void exportCSV(HttpServletResponse response) throws IOException, ParseException {
 
         //seta cabeça do cvs
         String header = " código ; nome ; preço ; quantidade ; peso ; validade ;" +
@@ -216,19 +193,19 @@ public class ProdutoService {
                 " Código da Categoria ; Nome da Categoria ;" +
                 "CNPJ ; razão social";
 
-        // escreve o cabeçario
-        printWriter.println(header);
+        exportCSV.writerHeader(response, header, "Produtos");
+        PrintWriter printWriter = response.getWriter();
+
         for (Produtos produtos : iProdutosRepository.findAll()) {
 
             String splitar = String.valueOf(produtos.getValidade());
-            String[] splitado = splitar.split("-");
+            String validade = splitar.substring(0,10).replaceAll("-","/");
 
             String nome = produtos.getNomeProduto();
             String cod = produtos.getCodProdutos();
             String preco = "R$" + (produtos.getPreco());
             String perCaixa = String.valueOf(produtos.getUniPerCax());
             String pesoPerUnid = produtos.getPesoPerUni() + produtos.getUnidade();
-            String validade = splitado[2].substring(0, 2) + "/" + splitado[1] + "/" + splitado[0];
 
             String codLinnhas = produtos.getLinhas().getCodLinhas();
             String nomeLinhas = produtos.getLinhas().getNomeLinhas();
@@ -236,48 +213,46 @@ public class ProdutoService {
             String nomeCategoria = produtos.getLinhas().getCategoria().getNomeCategoria();
             String cnpj = fornecedorService.getCnpjMask(produtos.getLinhas().getCategoria().getFornecedor().getCnpj());
             String razao = produtos.getLinhas().getCategoria().getFornecedor().getRazao();
+
             //escreve os dados
-            printWriter.println(cod + ";" + nome + ";" + preco + ";" + perCaixa + ";" + pesoPerUnid + ";" + validade
-                    + ";" + codLinnhas + ";" + nomeLinhas + ";" + codCategoria + ";" + nomeCategoria
-                    + ";" + cnpj + ";" + razao
+            printWriter.println(cod + ";" + nome + ";" + preco + ";" + perCaixa + ";" + pesoPerUnid
+                    + ";" + validade + ";" + codLinnhas + ";" + nomeLinhas + ";" + codCategoria
+                    + ";" + nomeCategoria + ";" + cnpj + ";" + razao
             );
         }
         printWriter.close();
     }
 
     //Faz a importacao do banco
-    public void importCSV(MultipartFile importCategoria) {
-        String arquivo = "";
-        String separator = ";";
-        //achado na net
-        try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
-            //para pular uma linha
-            leitor.readLine();
-            //le as linhas
-            while ((arquivo = leitor.readLine()) != null) {
-                String[] produtoCSV = arquivo.split(separator);
-                Optional<LinhasDTO> linhasOptional = Optional.ofNullable(linhasService.findByCodLinhasDTO(produtoCSV[6]));
-                Optional<Produtos> produtoExisteOptional = this.iProdutosRepository.findByCodProdutos(produtoCSV[0]);
+    void importCSV(MultipartFile multipartFile) {
+        String[][] CSV = importCSV.leitorCSV(multipartFile);
+
+        for (String[] campo : CSV) {
+            if (campo[0] != null) {
+                String codProdutos = campo[0];
+                String nomeProduto = campo[1];
+                String preco = campo[2].replaceAll("[R$]", "");
+                String uniPerCax = campo[3];
+                String pesoPerUni = campo[4].replaceAll("[kgm]", "");
+                String unidade = campo[4].replaceAll("[\\d,]", "");
+                String validade = (campo[5].substring(6, 10) + campo[5].substring(2, 6)
+                        + campo[5].substring(0, 2) + "T00:00:00").replaceAll("/", "-");
+                String codLinhas = campo[5];
+
+                Optional<LinhasDTO> linhasOptional = Optional.ofNullable(linhasService.findByCodLinhasDTO(campo[6]));
+                Optional<Produtos> produtoExisteOptional = this.iProdutosRepository.findByCodProdutos(campo[0]);
 
                 //confere se existe se nao ele inseri
                 if (!(produtoExisteOptional.isPresent()) && linhasOptional.isPresent()) {
-                    ProdutosDTO produtosDTO = new ProdutosDTO();
-                    produtosDTO.setNomeProduto(produtoCSV[1]);
-                    produtosDTO.setCodProdutos(produtoCSV[0]);
-                    produtosDTO.setPreco(Float.parseFloat(produtoCSV[2].replaceAll("[R$]", "")));
-                    produtosDTO.setUniPerCax(Float.parseFloat(produtoCSV[3]));
-                    produtosDTO.setPesoPerUni(Float.parseFloat(produtoCSV[4].replaceAll("[kgm]", "")));
-                    produtosDTO.setUnidade(produtoCSV[4].replaceAll("[\\d,]", ""));
-                    produtosDTO.setValidade(LocalDateTime.parse((produtoCSV[5].substring(6, 10)
-                            + produtoCSV[5].substring(2, 6)
-                            + produtoCSV[5].substring(0, 2) + "T00:00:00").replaceAll("/", "-")));
-                    LinhasDTO linhasDTO = linhasService.findByCodLinhasDTO(produtoCSV[6]);
-                    produtosDTO.setIdProdutosLinhas(linhasDTO.getId());
+                    ProdutosDTO produtosDTO = new ProdutosDTO(null, nomeProduto,
+                            codProdutos, Float.parseFloat(preco),
+                            linhasService.findByCodLinhasDTO(codLinhas).getId(),
+                            Float.parseFloat(uniPerCax), Float.parseFloat(pesoPerUni),
+                            unidade, LocalDateTime.parse(validade)
+                    );
                     this.save(produtosDTO);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -290,15 +265,13 @@ public class ProdutoService {
         LOGGER.debug("br.com.hbsis.Produto: {}", produtosDTO);
 
         Produtos produtos = new Produtos();
-
-        String cont = String.valueOf(produtosDTO.getCodProdutos());
-
+        StringBuilder cont = new StringBuilder(String.valueOf(produtosDTO.getCodProdutos()));
         for (; cont.length() < 10; ) {
-            cont = "0" + cont;
+            cont.insert(0, "0");
         }
 
         produtos.setNomeProduto(produtosDTO.getNomeProduto());
-        produtos.setCodProdutos(cont.toUpperCase());
+        produtos.setCodProdutos(cont.toString().toUpperCase());
         produtos.setPreco(produtosDTO.getPreco());
         produtos.setPesoPerUni(produtosDTO.getPesoPerUni());
         produtos.setUniPerCax(produtosDTO.getUniPerCax());
@@ -372,5 +345,4 @@ public class ProdutoService {
 
         this.iProdutosRepository.deleteById(id);
     }
-
 }

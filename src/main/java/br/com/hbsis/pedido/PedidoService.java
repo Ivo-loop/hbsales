@@ -5,7 +5,7 @@ import br.com.hbsis.carrinho.Carrinho;
 import br.com.hbsis.carrinho.CarrinhoService;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.FuncionarioService;
-import br.com.hbsis.mail.Mail;
+import br.com.hbsis.Tools.mail.Mail;
 import br.com.hbsis.pedido.itens.ItensTransforme;
 import br.com.hbsis.vendas.VendasService;
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class PedidoService {
     }
 
 
-    public List<Pedido> pedidoFuncionario(Long id) {
+    List<Pedido> pedidoFuncionario(Long id) {
         List<Pedido> fornecedorOptional = this.iPedidoRepository.findByfuncionario_Id(id);
 
         if (!fornecedorOptional.isEmpty()) {
@@ -147,7 +147,7 @@ public class PedidoService {
     }
 
     // Altera as informacoes do banco
-    public PedidoDTO cancela(PedidoDTO pedidoDTO, Long id) {
+    PedidoDTO cancela(PedidoDTO pedidoDTO, Long id) {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
         if (vendasService.validaCompra(LocalDateTime.now(), pedidoDTO.getIdFornecedor())) {
@@ -170,7 +170,7 @@ public class PedidoService {
     }
 
     // Altera as informacoes do banco
-    public PedidoDTO retirado(PedidoDTO pedidoDTO, Long id) {
+    PedidoDTO retirado(PedidoDTO pedidoDTO, Long id) {
         Optional<Pedido> produtoExistenteOptional = this.iPedidoRepository.findById(id);
         this.validate(pedidoDTO);
         if (vendasService.validaRetirada(LocalDateTime.now(), pedidoDTO.getIdFornecedor())) {

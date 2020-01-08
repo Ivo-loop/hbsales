@@ -1,7 +1,7 @@
 package br.com.hbsis.categorias;
 
-import br.com.hbsis.ExportImport.ExportCSV;
-import br.com.hbsis.ExportImport.ImportCSV;
+import br.com.hbsis.Tools.ExportImport.ExportCSV;
+import br.com.hbsis.Tools.ExportImport.ImportCSV;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
 import org.apache.commons.lang.StringUtils;

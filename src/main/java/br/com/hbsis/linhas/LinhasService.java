@@ -1,7 +1,7 @@
 package br.com.hbsis.linhas;
 
-import br.com.hbsis.ExportImport.ExportCSV;
-import br.com.hbsis.ExportImport.ImportCSV;
+import br.com.hbsis.Tools.ExportImport.ExportCSV;
+import br.com.hbsis.Tools.ExportImport.ImportCSV;
 import br.com.hbsis.categorias.Categoria;
 import br.com.hbsis.categorias.CategoriaDTO;
 import br.com.hbsis.categorias.CategoriaService;
@@ -81,8 +81,8 @@ public class LinhasService {
     }
 
     //Faz a importacao do banco
-    void importCSV(MultipartFile importCategoria) {
-        String[][] CSV = importCSV.leitorCSV(importCategoria);
+    void importCSV(MultipartFile multipartFile) {
+        String[][] CSV = importCSV.leitorCSV(multipartFile);
 
         for (String[] campo : CSV) {
 

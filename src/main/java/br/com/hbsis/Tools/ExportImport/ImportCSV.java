@@ -1,4 +1,4 @@
-package br.com.hbsis.ExportImport;
+package br.com.hbsis.Tools.ExportImport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ public class ImportCSV {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportCSV.class);
 
     public String[][] leitorCSV(MultipartFile importCategoria) {
-        String[][] CSV = new String[10000][11];
+        String[][] CSV = new String[10000][12];
 
         try (BufferedReader leitor = new BufferedReader(new InputStreamReader(importCategoria.getInputStream()))) {
 

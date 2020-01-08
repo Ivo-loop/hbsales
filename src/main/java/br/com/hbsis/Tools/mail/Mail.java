@@ -1,4 +1,4 @@
-package br.com.hbsis.mail;
+package br.com.hbsis.Tools.mail;
 
 import br.com.hbsis.pedido.Pedido;
 import br.com.hbsis.vendas.VendasService;

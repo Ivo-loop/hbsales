@@ -1,5 +1,6 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.Tools.ExportImport.ExportCSV;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.pedido.itens.Itens;
 import br.com.hbsis.pedido.itens.ItensService;
@@ -16,40 +17,25 @@ import java.text.ParseException;
 public class PedidoCSVs {
     private final IPedidoRepository iPedidoRepository;
     private final FornecedorService fornecedorService;
-    private final ItensService itensService;
     private final VendasService vendasService;
+    private final ItensService itensService;
+    private final ExportCSV exportCSV;
 
-    public PedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, ItensService itensService, VendasService vendasService) {
+    public PedidoCSVs(IPedidoRepository iPedidoRepository, FornecedorService fornecedorService, ItensService itensService, VendasService vendasService, ExportCSV exportCSV) {
         this.iPedidoRepository = iPedidoRepository;
         this.fornecedorService = fornecedorService;
         this.itensService = itensService;
         this.vendasService = vendasService;
+        this.exportCSV = exportCSV;
     }
 
     void exportCSV(HttpServletResponse response, Long id) throws IOException, ParseException {
 
-        //seta o nome do arq
-        String categoriaCSV = "categoria.csv";
-
-        //seta o tipo do arq da resposta
-        response.setContentType("text/csv");
-
-        //config do header
-        String headerKey = "Content-Disposition";
-
-        //como é aberto em anexo
-        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
-
-        response.setHeader(headerKey, headerValue);
-
-        //instancia Print e seta como escritor
-        PrintWriter printWriter = response.getWriter();
-
         //seta cabeça do cvs
         String header = "Periodo ; nome_produto ; quantidade ; fornecedor ";
 
-        // escreve o cabeçario
-        printWriter.println(header);
+        exportCSV.writerHeader(response, header, "Pedido");
+        PrintWriter printWriter = response.getWriter();
 
         String nome = "";
 
@@ -81,28 +67,11 @@ public class PedidoCSVs {
 
     void exportCSVFuncionario(HttpServletResponse response, Long id) throws IOException, ParseException {
 
-        //seta o nome do arq
-        String categoriaCSV = "categoria.csv";
-
-        //seta o tipo do arq da resposta
-        response.setContentType("text/csv");
-
-        //config do header
-        String headerKey = "Content-Disposition";
-
-        //como é aberto em anexo
-        String headerValue = String.format("attachment; filename=\"%s\"", categoriaCSV);
-
-        response.setHeader(headerKey, headerValue);
-
-        //instancia Print e seta como escritor
-        PrintWriter printWriter = response.getWriter();
-
         //seta cabeça do cvs
         String header = " nome_funcionario ; Periodo ; nome_produto ; quantidade ; fornecedor ";
 
-        // escreve o cabeçario
-        printWriter.println(header);
+        exportCSV.writerHeader(response, header, "Pedido");
+        PrintWriter printWriter = response.getWriter();
 
         String nome = "";
 
